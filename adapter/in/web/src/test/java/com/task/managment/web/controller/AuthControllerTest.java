@@ -6,14 +6,12 @@ import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.RegisterUserUseCase;
 import com.task.management.application.port.in.dto.RegisterUserDto;
 import com.task.management.application.port.out.UserRepository;
+import com.task.managment.web.TestUtils;
+import com.task.managment.web.WebTest;
 import com.task.managment.web.security.SecuredUser;
-import com.task.managment.web.security.SecurityConfiguration;
-import com.task.managment.web.security.UserDetailServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,6 +23,11 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.Random;
 
+import static com.task.managment.web.TestUtils.EMAIL;
+import static com.task.managment.web.TestUtils.ENCRYPTED_PASSWORD;
+import static com.task.managment.web.TestUtils.FIRST_NAME;
+import static com.task.managment.web.TestUtils.LAST_NAME;
+import static com.task.managment.web.TestUtils.PASSWORD;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -36,24 +39,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(
-        classes = {
-                WebTestConfiguration.class,
-                GlobalExceptionHandler.class,
-                AuthController.class,
-                SecurityConfiguration.class,
-                UserDetailServiceImpl.class
-        },
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
-@AutoConfigureMockMvc
+@WebTest
 class AuthControllerTest {
-
-    private final static String EMAIL = "test@domain.com";
-    private final static String FIRST_NAME = "John";
-    private final static String LAST_NAME = "Doe";
-    private final static String PASSWORD = "password123";
-    private final static String ENCRYPTED_PASSWORD = "encryptedPassword";
 
     @Autowired
     private MockMvc mockMvc;
@@ -69,7 +56,7 @@ class AuthControllerTest {
     @WithAnonymousUser
     @Test
     void login_shouldReturnOk_whenAllConditionsMet() throws Exception {
-        final var user = getUser();
+        final var user = TestUtils.DEFAULT_USER;
         doReturn(true).when(passwordEncoder).matches(eq(PASSWORD), eq(user.getEncryptedPassword()));
         doReturn(new SecuredUser(user)).when(userDetailsService).loadUserByUsername(eq(user.getEmail()));
         mockMvc.perform(post("/api/auth/login")
@@ -83,7 +70,7 @@ class AuthControllerTest {
     @WithAnonymousUser
     @Test
     void login_shouldReturnUnauthorized_whenPasswordDoesNotMatch() throws Exception {
-        final var user = getUser();
+        final var user = TestUtils.DEFAULT_USER;
         doReturn(false).when(passwordEncoder).matches(eq(PASSWORD), eq(user.getEncryptedPassword()));
         doReturn(new SecuredUser(user)).when(userDetailsService).loadUserByUsername(eq(user.getEmail()));
         mockMvc.perform(post("/api/auth/login")
@@ -172,16 +159,6 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.errors.email").value("Email is required"))
                 .andExpect(jsonPath("$.errors.password").value("Password is required"))
                 .andExpect(jsonPath("$.path").value("/api/auth/register"));
-    }
-
-    private static User getUser() {
-        return User.builder()
-                .id(new UserId(new Random().nextLong()))
-                .email(EMAIL)
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .encryptedPassword(ENCRYPTED_PASSWORD)
-                .build();
     }
 
     private static RegisterUserDto getRegisterUserDto() {
