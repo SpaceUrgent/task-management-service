@@ -1,6 +1,7 @@
 package com.task.managment.web.security;
 
 import com.task.management.application.model.User;
+import com.task.management.application.model.UserId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -14,6 +15,10 @@ public class SecuredUser implements UserDetails {
 
     public SecuredUser(User user) {
         this.user = requireNonNull(user);
+    }
+
+    public UserId getId() {
+        return user.getId();
     }
 
     @Override

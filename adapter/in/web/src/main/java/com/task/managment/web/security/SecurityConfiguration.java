@@ -25,6 +25,21 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(registry -> registry
                         .requestMatchers("/api/auth/register").permitAll()
                         .anyRequest().authenticated())
+                .formLogin(configurer -> configurer
+                        .loginProcessingUrl("/api/auth/login").permitAll()
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .failureHandler(((request, response, exception) -> {
+                            response.setStatus(401);
+                        }))
+                        .successHandler(((request, response, authentication) -> {
+                            response.setStatus(200);
+                        })))
+                .logout(configurer -> configurer
+                        .logoutUrl("/api/auth/logout")
+                        .logoutSuccessHandler(((request, response, authentication) -> {
+                            response.setStatus(200);
+                        })))
                 .build();
     }
 
