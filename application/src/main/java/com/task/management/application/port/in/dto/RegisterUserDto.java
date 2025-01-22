@@ -17,6 +17,7 @@ public class RegisterUserDto {
     @NotBlank(message = "Last name is required")
     private String lastName;
     @ToString.Exclude
+    @NotNull(message = "Password is required")
     @Size(min = 8, message = "Password must contain at least 8 characters")
     private char[] password;
 }

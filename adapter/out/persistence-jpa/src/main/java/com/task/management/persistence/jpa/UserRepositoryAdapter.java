@@ -1,14 +1,11 @@
 package com.task.management.persistence.jpa;
 
 import com.task.management.application.model.User;
-import com.task.management.application.model.UserId;
 import com.task.management.application.port.out.UserRepository;
-import com.task.management.persistence.jpa.entity.UserEntity;
 import com.task.management.persistence.jpa.mapper.UserMapper;
 import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
@@ -17,6 +14,12 @@ import static java.util.Objects.requireNonNull;
 public class UserRepositoryAdapter implements UserRepository {
     private final JpaUserRepository jpaUserRepository;
     private final UserMapper userMapper;
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        requireNonNull(email, "Email is required");
+        return jpaUserRepository.findByEmail(email).map(userMapper::toModel);
+    }
 
     @Override
     public User add(final User user) {
