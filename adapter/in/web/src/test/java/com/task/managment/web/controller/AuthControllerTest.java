@@ -34,14 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         classes = {
                 WebTestConfiguration.class,
                 GlobalExceptionHandler.class,
-                UserController.class,
+                AuthController.class,
                 SecurityConfiguration.class,
                 UserDetailServiceImpl.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
-class UserControllerTest {
+class AuthControllerTest {
     
     @Autowired
     private MockMvc mockMvc;
@@ -55,7 +55,7 @@ class UserControllerTest {
     void register_shouldReturnRegisteredUserDto_whenAllConditionsMet() throws Exception {
         final var givenRequestDto = getRegisterUserDto();
         doAnswer(registerUserAnswer()).when(registerUserUseCase).register(eq(givenRequestDto));
-        mockMvc.perform(post("/api/users/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(new LinkedMultiValueMap<>() {{
                             add("email", givenRequestDto.getEmail());
@@ -77,7 +77,7 @@ class UserControllerTest {
         final var givenRequestDto = getRegisterUserDto();
         final var errorMessage = "User with email '%s' exits".formatted(givenRequestDto.getEmail());
         doThrow(new EmailExistsException(errorMessage)).when(registerUserUseCase).register(eq(givenRequestDto));
-        mockMvc.perform(post("/api/users/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(new LinkedMultiValueMap<>() {{
                             add("email", givenRequestDto.getEmail());
@@ -91,13 +91,13 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.reason").value("Bad request"))
                 .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/users/register"));
+                .andExpect(jsonPath("$.path").value("/api/auth/register"));
     }
 
     @WithAnonymousUser
     @Test
     void register_shouldReturnBadRequest_whenNoParametersPresent() throws Exception {
-        mockMvc.perform(post("/api/users/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -109,7 +109,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.errors.lastName").value("Last name is required"))
                 .andExpect(jsonPath("$.errors.email").value("Email is required"))
                 .andExpect(jsonPath("$.errors.password").value("Password is required"))
-                .andExpect(jsonPath("$.path").value("/api/users/register"));
+                .andExpect(jsonPath("$.path").value("/api/auth/register"));
     }
 
     private static RegisterUserDto getRegisterUserDto() {

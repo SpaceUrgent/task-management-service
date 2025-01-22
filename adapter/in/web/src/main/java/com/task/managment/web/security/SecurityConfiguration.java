@@ -23,7 +23,7 @@ public class SecurityConfiguration {
                 .sessionManagement(configurer -> configurer
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(registry -> registry
-                        .requestMatchers("/api/users/register").permitAll()
+                        .requestMatchers("/api/auth/register").permitAll()
                         .anyRequest().authenticated())
                 .build();
     }
