@@ -1,6 +1,7 @@
 package com.task.management.persistence.jpa;
 
 import com.task.management.application.model.User;
+import com.task.management.application.model.UserId;
 import com.task.management.application.port.out.UserRepository;
 import com.task.management.persistence.jpa.mapper.UserMapper;
 import com.task.management.persistence.jpa.repository.JpaUserRepository;
@@ -11,9 +12,15 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
-public class UserRepositoryAdapter implements UserRepository {
+public class JpaUserRepositoryAdapter implements UserRepository {
     private final JpaUserRepository jpaUserRepository;
     private final UserMapper userMapper;
+
+    @Override
+    public Optional<User> findById(UserId id) {
+        requireNonNull(id, "User id is required");
+        return jpaUserRepository.findById(id.value()).map(userMapper::toModel);
+    }
 
     @Override
     public Optional<User> findByEmail(String email) {

@@ -1,6 +1,7 @@
 package com.task.management.persistence.jpa;
 
 import com.task.management.application.model.User;
+import com.task.management.application.model.UserId;
 import com.task.management.application.port.out.UserRepository;
 import com.task.management.persistence.jpa.entity.UserEntity;
 import com.task.management.persistence.jpa.repository.JpaUserRepository;
@@ -11,11 +12,13 @@ import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = JpaTestConfiguration.class)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
-class UserRepositoryAdapterTest {
+class JpaUserRepositoryAdapterTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -25,6 +28,20 @@ class UserRepositoryAdapterTest {
     @BeforeEach
     void setUp() {
         jpaUserRepository.deleteAll();
+    }
+
+    @Test
+    void findById_shouldReturnOptionalOfUser_whenUserExists() {
+        final var expectedUser = userRepository.add(getTestUser());
+        final var userOptional = userRepository.findById(expectedUser.getId());
+        assertTrue(userOptional.isPresent());
+        assertEquals(expectedUser, userOptional.get());
+    }
+
+    @Test
+    void findById_shouldReturnEmptyOptional_whenUserDoesNotExist() {
+        final var givenId = randomUserId();
+        assertTrue(userRepository.findById(givenId).isEmpty());
     }
 
     @Test
@@ -56,6 +73,10 @@ class UserRepositoryAdapterTest {
                 .lastName("Doe")
                 .encryptedPassword("encryptedPassword")
                 .build();
+    }
+
+    private static UserId randomUserId() {
+        return new UserId(new Random().nextLong());
     }
 
     private static void assertMatches(User expected, UserEntity actual) {

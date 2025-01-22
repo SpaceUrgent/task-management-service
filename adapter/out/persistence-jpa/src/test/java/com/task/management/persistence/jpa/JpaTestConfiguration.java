@@ -18,7 +18,7 @@ public class JpaTestConfiguration {
     @Bean
     public UserRepository userRepositoryAdapter(JpaUserRepository jpaUserRepository,
                                                 UserMapper userMapper) {
-        return new UserRepositoryAdapter(jpaUserRepository, userMapper);
+        return new JpaUserRepositoryAdapter(jpaUserRepository, userMapper);
     }
 
     @Bean
