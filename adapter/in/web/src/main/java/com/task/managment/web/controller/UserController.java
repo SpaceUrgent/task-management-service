@@ -28,17 +28,17 @@ public class UserController {
             value = "/profile",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public UserDto getUserProfile() throws UserNotFoundException {
+    public UserDto getUserProfile() {
         final var user = getUserUseCase.getUser(currentUser().getId());
         return userMapper.toDto(user);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(UserNotFoundException.class)
     public ErrorDto handleUserNotFoundException(UserNotFoundException exception,
                                                 HttpServletRequest request) {
         return ErrorDto.builder()
-                .reason("Bad request")
+                .reason("Internal error")
                 .message(exception.getMessage())
                 .request(request)
                 .build();

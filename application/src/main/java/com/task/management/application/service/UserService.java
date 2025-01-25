@@ -12,8 +12,6 @@ import com.task.management.application.port.out.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
@@ -43,9 +41,17 @@ public class UserService implements RegisterUserUseCase,
     }
 
     @Override
-    public User getUser(final UserId id) throws UserNotFoundException {
-        requireNonNull(id, "User id is required");
+    public User getUser(final UserId id) {
+        userIdRequired(id);
+        return findByIdOrThrow(id);
+    }
+
+    private User findByIdOrThrow(UserId id) throws UserNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    private static void userIdRequired(UserId id) {
+        requireNonNull(id, "User id is required");
     }
 }

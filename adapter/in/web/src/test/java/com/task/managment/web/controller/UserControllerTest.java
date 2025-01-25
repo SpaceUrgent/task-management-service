@@ -47,15 +47,15 @@ class UserControllerTest {
 
     @MockUser
     @Test
-    void getUserProfile_shouldReturnBadRequest_whenAllUserNotFound() throws Exception {
+    void getUserProfile_shouldReturnInternalError_whenAllUserNotFound() throws Exception {
         final var errorMessage = "User not found";
         doThrow(new UserNotFoundException(errorMessage)).when(getUserUseCase).getUser(any());
         mockMvc.perform(get("/api/users/profile"))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isInternalServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Bad request"))
+                .andExpect(jsonPath("$.reason").value("Internal error"))
                 .andExpect(jsonPath("$.message").value(errorMessage))
                 .andExpect(jsonPath("$.path").value("/api/users/profile"));
     }
