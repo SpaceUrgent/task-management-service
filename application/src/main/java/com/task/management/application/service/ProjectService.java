@@ -4,7 +4,7 @@ import com.task.management.application.model.Project;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.CreateProjectUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
-import com.task.management.application.port.out.ProjectRepository;
+import com.task.management.application.port.out.AddProjectPort;
 import lombok.RequiredArgsConstructor;
 
 import static com.task.management.application.service.ValidationService.userIdRequired;
@@ -13,7 +13,7 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor
 public class ProjectService implements CreateProjectUseCase {
     private final ValidationService validationService;
-    private final ProjectRepository projectRepository;
+    private final AddProjectPort projectRepository;
 
     @Override
     public Project createProject(final UserId userId,

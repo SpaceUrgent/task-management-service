@@ -5,15 +5,16 @@ import com.task.management.application.exception.UserNotFoundException;
 import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.dto.RegisterUserDto;
-import com.task.management.application.port.out.PasswordEncryptor;
-import com.task.management.application.port.out.UserRepository;
+import com.task.management.application.port.out.AddUserPort;
+import com.task.management.application.port.out.EmailExistsPort;
+import com.task.management.application.port.out.EncryptPasswordPort;
+import com.task.management.application.port.out.FindUserPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Random;
 
@@ -37,9 +38,13 @@ class UserServiceTest {
     @Mock
     private ValidationService validationService;
     @Mock
-    private UserRepository userRepository;
+    private EncryptPasswordPort passwordEncryptor;
     @Mock
-    private PasswordEncryptor passwordEncryptor;
+    private EmailExistsPort emailExistsPort;
+    @Mock
+    private AddUserPort addUserPort;
+    @Mock
+    private FindUserPort findUserPort;
     @InjectMocks
     private UserService userService;
 
@@ -47,9 +52,9 @@ class UserServiceTest {
     void register_shouldCreateNewUser_whenAllConditionsMet() throws EmailExistsException {
         final var registerDto = getRegisterUserDto();
 
-        when(userRepository.emailExists(registerDto.getEmail())).thenReturn(false);
+        when(emailExistsPort.emailExists(registerDto.getEmail())).thenReturn(false);
         when(passwordEncryptor.encrypt(registerDto.getPassword())).thenReturn(ENCRYPTED_PASSWORD);
-        when(userRepository.add(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(addUserPort.add(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         User result = userService.register(registerDto);
 
@@ -65,7 +70,7 @@ class UserServiceTest {
     @Test
     void register_shouldThrowEmailExistsException_whenUserWithGivenExists() throws EmailExistsException {
         final var registerDto = getRegisterUserDto();
-        when(userRepository.emailExists(registerDto.getEmail())).thenReturn(true);
+        when(emailExistsPort.emailExists(registerDto.getEmail())).thenReturn(true);
         final var exception = assertThrows(
                 EmailExistsException.class,
                 () -> userService.register(registerDto)
@@ -76,14 +81,14 @@ class UserServiceTest {
     @Test
     void getUser_shouldReturnUser_whenAllConditionsMet() throws UserNotFoundException {
         final var expectedUser = getUser();
-        doReturn(Optional.of(expectedUser)).when(userRepository).findById(eq(expectedUser.getId()));
+        doReturn(Optional.of(expectedUser)).when(findUserPort).findById(eq(expectedUser.getId()));
         assertEquals(expectedUser, userService.getUser(expectedUser.getId()));
     }
 
     @Test
     void getUser_shouldThrowUserNotFoundException_whenUserDoesNotExist() throws UserNotFoundException {
         final var givenUserId = randomUserId();
-        doReturn(Optional.empty()).when(userRepository).findById(eq(givenUserId));
+        doReturn(Optional.empty()).when(findUserPort).findById(eq(givenUserId));
         final var exception = assertThrows(
                 UserNotFoundException.class,
                 () -> userService.getUser(givenUserId)

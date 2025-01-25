@@ -1,6 +1,5 @@
 package com.task.management.persistence.jpa;
 
-import com.task.management.application.port.out.UserRepository;
 import com.task.management.persistence.jpa.mapper.UserMapper;
 import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -16,7 +15,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class JpaTestConfiguration {
 
     @Bean
-    public UserRepository userRepositoryAdapter(JpaUserRepository jpaUserRepository,
+    public JpaUserRepositoryAdapter userRepositoryAdapter(JpaUserRepository jpaUserRepository,
                                                 UserMapper userMapper) {
         return new JpaUserRepositoryAdapter(jpaUserRepository, userMapper);
     }

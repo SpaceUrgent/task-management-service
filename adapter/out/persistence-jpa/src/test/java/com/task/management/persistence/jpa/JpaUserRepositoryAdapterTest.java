@@ -2,7 +2,6 @@ package com.task.management.persistence.jpa;
 
 import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
-import com.task.management.application.port.out.UserRepository;
 import com.task.management.persistence.jpa.entity.UserEntity;
 import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JpaUserRepositoryAdapterTest {
 
     @Autowired
-    private UserRepository userRepository;
+    private JpaUserRepositoryAdapter userRepository;
     @Autowired
     private JpaUserRepository jpaUserRepository;
 

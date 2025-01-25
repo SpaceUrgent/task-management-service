@@ -2,7 +2,7 @@ package com.task.management.application.service;
 
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.dto.CreateProjectDto;
-import com.task.management.application.port.out.ProjectRepository;
+import com.task.management.application.port.out.AddProjectPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ class ProjectServiceTest {
     @Mock
     private ValidationService validationService;
     @Mock
-    private ProjectRepository projectRepository;
+    private AddProjectPort projectRepository;
     @InjectMocks
     private ProjectService projectService;
 

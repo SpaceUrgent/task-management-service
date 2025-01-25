@@ -5,12 +5,8 @@ import com.task.management.application.model.UserId;
 
 import java.util.Optional;
 
-public interface UserRepository {
+public interface FindUserPort {
     Optional<User> findById(UserId id);
 
     Optional<User> findByEmail(String email);
-
-    User add(User user);
-
-    boolean emailExists(String email);
 }
