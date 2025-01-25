@@ -4,12 +4,13 @@ import com.task.management.application.common.Page;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.management.application.model.Project;
+import com.task.management.application.model.ProjectDetails;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
-import com.task.management.application.port.in.GetAvailableProjectsUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
 import com.task.management.application.port.out.AddProjectMemberPort;
 import com.task.management.application.port.out.AddProjectPort;
+import com.task.management.application.port.out.FindProjectDetailsPort;
 import com.task.management.application.port.out.FindProjectPort;
 import com.task.management.application.port.out.FindProjectsByMemberPort;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,8 @@ class ProjectServiceTest {
     private AddProjectMemberPort addProjectMemberPort;
     @Mock
     private FindProjectsByMemberPort findProjectsByMemberPort;
+    @Mock
+    private FindProjectDetailsPort findProjectDetailsPort;
     @InjectMocks
     private ProjectService projectService;
 
@@ -65,6 +68,56 @@ class ProjectServiceTest {
         expectedProjects.forEach(project -> project.setMembers(Set.of(givenUserId)));
         doReturn(expectedProjects).when(findProjectsByMemberPort).findProjectsByMember(eq(givenUserId), eq(givenPage));
         assertEquals(expectedProjects, projectService.getAvailableProjects(givenUserId, givenPage));
+    }
+
+    @Test
+    void getProjectDetails_shouldReturnProjectDetails_whenAllConditionsMet() throws InsufficientPrivilegesException, EntityNotFoundException {
+        final var user = getTestUser();
+        final var givenCurrentUser = user.getId();
+        final var givenProjectId = randomProjectId();
+        final var project = Project.builder()
+                .id(givenProjectId)
+                .owner(givenCurrentUser)
+                .members(Set.of(givenCurrentUser))
+                .title(PROJECT_TITLE)
+                .description(PROJECT_DESCRIPTION)
+                .build();
+        final var expectedProjectDetails = new ProjectDetails(project, user, List.of(user));
+        doReturn(Optional.of(expectedProjectDetails)).when(findProjectDetailsPort).findProjectDetails(eq(givenProjectId));
+        assertEquals(expectedProjectDetails, projectService.getProjectDetails(givenCurrentUser, givenProjectId));
+    }
+
+    @Test
+    void getProjectDetails_shouldThrowEntityNotFoundException_whenProjectDoesNotExists() {
+        final var givenCurrentUser = randomUserId();
+        final var givenProjectId = randomProjectId();
+        doReturn(Optional.empty()).when(findProjectDetailsPort).findProjectDetails(eq(givenProjectId));
+        final var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> projectService.getProjectDetails(givenCurrentUser, givenProjectId)
+        );
+        assertEquals("Project not found", exception.getMessage());
+    }
+
+    @Test
+    void getProjectDetails_shouldThrowInsufficientPrivilegesException_whenUserIsNotProjectMember() throws InsufficientPrivilegesException, EntityNotFoundException {
+        final var user = getTestUser();
+        final var givenCurrentUser = randomUserId();
+        final var givenProjectId = randomProjectId();
+        final var project = Project.builder()
+                .id(givenProjectId)
+                .owner(user.getId())
+                .members(Set.of(user.getId()))
+                .title(PROJECT_TITLE)
+                .description(PROJECT_DESCRIPTION)
+                .build();
+        final var expectedProjectDetails = new ProjectDetails(project, user, List.of(user));
+        doReturn(Optional.of(expectedProjectDetails)).when(findProjectDetailsPort).findProjectDetails(eq(givenProjectId));
+        final var exception = assertThrows(
+                InsufficientPrivilegesException.class,
+                () -> projectService.getProjectDetails(givenCurrentUser, givenProjectId)
+        );
+        assertEquals("Current user does not have access to project", exception.getMessage());
     }
 
     @Test
@@ -147,7 +200,7 @@ class ProjectServiceTest {
                 InsufficientPrivilegesException.class,
                 () -> projectService.addMember(givenCurrentUserId, givenProjectId, EMAIL)
         );
-        assertEquals("Current user is not allowed to add project member", exception.getMessage());
+        assertEquals("Current user does not have access to project", exception.getMessage());
         verifyNoInteractions(addProjectMemberPort);
     }
 
