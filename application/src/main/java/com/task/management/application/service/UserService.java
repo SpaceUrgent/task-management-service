@@ -1,7 +1,7 @@
 package com.task.management.application.service;
 
 import com.task.management.application.exception.EmailExistsException;
-import com.task.management.application.exception.UserNotFoundException;
+import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.GetUserUseCase;
@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.task.management.application.service.ValidationService.userIdRequired;
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,13 +46,23 @@ public class UserService implements RegisterUserUseCase,
     }
 
     @Override
-    public User getUser(final UserId id) {
+    public User getUser(final UserId id) throws EntityNotFoundException {
         userIdRequired(id);
         return findByIdOrThrow(id);
     }
 
-    private User findByIdOrThrow(UserId id) throws UserNotFoundException {
+    public User getUser(final String email) throws EntityNotFoundException {
+        requireNonNull(email, "Email is required");
+        return findByEmailOrThrow(email);
+    }
+
+    private User findByIdOrThrow(UserId id) throws EntityNotFoundException {
         return findUserPort.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
+
+    private User findByEmailOrThrow(String email) throws EntityNotFoundException {
+        return findUserPort.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User with email '%s' not found".formatted(email)));
     }
 }

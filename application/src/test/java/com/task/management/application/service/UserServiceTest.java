@@ -1,9 +1,8 @@
 package com.task.management.application.service;
 
 import com.task.management.application.exception.EmailExistsException;
-import com.task.management.application.exception.UserNotFoundException;
+import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.model.User;
-import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.dto.RegisterUserDto;
 import com.task.management.application.port.out.AddUserPort;
 import com.task.management.application.port.out.EmailExistsPort;
@@ -16,8 +15,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
-import java.util.Random;
 
+import static com.task.management.application.service.TestUtils.EMAIL;
+import static com.task.management.application.service.TestUtils.ENCRYPTED_PASSWORD;
+import static com.task.management.application.service.TestUtils.FIRST_NAME;
+import static com.task.management.application.service.TestUtils.LAST_NAME;
+import static com.task.management.application.service.TestUtils.PASSWORD;
+import static com.task.management.application.service.TestUtils.getTestUser;
+import static com.task.management.application.service.TestUtils.randomUserId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,12 +33,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-
-    private static final String EMAIL = "test@example.com";
-    private static final String FIRST_NAME = "John";
-    private static final String LAST_NAME = "Doe";
-    private static final char[] PASSWORD = "password123".toCharArray();
-    private static final String ENCRYPTED_PASSWORD = "encryptedPassword";
 
     @Mock
     private ValidationService validationService;
@@ -68,7 +67,7 @@ class UserServiceTest {
     }
 
     @Test
-    void register_shouldThrowEmailExistsException_whenUserWithGivenExists() throws EmailExistsException {
+    void register_shouldThrowEmailExistsException_whenUserWithGivenEmailExists() {
         final var registerDto = getRegisterUserDto();
         when(emailExistsPort.emailExists(registerDto.getEmail())).thenReturn(true);
         final var exception = assertThrows(
@@ -79,35 +78,38 @@ class UserServiceTest {
     }
 
     @Test
-    void getUser_shouldReturnUser_whenAllConditionsMet() throws UserNotFoundException {
-        final var expectedUser = getUser();
+    void getUser_shouldReturnUser_whenUserWithGivenIdExists() throws EntityNotFoundException {
+        final var expectedUser = getTestUser();
         doReturn(Optional.of(expectedUser)).when(findUserPort).findById(eq(expectedUser.getId()));
         assertEquals(expectedUser, userService.getUser(expectedUser.getId()));
     }
 
     @Test
-    void getUser_shouldThrowUserNotFoundException_whenUserDoesNotExist() throws UserNotFoundException {
+    void getUser_shouldThrowEntityNotFoundException_whenUserWithGivenIdDoesNotExist() {
         final var givenUserId = randomUserId();
         doReturn(Optional.empty()).when(findUserPort).findById(eq(givenUserId));
         final var exception = assertThrows(
-                UserNotFoundException.class,
+                EntityNotFoundException.class,
                 () -> userService.getUser(givenUserId)
         );
         assertNotNull(exception.getMessage());
     }
 
-    private static User getUser() {
-        return User.builder()
-                .id(randomUserId())
-                .email(EMAIL)
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .encryptedPassword(ENCRYPTED_PASSWORD)
-                .build();
+    @Test
+    void getUser_shouldReturnUser_whenUserWithGivenEmailExists() throws EntityNotFoundException {
+        final var expectedUser = getTestUser();
+        doReturn(Optional.of(expectedUser)).when(findUserPort).findByEmail(eq(expectedUser.getEmail()));
+        assertEquals(expectedUser, userService.getUser(expectedUser.getEmail()));
     }
 
-    private static UserId randomUserId() {
-        return new UserId(new Random().nextLong());
+    @Test
+    void getUser_shouldThrowEntityNotFoundException_whenUserWithGivenEmailDoesNotExist() {
+        doReturn(Optional.empty()).when(findUserPort).findByEmail(eq(EMAIL));
+        final var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> userService.getUser(EMAIL)
+        );
+        assertNotNull(exception.getMessage());
     }
 
     private static RegisterUserDto getRegisterUserDto() {

@@ -1,6 +1,6 @@
 package com.task.managment.web.controller;
 
-import com.task.management.application.exception.UserNotFoundException;
+import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.port.in.GetUserUseCase;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
@@ -49,7 +49,7 @@ class UserControllerTest {
     @Test
     void getUserProfile_shouldReturnInternalError_whenAllUserNotFound() throws Exception {
         final var errorMessage = "User not found";
-        doThrow(new UserNotFoundException(errorMessage)).when(getUserUseCase).getUser(any());
+        doThrow(new EntityNotFoundException(errorMessage)).when(getUserUseCase).getUser(any());
         mockMvc.perform(get("/api/users/profile"))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())

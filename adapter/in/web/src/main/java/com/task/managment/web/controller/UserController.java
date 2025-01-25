@@ -1,6 +1,6 @@
 package com.task.managment.web.controller;
 
-import com.task.management.application.exception.UserNotFoundException;
+import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.port.in.GetUserUseCase;
 import com.task.managment.web.dto.ErrorDto;
 import com.task.managment.web.dto.UserDto;
@@ -28,17 +28,17 @@ public class UserController {
             value = "/profile",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public UserDto getUserProfile() {
+    public UserDto getUserProfile() throws EntityNotFoundException {
         final var user = getUserUseCase.getUser(currentUser().getId());
         return userMapper.toDto(user);
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(UserNotFoundException.class)
-    public ErrorDto handleUserNotFoundException(UserNotFoundException exception,
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ErrorDto handleEntityNotFoundException(EntityNotFoundException exception,
                                                 HttpServletRequest request) {
         return ErrorDto.builder()
-                .reason("Internal error")
+                .reason("Not found")
                 .message(exception.getMessage())
                 .request(request)
                 .build();
