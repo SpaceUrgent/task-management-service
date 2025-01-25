@@ -1,5 +1,6 @@
 package com.task.management.application.service;
 
+import com.task.management.application.common.Page;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.management.application.model.Project;
@@ -7,12 +8,15 @@ import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.AddProjectMemberByEmailUseCase;
 import com.task.management.application.port.in.CreateProjectUseCase;
+import com.task.management.application.port.in.GetAvailableProjectsUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
 import com.task.management.application.port.out.AddProjectMemberPort;
 import com.task.management.application.port.out.AddProjectPort;
 import com.task.management.application.port.out.FindProjectPort;
+import com.task.management.application.port.out.FindProjectsByMemberPort;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.task.management.application.service.ValidationService.projectIdRequired;
@@ -21,12 +25,21 @@ import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
 public class ProjectService implements CreateProjectUseCase,
-                                       AddProjectMemberByEmailUseCase {
+                                       AddProjectMemberByEmailUseCase,
+                                       GetAvailableProjectsUseCase {
     private final ValidationService validationService;
     private final UserService userService;
     private final AddProjectPort projectRepository;
     private final AddProjectMemberPort addProjectMemberPort;
     private final FindProjectPort findProjectPort;
+    private final FindProjectsByMemberPort findProjectsByMemberPort;
+
+    @Override
+    public List<Project> getAvailableProjects(UserId userId, Page page) {
+        userIdRequired(userId);
+        requireNonNull(page, "Page is required");
+        return findProjectsByMemberPort.findProjectsByMember(userId, page);
+    }
 
     @Override
     public Project createProject(final UserId userId,

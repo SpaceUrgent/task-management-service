@@ -1,22 +1,27 @@
 package com.task.management.application.service;
 
+import com.task.management.application.common.Page;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
+import com.task.management.application.port.in.GetAvailableProjectsUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
 import com.task.management.application.port.out.AddProjectMemberPort;
 import com.task.management.application.port.out.AddProjectPort;
 import com.task.management.application.port.out.FindProjectPort;
+import com.task.management.application.port.out.FindProjectsByMemberPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.task.management.application.service.TestUtils.EMAIL;
 import static com.task.management.application.service.TestUtils.getTestUser;
@@ -47,8 +52,20 @@ class ProjectServiceTest {
     private FindProjectPort findProjectPort;
     @Mock
     private AddProjectMemberPort addProjectMemberPort;
+    @Mock
+    private FindProjectsByMemberPort findProjectsByMemberPort;
     @InjectMocks
     private ProjectService projectService;
+
+    @Test
+    void getAvailableProjects_shouldReturnProjectList() {
+        final var givenPage = new Page(1, 10);
+        final var givenUserId = randomUserId();
+        final var expectedProjects = randomProjects(givenPage.getPageSize());
+        expectedProjects.forEach(project -> project.setMembers(Set.of(givenUserId)));
+        doReturn(expectedProjects).when(findProjectsByMemberPort).findProjectsByMember(eq(givenUserId), eq(givenPage));
+        assertEquals(expectedProjects, projectService.getAvailableProjects(givenUserId, givenPage));
+    }
 
     @Test
     void createProject_shouldReturnNewProject_whenAllConditionsMet() {
@@ -143,5 +160,17 @@ class ProjectServiceTest {
 
     private static ProjectId randomProjectId() {
         return new ProjectId(randomLong());
+    }
+
+    private List<Project> randomProjects(int pageSize) {
+        return IntStream.range(0 , pageSize)
+                .mapToObj(value -> Project.builder()
+                        .id(randomProjectId())
+                        .title("Title %d".formatted(value))
+                        .description("Description %d".formatted(value))
+                        .owner(randomUserId())
+                        .members(Set.of(randomUserId()))
+                        .build())
+                .toList();
     }
 }
