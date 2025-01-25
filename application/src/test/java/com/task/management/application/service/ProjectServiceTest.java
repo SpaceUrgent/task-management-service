@@ -8,11 +8,13 @@ import com.task.management.application.model.ProjectDetails;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.dto.CreateProjectDto;
+import com.task.management.application.port.in.dto.UpdateProjectDto;
 import com.task.management.application.port.out.AddProjectMemberPort;
 import com.task.management.application.port.out.AddProjectPort;
 import com.task.management.application.port.out.FindProjectDetailsPort;
 import com.task.management.application.port.out.FindProjectPort;
 import com.task.management.application.port.out.FindProjectsByMemberPort;
+import com.task.management.application.port.out.UpdateProjectPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -57,6 +59,8 @@ class ProjectServiceTest {
     private FindProjectsByMemberPort findProjectsByMemberPort;
     @Mock
     private FindProjectDetailsPort findProjectDetailsPort;
+    @Mock
+    private UpdateProjectPort updateProjectPort;
     @InjectMocks
     private ProjectService projectService;
 
@@ -130,6 +134,64 @@ class ProjectServiceTest {
         assertEquals(givenCreateProjectDto.getDescription(), created.getDescription());
         assertEquals(givenUserId, created.getOwner());
         assertEquals(Set.of(givenUserId), created.getMembers());
+    }
+
+    @Test
+    void updateProject_shouldReturnUpdatedProject_whenAllConditionsMet() throws InsufficientPrivilegesException, EntityNotFoundException {
+        final var givenCurrentUserId = randomUserId();
+        final var givenProjectId = randomProjectId();
+        final var givenUpdateDto = getUpdateProjectDto();
+        final var project = Project.builder()
+                .id(givenProjectId)
+                .owner(givenCurrentUserId)
+                .members(Set.of(givenCurrentUserId))
+                .title(PROJECT_TITLE)
+                .description(PROJECT_DESCRIPTION)
+                .build();
+        doReturn(Optional.of(project)).when(findProjectPort).findById(eq(givenProjectId));
+        doAnswer(invocation -> invocation.getArgument(0)).when(updateProjectPort).update(any());
+        final var updated = projectService.updateProject(givenCurrentUserId, givenProjectId, givenUpdateDto);
+        assertEquals(project.getId(), updated.getId());
+        assertEquals(givenUpdateDto.getTitle(), project.getTitle());
+        assertEquals(givenUpdateDto.getDescription(), project.getDescription());
+        assertEquals(project.getOwner(), updated.getOwner());
+        assertEquals(project.getMembers(), updated.getMembers());
+    }
+
+    @Test
+    void updateProject_shouldThrowEntityNotFoundException_whenProjectNotFound() throws InsufficientPrivilegesException, EntityNotFoundException {
+        final var givenCurrentUserId = randomUserId();
+        final var givenProjectId = randomProjectId();
+        final var givenUpdateDto = getUpdateProjectDto();
+        doReturn(Optional.empty()).when(findProjectPort).findById(eq(givenProjectId));
+        final var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> projectService.updateProject(givenCurrentUserId, givenProjectId, givenUpdateDto)
+        );
+        assertEquals("Project not found", exception.getMessage());
+        verifyNoInteractions(updateProjectPort);
+    }
+
+    @Test
+    void updateProject_shouldThrowInsufficientPrivilegesException_whenUserIsNotOwner() throws InsufficientPrivilegesException, EntityNotFoundException {
+        final var givenCurrentUserId = randomUserId();
+        final var givenProjectId = randomProjectId();
+        final var givenUpdateDto = getUpdateProjectDto();
+        final var owner = randomUserId();
+        final var project = Project.builder()
+                .id(givenProjectId)
+                .owner(owner)
+                .members(Set.of(owner, givenCurrentUserId))
+                .title(PROJECT_TITLE)
+                .description(PROJECT_DESCRIPTION)
+                .build();
+        doReturn(Optional.of(project)).when(findProjectPort).findById(eq(givenProjectId));
+        final var exception = assertThrows(
+                InsufficientPrivilegesException.class,
+                () -> projectService.updateProject(givenCurrentUserId, givenProjectId, givenUpdateDto)
+        );
+        assertEquals("Operation allowed only to the project owner", exception.getMessage());
+        verifyNoInteractions(updateProjectPort);
     }
 
     @Test
@@ -209,6 +271,13 @@ class ProjectServiceTest {
         createProjectDto.setTitle(PROJECT_TITLE);
         createProjectDto.setDescription(PROJECT_DESCRIPTION);
         return createProjectDto;
+    }
+
+    private static UpdateProjectDto getUpdateProjectDto() {
+        final var updateProjectDto = new UpdateProjectDto();
+        updateProjectDto.setTitle("New title");
+        updateProjectDto.setDescription("New description");
+        return updateProjectDto;
     }
 
     private static ProjectId randomProjectId() {

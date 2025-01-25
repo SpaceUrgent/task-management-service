@@ -11,12 +11,15 @@ import com.task.management.application.port.in.AddProjectMemberByEmailUseCase;
 import com.task.management.application.port.in.CreateProjectUseCase;
 import com.task.management.application.port.in.GetAvailableProjectsUseCase;
 import com.task.management.application.port.in.GetProjectDetailsUseCase;
+import com.task.management.application.port.in.UpdateProjectUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
+import com.task.management.application.port.in.dto.UpdateProjectDto;
 import com.task.management.application.port.out.AddProjectMemberPort;
 import com.task.management.application.port.out.AddProjectPort;
 import com.task.management.application.port.out.FindProjectDetailsPort;
 import com.task.management.application.port.out.FindProjectPort;
 import com.task.management.application.port.out.FindProjectsByMemberPort;
+import com.task.management.application.port.out.UpdateProjectPort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -30,14 +33,16 @@ import static java.util.Objects.requireNonNull;
 public class ProjectService implements CreateProjectUseCase,
                                        AddProjectMemberByEmailUseCase,
                                        GetAvailableProjectsUseCase,
-                                       GetProjectDetailsUseCase {
+                                       GetProjectDetailsUseCase,
+                                       UpdateProjectUseCase {
     private final ValidationService validationService;
     private final UserService userService;
-    private final AddProjectPort projectRepository;
+    private final AddProjectPort addProjectPort;
     private final AddProjectMemberPort addProjectMemberPort;
     private final FindProjectPort findProjectPort;
     private final FindProjectsByMemberPort findProjectsByMemberPort;
     private final FindProjectDetailsPort findProjectDetailsPort;
+    private final UpdateProjectPort updateProjectPort;
 
     @Override
     public List<Project> getAvailableProjects(UserId userId, Page page) {
@@ -67,7 +72,22 @@ public class ProjectService implements CreateProjectUseCase,
                 .owner(userId)
                 .members(Set.of(userId))
                 .build();
-        return projectRepository.add(project);
+        return addProjectPort.add(project);
+    }
+
+    @Override
+    public Project updateProject(final UserId currentUser,
+                                 final ProjectId projectId,
+                                 final UpdateProjectDto updateProjectDto) throws EntityNotFoundException, InsufficientPrivilegesException {
+        userIdRequired(currentUser);
+        projectIdRequired(projectId);
+        requireNonNull(updateProjectDto, "Update project dto is required");
+        validationService.validate(updateProjectDto);
+        final var project = findOrThrow(projectId);
+        checkUserIsOwner(currentUser, project);
+        project.setTitle(updateProjectDto.getTitle());
+        project.setDescription(updateProjectDto.getDescription());
+        return updateProjectPort.update(project);
     }
 
     @Override
@@ -91,6 +111,12 @@ public class ProjectService implements CreateProjectUseCase,
     private ProjectDetails findProjectDetailsOrThrow(ProjectId projectId) throws EntityNotFoundException {
         return findProjectDetailsPort.findProjectDetails(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+    }
+
+    private static void checkUserIsOwner(UserId userId, Project project) throws InsufficientPrivilegesException {
+        if (!project.isOwner(userId)) {
+            throw new InsufficientPrivilegesException("Operation allowed only to the project owner");
+        }
     }
 
     private static void checkUserIsMember(UserId currentUserId, Project project) throws InsufficientPrivilegesException {

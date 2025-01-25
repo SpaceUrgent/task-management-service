@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,7 +31,11 @@ public class Project {
         this.members = Optional.ofNullable(members).orElse(new HashSet<>());
     }
 
-    public boolean hasMember(UserId currentUserId) {
-        return this.owner == currentUserId || members.contains(currentUserId);
+    public boolean hasMember(UserId userId) {
+        return isOwner(userId) || members.contains(userId);
+    }
+
+    public boolean isOwner(UserId userId) {
+        return Objects.equals(this.owner, userId);
     }
 }
