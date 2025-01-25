@@ -4,7 +4,8 @@ import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.GetUserUseCase;
 import com.task.management.application.port.in.RegisterUserUseCase;
-import com.task.management.application.port.out.UserRepository;
+import com.task.management.application.port.out.FindUserPort;
+import com.task.managment.web.mapper.WebProjectMapper;
 import com.task.managment.web.mapper.WebUserMapper;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +25,11 @@ public class WebTestConfiguration {
     }
 
     @Bean
+    public WebProjectMapper webProjectMapper() {
+        return new WebProjectMapper();
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -39,8 +45,8 @@ public class WebTestConfiguration {
     }
 
     @Bean
-    public UserRepository userRepository() {
-        return new UserRepository() {
+    public FindUserPort findUserPort() {
+        return new FindUserPort() {
             @Override
             public Optional<User> findById(UserId id) {
                 return Optional.empty();
@@ -49,16 +55,6 @@ public class WebTestConfiguration {
             @Override
             public Optional<User> findByEmail(String email) {
                 return Optional.empty();
-            }
-
-            @Override
-            public User add(User user) {
-                return null;
-            }
-
-            @Override
-            public boolean emailExists(String email) {
-                return false;
             }
         };
     }

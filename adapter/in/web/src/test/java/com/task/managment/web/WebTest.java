@@ -2,6 +2,7 @@ package com.task.managment.web;
 
 import com.task.managment.web.controller.AuthController;
 import com.task.managment.web.controller.GlobalExceptionHandler;
+import com.task.managment.web.controller.ProjectController;
 import com.task.managment.web.controller.UserController;
 import com.task.managment.web.security.SecurityConfiguration;
 import com.task.managment.web.security.UserDetailServiceImpl;
@@ -21,6 +22,7 @@ import java.lang.annotation.Target;
                 GlobalExceptionHandler.class,
                 AuthController.class,
                 UserController.class,
+                ProjectController.class,
                 SecurityConfiguration.class,
                 UserDetailServiceImpl.class
         },

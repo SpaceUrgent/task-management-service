@@ -5,7 +5,7 @@ import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.RegisterUserUseCase;
 import com.task.management.application.port.in.dto.RegisterUserDto;
-import com.task.management.application.port.out.UserRepository;
+import com.task.management.application.port.out.FindUserPort;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.security.SecuredUser;
@@ -47,7 +47,7 @@ class AuthControllerTest {
     @MockBean
     private RegisterUserUseCase registerUserUseCase;
     @MockBean
-    private UserRepository userRepository;
+    private FindUserPort findUserPort;
     @MockBean
     private UserDetailsService userDetailsService;
     @MockBean
