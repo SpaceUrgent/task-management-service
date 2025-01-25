@@ -1,0 +1,37 @@
+package com.task.management.persistence.jpa.mapper;
+
+import com.task.management.application.model.Project;
+import com.task.management.application.model.ProjectId;
+import com.task.management.application.model.UserId;
+import com.task.management.persistence.jpa.entity.ProjectEntity;
+import com.task.management.persistence.jpa.repository.JpaUserRepository;
+import lombok.RequiredArgsConstructor;
+
+import java.time.Instant;
+
+import static java.util.Objects.requireNonNull;
+
+@RequiredArgsConstructor
+public class ProjectMapper {
+    private final JpaUserRepository jpaUserRepository;
+
+    public ProjectEntity toEntity(Project project) {
+        requireNonNull(project, "Project is required");
+        return ProjectEntity.builder()
+                .createdAt(Instant.now())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .owner(jpaUserRepository.getReferenceById(project.getOwner().value()))
+                .build();
+    }
+
+    public Project toModel(ProjectEntity projectEntity) {
+        requireNonNull(projectEntity, "Project entity is required");
+        return Project.builder()
+                .id(new ProjectId(projectEntity.getId()))
+                .title(projectEntity.getTitle())
+                .description(projectEntity.getDescription())
+                .owner(new UserId(projectEntity.getOwner().getId()))
+                .build();
+    }
+}
