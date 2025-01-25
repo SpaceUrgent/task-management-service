@@ -1,6 +1,7 @@
 package com.task.management.application.service;
 
 import com.task.management.application.exception.ValidationException;
+import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -24,5 +25,9 @@ public class ValidationService {
 
     public static void userIdRequired(UserId id) {
         requireNonNull(id, "User id is required");
+    }
+
+    public static void projectIdRequired(ProjectId projectId) {
+        requireNonNull(projectId, "Project id is required");
     }
 }
