@@ -1,6 +1,6 @@
 package com.task.management.application.service;
 
-import com.task.management.application.common.Page;
+import com.task.management.application.common.PageQuery;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.management.application.model.Project;
@@ -66,7 +66,7 @@ class ProjectServiceTest {
 
     @Test
     void getAvailableProjects_shouldReturnProjectList() {
-        final var givenPage = new Page(1, 10);
+        final var givenPage = new PageQuery(1, 10);
         final var givenUserId = randomUserId();
         final var expectedProjects = randomProjects(givenPage.getPageSize());
         expectedProjects.forEach(project -> project.setMembers(Set.of(givenUserId)));

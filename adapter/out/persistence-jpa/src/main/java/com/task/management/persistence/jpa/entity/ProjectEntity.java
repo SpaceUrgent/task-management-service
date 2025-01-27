@@ -6,12 +6,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
@@ -39,6 +42,14 @@ public class ProjectEntity {
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
+
+    @ManyToMany
+    @JoinTable(
+            name = "projects_members",
+            joinColumns = @JoinColumn(name = "project_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "member_id", nullable = false)
+    )
+    private List<UserEntity> members;
 
     protected ProjectEntity() {
     }

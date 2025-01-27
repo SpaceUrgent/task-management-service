@@ -4,10 +4,13 @@ import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
+import com.task.management.persistence.jpa.entity.UserEntity;
 import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -32,6 +35,14 @@ public class ProjectMapper {
                 .title(projectEntity.getTitle())
                 .description(projectEntity.getDescription())
                 .owner(new UserId(projectEntity.getOwner().getId()))
+                .members(toMembers(projectEntity))
                 .build();
+    }
+
+    private static Set<UserId> toMembers(ProjectEntity projectEntity) {
+        return projectEntity.getMembers().stream()
+                .map(UserEntity::getId)
+                .map(UserId::new)
+                .collect(Collectors.toSet());
     }
 }

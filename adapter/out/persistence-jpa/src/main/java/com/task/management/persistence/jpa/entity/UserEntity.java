@@ -5,12 +5,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Entity
@@ -38,6 +41,9 @@ public class UserEntity {
     @ToString.Exclude
     @Column(name = "encrypted_password", nullable = false)
     private String encryptedPassword;
+
+    @ManyToMany(mappedBy = "members")
+    private List<ProjectEntity> projects;
 
     protected UserEntity() {
     }

@@ -1,6 +1,6 @@
 package com.task.management.application.service;
 
-import com.task.management.application.common.Page;
+import com.task.management.application.common.PageQuery;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.management.application.model.Project;
@@ -45,7 +45,7 @@ public class ProjectService implements CreateProjectUseCase,
     private final UpdateProjectPort updateProjectPort;
 
     @Override
-    public List<Project> getAvailableProjects(UserId userId, Page page) {
+    public List<Project> getAvailableProjects(UserId userId, PageQuery page) {
         userIdRequired(userId);
         requireNonNull(page, "Page is required");
         return findProjectsByMemberPort.findProjectsByMember(userId, page);

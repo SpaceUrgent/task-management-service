@@ -1,5 +1,6 @@
 package com.task.management.persistence.jpa;
 
+import com.task.management.application.common.PageQuery;
 import com.task.management.application.model.Project;
 import com.task.management.application.model.User;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
@@ -9,7 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.function.Predicate;
+
+import static java.lang.Math.ceilDiv;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = JpaTestConfiguration.class)
@@ -36,6 +43,33 @@ class JpaProjectRepositoryAdapterTest {
         assertNotNull(savedJpaUser.getCreatedAt());
     }
 
+    @Transactional
+    @Sql(
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+        scripts = "classpath:sql/insert_projects.sql"
+    )
+    @Test
+    void findProjectsByMember_shouldReturnProjects() {
+        final var totalProjectsWithTestMember = 17;
+        final var givenMemberId = userRepository.findByEmail("member@mail.com")
+                .map(User::getId)
+                .orElseThrow(() -> new IllegalStateException("Test project member is expected in DB"));
+        assertEquals(17, countProjectEntitiesByMemberId(givenMemberId.value()), "Invalid test setup, expected 17 projects in DB");
+        int givenPageNumber = 1;
+        int givenPageSize = 10;
+        PageQuery givenPage;
+        List<Project> projects;
+        int receivedTotal = 0;
+        for (int i = 0; i < ceilDiv(17, givenPageSize); i++) {
+            givenPage = new PageQuery(givenPageNumber, givenPageSize);
+            projects = projectRepository.findProjectsByMember(givenMemberId, givenPage);
+            assertTrue(projects.stream().allMatch(project -> project.hasMember(givenMemberId)), "Every project must have given member");
+            givenPageNumber++;
+            receivedTotal += projects.size();
+        }
+        assertEquals(totalProjectsWithTestMember, receivedTotal);
+    }
+
     private void assertMatches(Project expected, ProjectEntity actual) {
         assertEquals(expected.getId().value(), actual.getId());
         assertEquals(expected.getTitle(), actual.getTitle());
@@ -47,6 +81,16 @@ class JpaProjectRepositoryAdapterTest {
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getOwner(), actual.getOwner());
+    }
+
+    private long countProjectEntitiesByMemberId(Long memberId) {
+        return jpaProjectRepository.findAll().stream()
+                .filter(containsMemberWithIdPredicate(memberId))
+                .count();
+    }
+
+    private static Predicate<ProjectEntity> containsMemberWithIdPredicate(Long memberId) {
+        return projectEntity -> projectEntity.getMembers().stream().anyMatch(userEntity -> memberId.equals(userEntity.getId()));
     }
 
     private static Project getTestProject(User owner) {
