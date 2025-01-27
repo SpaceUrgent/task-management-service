@@ -3,6 +3,7 @@ package com.task.management.application.model;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,7 +17,7 @@ public class Project {
     private String title;
     private String description;
     private UserId owner;
-    private Set<UserId> members;
+    private final Set<UserId> members;
 
     @Builder
     public Project(ProjectId id,
@@ -29,6 +30,10 @@ public class Project {
         this.description = requireNonNull(description, "Description is required");
         this.owner = requireNonNull(owner, "Owner is required");
         this.members = Optional.ofNullable(members).orElse(new HashSet<>());
+    }
+
+    public Set<UserId> getMembers() {
+        return Collections.unmodifiableSet(this.members);
     }
 
     public boolean hasMember(UserId userId) {
