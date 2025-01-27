@@ -9,7 +9,6 @@ import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,12 +21,16 @@ public class ProjectMapper {
     public ProjectEntity toEntity(Project project) {
         requireNonNull(project, "Project is required");
         final var ownerReference = jpaUserRepository.getReferenceById(project.getOwner().value());
+        final var memberReferences = project.getMembers().stream()
+                .map(UserId::value)
+                .map(jpaUserRepository::getReferenceById)
+                .toList();
         return ProjectEntity.builder()
                 .createdAt(Instant.now())
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .owner(ownerReference)
-                .members(List.of(ownerReference))
+                .members(memberReferences)
                 .build();
     }
 

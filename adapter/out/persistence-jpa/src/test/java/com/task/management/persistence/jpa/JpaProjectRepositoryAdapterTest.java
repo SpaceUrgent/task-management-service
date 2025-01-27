@@ -4,8 +4,10 @@ import com.task.management.application.common.PageQuery;
 import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.User;
+import com.task.management.application.port.out.UpdateProjectPort.UpdateProjectCommand;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.repository.JpaProjectRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -88,6 +91,28 @@ class JpaProjectRepositoryAdapterTest {
         assertTrue(projectRepository.findProjectDetails(randomProjectId()).isEmpty());
     }
 
+    @Transactional
+    @Test
+    void updateProject_shouldReturnUpdate_whenAllConditionsMet() {
+        final var project = saveAndGetTestProject();
+        final var givenCommand = new UpdateProjectCommand("Update title", "Updated description");
+        final var updated = projectRepository.update(project.getId(), givenCommand);
+        assertEquals(project.getId(), updated.getId());
+        assertEquals(givenCommand.title(), updated.getTitle());
+        assertEquals(givenCommand.description(), updated.getDescription());
+        assertEquals(project.getOwner(), updated.getOwner());
+        assertEquals(project.getMembers(), updated.getMembers());
+    }
+
+    @Test
+    void updateProject_shouldThrowEntityNotFoundException_whenProjectEntityDoesNotExist() {
+        final var givenCommand = new UpdateProjectCommand("Update title", "Updated description");
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> projectRepository.update(randomProjectId(), givenCommand)
+        );
+    }
+
     private void assertMatches(Project expected, ProjectEntity actual) {
         assertEquals(expected.getId().value(), actual.getId());
         assertEquals(expected.getTitle(), actual.getTitle());
@@ -111,6 +136,10 @@ class JpaProjectRepositoryAdapterTest {
         return userRepository.add(getTestUser());
     }
 
+    private Project saveAndGetTestProject() {
+        return saveAndGetTestProject(saveAndGetTestUser());
+    }
+
     private Project saveAndGetTestProject(final User owner) {
         return projectRepository.add(getTestProject(owner));
     }
@@ -125,6 +154,7 @@ class JpaProjectRepositoryAdapterTest {
                 .title("Project %d".formatted(randomLong))
                 .description("Project %d description".formatted(randomLong))
                 .owner(owner.getId())
+                .members(Set.of(owner.getId()))
                 .build();
     }
 
