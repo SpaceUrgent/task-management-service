@@ -15,11 +15,13 @@ import com.task.management.application.port.out.FindProjectDetailsPort;
 import com.task.management.application.port.out.FindProjectPort;
 import com.task.management.application.port.out.FindProjectsByMemberPort;
 import com.task.management.application.port.out.UpdateProjectPort;
+import com.task.management.application.port.out.UpdateProjectPort.UpdateProjectCommand;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,8 +70,7 @@ class ProjectServiceTest {
     void getAvailableProjects_shouldReturnProjectList() {
         final var givenPage = new PageQuery(1, 10);
         final var givenUserId = randomUserId();
-        final var expectedProjects = randomProjects(givenPage.getPageSize());
-        expectedProjects.forEach(project -> project.setMembers(Set.of(givenUserId)));
+        final var expectedProjects = randomProjectsWithMember(givenPage.getPageSize(), givenUserId);
         doReturn(expectedProjects).when(findProjectsByMemberPort).findProjectsByMember(eq(givenUserId), eq(givenPage));
         assertEquals(expectedProjects, projectService.getAvailableProjects(givenUserId, givenPage));
     }
@@ -148,14 +149,18 @@ class ProjectServiceTest {
                 .title(PROJECT_TITLE)
                 .description(PROJECT_DESCRIPTION)
                 .build();
+        final var expectedProject = Project.builder()
+                .id(project.getId())
+                .owner(project.getOwner())
+                .members(project.getMembers())
+                .title(givenUpdateDto.getTitle())
+                .description(givenUpdateDto.getDescription())
+                .build();
         doReturn(Optional.of(project)).when(findProjectPort).findById(eq(givenProjectId));
-        doAnswer(invocation -> invocation.getArgument(0)).when(updateProjectPort).update(any());
+        doReturn(expectedProject).when(updateProjectPort)
+                .update(eq(givenProjectId), eq(new UpdateProjectCommand(givenUpdateDto.getTitle(), givenUpdateDto.getDescription())));
         final var updated = projectService.updateProject(givenCurrentUserId, givenProjectId, givenUpdateDto);
-        assertEquals(project.getId(), updated.getId());
-        assertEquals(givenUpdateDto.getTitle(), project.getTitle());
-        assertEquals(givenUpdateDto.getDescription(), project.getDescription());
-        assertEquals(project.getOwner(), updated.getOwner());
-        assertEquals(project.getMembers(), updated.getMembers());
+        assertEquals(expectedProject, updated);
     }
 
     @Test
@@ -284,14 +289,14 @@ class ProjectServiceTest {
         return new ProjectId(randomLong());
     }
 
-    private List<Project> randomProjects(int pageSize) {
+    private List<Project> randomProjectsWithMember(int pageSize, UserId givenUserId) {
         return IntStream.range(0 , pageSize)
                 .mapToObj(value -> Project.builder()
                         .id(randomProjectId())
                         .title("Title %d".formatted(value))
                         .description("Description %d".formatted(value))
                         .owner(randomUserId())
-                        .members(Set.of(randomUserId()))
+                        .members(Set.of(randomUserId(), givenUserId))
                         .build())
                 .toList();
     }

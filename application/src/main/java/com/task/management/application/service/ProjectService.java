@@ -20,6 +20,7 @@ import com.task.management.application.port.out.FindProjectDetailsPort;
 import com.task.management.application.port.out.FindProjectPort;
 import com.task.management.application.port.out.FindProjectsByMemberPort;
 import com.task.management.application.port.out.UpdateProjectPort;
+import com.task.management.application.port.out.UpdateProjectPort.UpdateProjectCommand;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -85,9 +86,7 @@ public class ProjectService implements CreateProjectUseCase,
         validationService.validate(updateProjectDto);
         final var project = findOrThrow(projectId);
         checkUserIsOwner(currentUser, project);
-        project.setTitle(updateProjectDto.getTitle());
-        project.setDescription(updateProjectDto.getDescription());
-        return updateProjectPort.update(project);
+        return updateProjectPort.update(projectId, new UpdateProjectCommand(updateProjectDto.getTitle(), updateProjectDto.getDescription()));
     }
 
     @Override
