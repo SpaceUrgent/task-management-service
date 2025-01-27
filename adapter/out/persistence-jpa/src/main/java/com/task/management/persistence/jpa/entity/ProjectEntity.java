@@ -60,12 +60,14 @@ public class ProjectEntity {
                          Instant updatedAt,
                          String title,
                          String description,
-                         UserEntity owner) {
+                         UserEntity owner,
+                         List<UserEntity> members) {
         this.id = id;
         this.createdAt = requireNonNull(createdAt, "Created time is required");
         this.updatedAt = updatedAt;
         this.title = requireNonNull(title, "Title is required");
         this.description = requireNonNull(description, "Description is required");
         this.owner = requireNonNull(owner, "Owner is required");
+        this.members = members;
     }
 }

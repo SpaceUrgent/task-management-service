@@ -2,6 +2,7 @@ package com.task.management.persistence.jpa;
 
 import com.task.management.application.common.PageQuery;
 import com.task.management.application.model.Project;
+import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.User;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.repository.JpaProjectRepository;
@@ -14,6 +15,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import static java.lang.Math.ceilDiv;
@@ -22,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = JpaTestConfiguration.class)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 class JpaProjectRepositoryAdapterTest {
-    private static final String PROJECT_TITLE = "Project title";
-    private static final String PROJECT_DESCRIPTION = "Project description";
 
     @Autowired
     private JpaUserRepositoryAdapter userRepository;
@@ -70,6 +71,23 @@ class JpaProjectRepositoryAdapterTest {
         assertEquals(totalProjectsWithTestMember, receivedTotal);
     }
 
+    @Transactional
+    @Test
+    void findProjectDetails_shouldReturnOptionalOfProjectDetails_whenProjectExists() {
+        final var expectedOwner = saveAndGetTestUser();
+        final var expectedProject = saveAndGetTestProject(expectedOwner);
+        final var projectDetails = projectRepository.findProjectDetails(expectedProject.getId()).orElse(null);
+        assertNotNull(projectDetails);
+        assertEquals(expectedProject, projectDetails.project());
+        assertEquals(expectedOwner, projectDetails.owner());
+        assertEquals(List.of(expectedOwner), projectDetails.members());
+    }
+
+    @Test
+    void findProjectDetails_shouldReturnEmptyOptional_whenProjectDoesNotExist() {
+        assertTrue(projectRepository.findProjectDetails(randomProjectId()).isEmpty());
+    }
+
     private void assertMatches(Project expected, ProjectEntity actual) {
         assertEquals(expected.getId().value(), actual.getId());
         assertEquals(expected.getTitle(), actual.getTitle());
@@ -89,25 +107,42 @@ class JpaProjectRepositoryAdapterTest {
                 .count();
     }
 
+    private User saveAndGetTestUser() {
+        return userRepository.add(getTestUser());
+    }
+
+    private Project saveAndGetTestProject(final User owner) {
+        return projectRepository.add(getTestProject(owner));
+    }
+
     private static Predicate<ProjectEntity> containsMemberWithIdPredicate(Long memberId) {
         return projectEntity -> projectEntity.getMembers().stream().anyMatch(userEntity -> memberId.equals(userEntity.getId()));
     }
 
     private static Project getTestProject(User owner) {
+        final var randomLong = randomLong();
         return Project.builder()
-                .title(PROJECT_TITLE)
-                .description(PROJECT_DESCRIPTION)
+                .title("Project %d".formatted(randomLong))
+                .description("Project %d description".formatted(randomLong))
                 .owner(owner.getId())
                 .build();
     }
 
     private static User getTestUser() {
         return User.builder()
-                .email("test@domain.com")
-                .firstName("John")
-                .lastName("Doe")
+                .email("test%d@domain.com".formatted(randomLong()))
+                .firstName(UUID.randomUUID().toString())
+                .lastName(UUID.randomUUID().toString())
                 .encryptedPassword("encryptedPassword")
                 .build();
+    }
+
+    private static ProjectId randomProjectId() {
+        return new ProjectId(randomLong());
+    }
+
+    private static long randomLong() {
+        return new Random().nextLong();
     }
 
 }

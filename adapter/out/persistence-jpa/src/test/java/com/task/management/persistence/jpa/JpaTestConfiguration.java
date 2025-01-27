@@ -1,5 +1,6 @@
 package com.task.management.persistence.jpa;
 
+import com.task.management.persistence.jpa.mapper.ProjectDetailsMapper;
 import com.task.management.persistence.jpa.mapper.ProjectMapper;
 import com.task.management.persistence.jpa.mapper.UserMapper;
 import com.task.management.persistence.jpa.repository.JpaProjectRepository;
@@ -24,8 +25,9 @@ public class JpaTestConfiguration {
 
     @Bean
     public JpaProjectRepositoryAdapter projectRepositoryAdapter(JpaProjectRepository jpaProjectRepository,
-                                                                ProjectMapper projectMapper) {
-        return new JpaProjectRepositoryAdapter(jpaProjectRepository, projectMapper);
+                                                                ProjectMapper projectMapper,
+                                                                ProjectDetailsMapper projectDetailsMapper) {
+        return new JpaProjectRepositoryAdapter(jpaProjectRepository, projectMapper, projectDetailsMapper);
     }
 
     @Bean
@@ -38,4 +40,9 @@ public class JpaTestConfiguration {
         return new ProjectMapper(jpaUserRepository);
     }
 
+    @Bean
+    public ProjectDetailsMapper projectDetailsMapper(ProjectMapper projectMapper,
+                                                     UserMapper userMapper) {
+        return new ProjectDetailsMapper(projectMapper, userMapper);
+    }
 }
