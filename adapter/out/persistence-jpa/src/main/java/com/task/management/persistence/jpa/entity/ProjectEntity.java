@@ -16,6 +16,7 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
@@ -69,6 +70,12 @@ public class ProjectEntity {
         this.title = requireNonNull(title, "Title is required");
         this.description = requireNonNull(description, "Description is required");
         this.owner = requireNonNull(owner, "Owner is required");
-        this.members = members;
+        this.members = Optional.ofNullable(members).orElse(new ArrayList<>());
+    }
+
+    public void addMember(UserEntity member) {
+        requireNonNull(member, "Member is required");
+        this.members.add(member);
+        member.getProjects().add(this);
     }
 }

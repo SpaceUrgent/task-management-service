@@ -5,6 +5,7 @@ import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectDetails;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
+import com.task.management.application.port.out.AddProjectMemberPort;
 import com.task.management.application.port.out.AddProjectPort;
 import com.task.management.application.port.out.FindProjectDetailsPort;
 import com.task.management.application.port.out.FindProjectPort;
@@ -14,6 +15,7 @@ import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.mapper.ProjectDetailsMapper;
 import com.task.management.persistence.jpa.mapper.ProjectMapper;
 import com.task.management.persistence.jpa.repository.JpaProjectRepository;
+import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -27,8 +29,10 @@ public class JpaProjectRepositoryAdapter implements AddProjectPort,
                                                     FindProjectPort,
                                                     FindProjectsByMemberPort,
                                                     FindProjectDetailsPort,
-                                                    UpdateProjectPort {
+                                                    UpdateProjectPort,
+                                                    AddProjectMemberPort {
     private final JpaProjectRepository jpaProjectRepository;
+    private final JpaUserRepository jpaUserRepository;
     private final ProjectMapper projectMapper;
     private final ProjectDetailsMapper projectDetailsMapper;
 
@@ -71,6 +75,14 @@ public class JpaProjectRepositoryAdapter implements AddProjectPort,
         Optional.ofNullable(command.description()).ifPresent(projectEntity::setDescription);
         projectEntity = jpaProjectRepository.save(projectEntity);
         return projectMapper.toModel(projectEntity);
+    }
+
+    @Override
+    public void addMember(ProjectId projectId, UserId memberId) {
+        projectIdRequired(projectId);
+        requireNonNull(memberId, "Member id is required");
+        final var projectEntity = getProjectEntity(projectId.value());
+        projectEntity.addMember(jpaUserRepository.getReferenceById(memberId.value()));
     }
 
     private ProjectEntity getProjectEntity(final Long id) {

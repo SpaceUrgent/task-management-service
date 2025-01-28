@@ -123,6 +123,26 @@ class JpaProjectRepositoryAdapterTest {
         );
     }
 
+    @Test
+    void addMember_shouldAddProjectMember() {
+        final var givenProjectId = saveAndGetTestProject().getId();
+        final var givenMemberId = saveAndGetTestUser().getId();
+        projectRepository.addMember(givenProjectId, givenMemberId);
+        final var updatedProject = projectRepository.findById(givenProjectId).orElse(null);
+        assertNotNull(updatedProject);
+        assertTrue(updatedProject.hasMember(givenMemberId));
+    }
+
+    @Test
+    void addMember_shouldThrowEntityNotFoundException_whenProjectEntityDoesNotExist() {
+        final var givenProjectId = randomProjectId();
+        final var givenMemberId = saveAndGetTestUser().getId();
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> projectRepository.addMember(givenProjectId, givenMemberId)
+        );
+    }
+
     private void assertMatches(Project expected, ProjectEntity actual) {
         assertEquals(expected.getId().value(), actual.getId());
         assertEquals(expected.getTitle(), actual.getTitle());

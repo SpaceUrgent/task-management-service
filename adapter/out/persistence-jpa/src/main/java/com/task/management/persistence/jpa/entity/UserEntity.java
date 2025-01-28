@@ -13,7 +13,9 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Entity
@@ -43,7 +45,7 @@ public class UserEntity {
     private String encryptedPassword;
 
     @ManyToMany(mappedBy = "members")
-    private List<ProjectEntity> projects;
+    private List<ProjectEntity> projects = new ArrayList<>();
 
     protected UserEntity() {
     }
@@ -55,7 +57,8 @@ public class UserEntity {
                       String email,
                       String firstName,
                       String lastName,
-                      String encryptedPassword) {
+                      String encryptedPassword,
+                      List<ProjectEntity> projects) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -63,5 +66,6 @@ public class UserEntity {
         this.firstName = firstName;
         this.lastName = lastName;
         this.encryptedPassword = encryptedPassword;
+        this.projects = Optional.ofNullable(projects).orElse(new ArrayList<>());
     }
 }

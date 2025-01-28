@@ -25,9 +25,15 @@ public class JpaTestConfiguration {
 
     @Bean
     public JpaProjectRepositoryAdapter projectRepositoryAdapter(JpaProjectRepository jpaProjectRepository,
+                                                                JpaUserRepository jpaUserRepository,
                                                                 ProjectMapper projectMapper,
                                                                 ProjectDetailsMapper projectDetailsMapper) {
-        return new JpaProjectRepositoryAdapter(jpaProjectRepository, projectMapper, projectDetailsMapper);
+        return new JpaProjectRepositoryAdapter(
+                jpaProjectRepository,
+                jpaUserRepository,
+                projectMapper,
+                projectDetailsMapper
+        );
     }
 
     @Bean
