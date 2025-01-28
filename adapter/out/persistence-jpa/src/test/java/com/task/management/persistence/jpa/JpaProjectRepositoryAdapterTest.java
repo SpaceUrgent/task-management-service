@@ -25,6 +25,7 @@ import java.util.function.Predicate;
 import static java.lang.Math.ceilDiv;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Transactional
 @SpringBootTest(classes = JpaTestConfiguration.class)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 class JpaProjectRepositoryAdapterTest {
@@ -47,7 +48,18 @@ class JpaProjectRepositoryAdapterTest {
         assertNotNull(savedJpaUser.getCreatedAt());
     }
 
-    @Transactional
+    @Test
+    void findById_shouldReturnOptionalOfProject_whenProjectExists() {
+        final var expectedProject = saveAndGetTestProject();
+        assertEquals(expectedProject, projectRepository.findById(expectedProject.getId()).orElse(null));
+    }
+
+    @Test
+    void findById_shouldReturnEmptyOptional_whenProjectDoesNotExists() {
+        final var givenProjectId = randomProjectId();
+        assertTrue(projectRepository.findById(givenProjectId).isEmpty());
+    }
+
     @Sql(
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
         scripts = "classpath:sql/insert_projects.sql"
@@ -74,7 +86,6 @@ class JpaProjectRepositoryAdapterTest {
         assertEquals(totalProjectsWithTestMember, receivedTotal);
     }
 
-    @Transactional
     @Test
     void findProjectDetails_shouldReturnOptionalOfProjectDetails_whenProjectExists() {
         final var expectedOwner = saveAndGetTestUser();
@@ -91,7 +102,6 @@ class JpaProjectRepositoryAdapterTest {
         assertTrue(projectRepository.findProjectDetails(randomProjectId()).isEmpty());
     }
 
-    @Transactional
     @Test
     void updateProject_shouldReturnUpdate_whenAllConditionsMet() {
         final var project = saveAndGetTestProject();

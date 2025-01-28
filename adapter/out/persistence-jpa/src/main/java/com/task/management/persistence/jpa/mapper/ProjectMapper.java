@@ -24,7 +24,7 @@ public class ProjectMapper {
         final var memberReferences = project.getMembers().stream()
                 .map(UserId::value)
                 .map(jpaUserRepository::getReferenceById)
-                .toList();
+                .collect(Collectors.toList());
         return ProjectEntity.builder()
                 .createdAt(Instant.now())
                 .title(project.getTitle())

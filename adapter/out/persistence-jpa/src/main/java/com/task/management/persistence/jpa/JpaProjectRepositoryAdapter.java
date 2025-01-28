@@ -7,6 +7,7 @@ import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.out.AddProjectPort;
 import com.task.management.application.port.out.FindProjectDetailsPort;
+import com.task.management.application.port.out.FindProjectPort;
 import com.task.management.application.port.out.FindProjectsByMemberPort;
 import com.task.management.application.port.out.UpdateProjectPort;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
@@ -23,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
 public class JpaProjectRepositoryAdapter implements AddProjectPort,
+                                                    FindProjectPort,
                                                     FindProjectsByMemberPort,
                                                     FindProjectDetailsPort,
                                                     UpdateProjectPort {
@@ -36,6 +38,12 @@ public class JpaProjectRepositoryAdapter implements AddProjectPort,
         var projectEntity = projectMapper.toEntity(project);
         projectEntity = jpaProjectRepository.save(projectEntity);
         return projectMapper.toModel(projectEntity);
+    }
+
+    @Override
+    public Optional<Project> findById(ProjectId id) {
+        projectIdRequired(id);
+        return jpaProjectRepository.findById(id.value()).map(projectMapper::toModel);
     }
 
     @Override
@@ -58,10 +66,11 @@ public class JpaProjectRepositoryAdapter implements AddProjectPort,
     public Project update(ProjectId id, UpdateProjectCommand command) {
         projectIdRequired(id);
         requireNonNull(command, "Update project command is required");
-        final var projectEntity = getProjectEntity(id.value());
+        var projectEntity = getProjectEntity(id.value());
         Optional.ofNullable(command.title()).ifPresent(projectEntity::setTitle);
         Optional.ofNullable(command.description()).ifPresent(projectEntity::setDescription);
-        return projectMapper.toModel(jpaProjectRepository.save(projectEntity));
+        projectEntity = jpaProjectRepository.save(projectEntity);
+        return projectMapper.toModel(projectEntity);
     }
 
     private ProjectEntity getProjectEntity(final Long id) {

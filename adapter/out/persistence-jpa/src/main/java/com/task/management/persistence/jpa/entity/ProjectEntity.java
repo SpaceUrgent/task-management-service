@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -49,7 +50,7 @@ public class ProjectEntity {
             joinColumns = @JoinColumn(name = "project_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "member_id", nullable = false)
     )
-    private List<UserEntity> members;
+    private List<UserEntity> members = new ArrayList<>();
 
     protected ProjectEntity() {
     }
