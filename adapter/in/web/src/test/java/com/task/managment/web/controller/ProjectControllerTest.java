@@ -13,7 +13,9 @@ import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.CreateProjectUseCase;
 import com.task.management.application.port.in.GetAvailableProjectsUseCase;
 import com.task.management.application.port.in.GetProjectDetailsUseCase;
+import com.task.management.application.port.in.UpdateProjectUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
+import com.task.management.application.port.in.dto.UpdateProjectDto;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.dto.PageDto;
 import com.task.managment.web.dto.ProjectDetailsDto;
@@ -36,6 +38,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -56,6 +59,8 @@ class ProjectControllerTest {
     private GetAvailableProjectsUseCase getAvailableProjectsUseCase;
     @MockBean
     private GetProjectDetailsUseCase getProjectDetailsUseCase;
+    @MockBean
+    private UpdateProjectUseCase updateProjectUseCase;
 
     @MockUser
     @Test
@@ -200,6 +205,93 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
     }
 
+    @MockUser
+    @Test
+    void updateProjectInfo_shouldReturnUpdatedProject_whenAllConditionsMet() throws Exception {
+        final var givenUpdateDto = getUpdateProjectDto();
+        final var expectedProject = getTestProject();
+        expectedProject.setTitle(givenUpdateDto.getTitle());
+        expectedProject.setDescription(givenUpdateDto.getDescription());
+        final var givenProjectId = expectedProject.getId();
+        doReturn(expectedProject).when(updateProjectUseCase)
+                        .updateProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(givenUpdateDto));
+        mockMvc.perform(patch("/api/projects/{projectId}", givenProjectId.value())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(givenUpdateDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(expectedProject.getId().value()))
+                .andExpect(jsonPath("$.title").value(expectedProject.getTitle()))
+                .andExpect(jsonPath("$.description").value(expectedProject.getDescription()));
+    }
+
+    @MockUser
+    @Test
+    void updateProjectInfo_shouldReturnBadRequest_whenRequestBodyIsMissing() throws Exception {
+        final var givenProjectId = randomProjectId();
+        mockMvc.perform(patch("/api/projects/{projectId}", givenProjectId.value()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Bad request"))
+                .andExpect(jsonPath("$.message").value("Required request body is missing"))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
+    }
+
+    @MockUser
+    @Test
+    void updateProjectInfo_shouldReturnBadRequest_whenRequestBodyIsInvalid() throws Exception {
+        final var updateProjectDto = new UpdateProjectDto();
+        updateProjectDto.setTitle(" ");
+        updateProjectDto.setDescription(" ");
+        final var givenProjectId = randomProjectId();
+        mockMvc.perform(patch("/api/projects/{projectId}", givenProjectId.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateProjectDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Bad request"))
+                .andExpect(jsonPath("$.message").value("Request validation error"))
+                .andExpect(jsonPath("$.errors.title").value("Title is required"))
+                .andExpect(jsonPath("$.errors.description").value("Description is required"))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
+    }
+
+    @MockUser
+    @Test
+    void updateProjectInfo_shouldReturnNotFound_whenEntityNotFound() throws Exception {
+        final var errorMessage = "Project not found";
+        final var givenProjectId = randomProjectId();
+        final var updateDto = getUpdateProjectDto();
+        doThrow(new EntityNotFoundException(errorMessage)).when(updateProjectUseCase)
+                .updateProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(updateDto));
+        mockMvc.perform(patch("/api/projects/{givenProjectId}", givenProjectId.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Entity not found"))
+                .andExpect(jsonPath("$.message").value(errorMessage))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
+    }
+
+    @MockUser
+    @Test
+    void updateProjectInfo_shouldReturnForbidden_whenNotEnoughPrivileges() throws Exception {
+        final var errorMessage = "Project not found";
+        final var givenProjectId = randomProjectId();
+        final var updateDto = getUpdateProjectDto();
+        doThrow(new InsufficientPrivilegesException(errorMessage)).when(updateProjectUseCase)
+                .updateProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(updateDto));
+        mockMvc.perform(patch("/api/projects/{givenProjectId}", givenProjectId.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDto)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Action not allowed"))
+                .andExpect(jsonPath("$.message").value(errorMessage))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
+    }
+
     private void assertMatches(ProjectDetails expected, ProjectDetailsDto actual) {
         assertMatches(expected.project(), actual.getProject());
         assertMatches(expected.owner(), actual.getOwner());
@@ -224,6 +316,13 @@ class ProjectControllerTest {
         assertEquals(expected.getId().value(), actual.getId());
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
+    }
+
+    private static UpdateProjectDto getUpdateProjectDto() {
+        final var updateDto = new UpdateProjectDto();
+        updateDto.setTitle("New title");
+        updateDto.setDescription("New Description");
+        return updateDto;
     }
 
     private static CreateProjectDto getCreateProjectDto() {
