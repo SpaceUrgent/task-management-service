@@ -25,8 +25,8 @@ public class WebTestConfiguration {
     }
 
     @Bean
-    public WebProjectMapper webProjectMapper() {
-        return new WebProjectMapper();
+    public WebProjectMapper webProjectMapper(WebUserMapper webUserMapper) {
+        return new WebProjectMapper(webUserMapper);
     }
 
     @Bean

@@ -1,5 +1,7 @@
 package com.task.managment.web.controller;
 
+import com.task.management.application.exception.EntityNotFoundException;
+import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.managment.web.dto.ErrorDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -41,6 +43,28 @@ public class GlobalExceptionHandler {
         return ErrorDto.builder()
                 .reason("Bad request")
                 .message("Required request body is missing")
+                .request(request)
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ErrorDto handleEntityNotFoundException(EntityNotFoundException exception,
+                                                  HttpServletRequest request) {
+        return ErrorDto.builder()
+                .reason("Entity not found")
+                .message(exception.getMessage())
+                .request(request)
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(InsufficientPrivilegesException.class)
+    public ErrorDto handleInsufficientPrivilegesException(InsufficientPrivilegesException exception,
+                                                          HttpServletRequest request) {
+        return ErrorDto.builder()
+                .reason("Action not allowed")
+                .message(exception.getMessage())
                 .request(request)
                 .build();
     }

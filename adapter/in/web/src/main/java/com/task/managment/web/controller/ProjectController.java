@@ -1,12 +1,18 @@
 package com.task.managment.web.controller;
 
 import com.task.management.application.common.PageQuery;
+import com.task.management.application.exception.EntityNotFoundException;
+import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.management.application.model.Project;
+import com.task.management.application.model.ProjectDetails;
+import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.CreateProjectUseCase;
 import com.task.management.application.port.in.GetAvailableProjectsUseCase;
+import com.task.management.application.port.in.GetProjectDetailsUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
 import com.task.managment.web.dto.PageDto;
+import com.task.managment.web.dto.ProjectDetailsDto;
 import com.task.managment.web.dto.ProjectDto;
 import com.task.managment.web.mapper.WebProjectMapper;
 import com.task.managment.web.security.SecuredUser;
@@ -16,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +38,7 @@ import java.util.List;
 public class ProjectController {
     private final CreateProjectUseCase createProjectUseCase;
     private final GetAvailableProjectsUseCase getAvailableProjectsUseCase;
+    private final GetProjectDetailsUseCase getProjectDetailsUseCase;
     private final WebProjectMapper projectMapper;
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -56,6 +64,12 @@ public class ProjectController {
                 .build();
     }
 
+    @GetMapping("/{projectId}")
+    public ProjectDetailsDto getProjectDetails(@PathVariable Long projectId) throws InsufficientPrivilegesException, EntityNotFoundException {
+        final var currentUserId = currentUser().getId();
+        final var projectDetails = getProjectDetailsUseCase.getProjectDetails(currentUserId, new ProjectId(projectId));
+        return projectMapper.toDto(projectDetails);
+    }
 
 
     private SecuredUser currentUser() {

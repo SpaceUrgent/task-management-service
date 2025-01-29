@@ -3,15 +3,22 @@ package com.task.managment.web.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.management.application.common.PageQuery;
+import com.task.management.application.exception.EntityNotFoundException;
+import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.management.application.model.Project;
+import com.task.management.application.model.ProjectDetails;
 import com.task.management.application.model.ProjectId;
+import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.CreateProjectUseCase;
 import com.task.management.application.port.in.GetAvailableProjectsUseCase;
+import com.task.management.application.port.in.GetProjectDetailsUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.dto.PageDto;
+import com.task.managment.web.dto.ProjectDetailsDto;
 import com.task.managment.web.dto.ProjectDto;
+import com.task.managment.web.dto.UserDto;
 import com.task.managment.web.security.MockUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +34,7 @@ import static com.task.managment.web.security.MockUser.DEFAULT_USER_ID_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -46,6 +54,8 @@ class ProjectControllerTest {
     private CreateProjectUseCase createProjectUseCase;
     @MockBean
     private GetAvailableProjectsUseCase getAvailableProjectsUseCase;
+    @MockBean
+    private GetProjectDetailsUseCase getProjectDetailsUseCase;
 
     @MockUser
     @Test
@@ -143,6 +153,73 @@ class ProjectControllerTest {
         }
     }
 
+    @MockUser
+    @Test
+    void getProjectDetails_shouldReturnProjectDetails_whenAllConditionsMet() throws Exception {
+        final var projectDetails = getTestProjectDetails();
+        final var givenProjectId = projectDetails.project().getId();
+        doReturn(projectDetails).when(getProjectDetailsUseCase)
+                .getProjectDetails(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
+        final var responseBody = mockMvc.perform(get("/api/projects/{givenProjectId}", givenProjectId.value()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        final var projectDetailsReceived = objectMapper.readValue(responseBody, ProjectDetailsDto.class);
+        assertMatches(projectDetails, projectDetailsReceived);
+    }
+
+    @MockUser
+    @Test
+    void getProjectDetails_shouldReturnNotFound_whenEntityNotFound() throws Exception {
+        final var givenProjectId = randomProjectId();
+        final var errorMessage = "Project not found";
+        doThrow(new EntityNotFoundException(errorMessage)).when(getProjectDetailsUseCase)
+                .getProjectDetails(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
+        mockMvc.perform(get("/api/projects/{givenProjectId}", givenProjectId.value()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Entity not found"))
+                .andExpect(jsonPath("$.message").value(errorMessage))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
+    }
+
+    @MockUser
+    @Test
+    void getProjectDetails_shouldReturnForbidden_whenNotEnoughPrivileges() throws Exception {
+        final var givenProjectId = randomProjectId();
+        final var errorMessage = "Not enough privileges";
+        doThrow(new InsufficientPrivilegesException(errorMessage)).when(getProjectDetailsUseCase)
+                .getProjectDetails(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
+        mockMvc.perform(get("/api/projects/{givenProjectId}", givenProjectId.value()))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Action not allowed"))
+                .andExpect(jsonPath("$.message").value(errorMessage))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
+    }
+
+    private void assertMatches(ProjectDetails expected, ProjectDetailsDto actual) {
+        assertMatches(expected.project(), actual.getProject());
+        assertMatches(expected.owner(), actual.getOwner());
+        assertMatches(expected.members(), actual.getMembers());
+    }
+
+    private void assertMatches(List<User> expected, List<UserDto> actual) {
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            assertMatches(expected.get(i), actual.get(i));
+        }
+    }
+
+    private void assertMatches(User expected, UserDto actual) {
+        assertEquals(expected.getId().value(), actual.getId());
+        assertEquals(expected.getEmail(), actual.getEmail());
+        assertEquals(expected.getFirstName(), actual.getFirstName());
+        assertEquals(expected.getLastName(), actual.getLastName());
+    }
+
     private void assertMatches(Project expected, ProjectDto actual) {
         assertEquals(expected.getId().value(), actual.getId());
         assertEquals(expected.getTitle(), actual.getTitle());
@@ -156,22 +233,49 @@ class ProjectControllerTest {
         return createProjectDto;
     }
 
+    private static ProjectDetails getTestProjectDetails() {
+        final var owner = getTestUser();
+        return ProjectDetails.builder()
+                .project(getTestProject(owner.getId()))
+                .owner(owner)
+                .members(List.of(owner))
+                .build();
+    }
+
+    private static User getTestUser() {
+        final var userIdValue = randomLong();
+        return User.builder()
+                .id(new UserId(userIdValue))
+                .firstName("Name-%d".formatted(userIdValue))
+                .lastName("Last-Name-%d".formatted(userIdValue))
+                .email("user-%d@mail.com")
+                .encryptedPassword("encryptedPassword")
+                .build();
+    }
+
     private static List<Project> getTestProjects(int size) {
         return IntStream.range(0, size).mapToObj(value -> getTestProject()).toList();
     }
 
     private static Project getTestProject() {
-        return getTestProject(new UserId(new Random().nextLong()));
+        return getTestProject(new UserId(randomLong()));
     }
 
-    private static Project getTestProject(final UserId expectedOwnerId) {
-        final var projectId = new ProjectId(new Random().nextLong());
+    private static Project getTestProject(final UserId ownerId) {
+        final var projectId = randomProjectId();
         return Project.builder()
                 .id(projectId)
                 .title("Project %d".formatted(projectId.value()))
                 .description("Project %d description".formatted(projectId.value()))
-                .owner(expectedOwnerId)
+                .owner(ownerId)
                 .build();
     }
 
+    private static ProjectId randomProjectId() {
+        return new ProjectId(randomLong());
+    }
+
+    private static Long randomLong() {
+        return new Random().nextLong();
+    }
 }
