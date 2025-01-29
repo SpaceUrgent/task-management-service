@@ -3,15 +3,16 @@ package com.task.managment.web.controller;
 import com.task.management.application.common.PageQuery;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.exception.InsufficientPrivilegesException;
-import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
+import com.task.management.application.port.in.AddProjectMemberByEmailUseCase;
 import com.task.management.application.port.in.CreateProjectUseCase;
 import com.task.management.application.port.in.GetAvailableProjectsUseCase;
 import com.task.management.application.port.in.GetProjectDetailsUseCase;
 import com.task.management.application.port.in.UpdateProjectUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
 import com.task.management.application.port.in.dto.UpdateProjectDto;
+import com.task.managment.web.dto.EmailDto;
 import com.task.managment.web.dto.PageDto;
 import com.task.managment.web.dto.ProjectDetailsDto;
 import com.task.managment.web.dto.ProjectDto;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +42,7 @@ public class ProjectController {
     private final GetAvailableProjectsUseCase getAvailableProjectsUseCase;
     private final GetProjectDetailsUseCase getProjectDetailsUseCase;
     private final UpdateProjectUseCase updateProjectUseCase;
+    private final AddProjectMemberByEmailUseCase addProjectMemberByEmailUseCase;
     private final WebProjectMapper projectMapper;
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -68,7 +71,7 @@ public class ProjectController {
 
     @GetMapping("/{projectId}")
     public ProjectDetailsDto getProjectDetails(@PathVariable Long projectId) throws InsufficientPrivilegesException, EntityNotFoundException {
-        final var currentUserId = getCurrentUserId();
+        final var currentUserId = currentUserId();
         final var projectDetails = getProjectDetailsUseCase.getProjectDetails(currentUserId, new ProjectId(projectId));
         return projectMapper.toDto(projectDetails);
     }
@@ -79,14 +82,24 @@ public class ProjectController {
                                         @RequestBody @Valid @NotNull
                                         UpdateProjectDto updateProjectDto) throws InsufficientPrivilegesException, EntityNotFoundException {
         final var updated = updateProjectUseCase.updateProject(
-                getCurrentUserId(),
+                currentUserId(),
                 new ProjectId(projectId),
                 updateProjectDto
         );
         return projectMapper.toDto(updated);
     }
 
-    private UserId getCurrentUserId() {
+    @PutMapping("/{projectId}/members")
+    public void addProjectMember(@PathVariable
+                                 Long projectId,
+                                 @RequestBody @Valid @NotNull
+                                 EmailDto emailDto) throws InsufficientPrivilegesException, EntityNotFoundException {
+        addProjectMemberByEmailUseCase.addMember(
+                currentUserId(), new ProjectId(projectId), emailDto.getEmail()
+        );
+    }
+
+    private UserId currentUserId() {
         return currentUser().getId();
     }
 

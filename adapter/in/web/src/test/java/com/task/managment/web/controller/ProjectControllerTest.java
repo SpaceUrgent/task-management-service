@@ -10,6 +10,7 @@ import com.task.management.application.model.ProjectDetails;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
+import com.task.management.application.port.in.AddProjectMemberByEmailUseCase;
 import com.task.management.application.port.in.CreateProjectUseCase;
 import com.task.management.application.port.in.GetAvailableProjectsUseCase;
 import com.task.management.application.port.in.GetProjectDetailsUseCase;
@@ -17,6 +18,7 @@ import com.task.management.application.port.in.UpdateProjectUseCase;
 import com.task.management.application.port.in.dto.CreateProjectDto;
 import com.task.management.application.port.in.dto.UpdateProjectDto;
 import com.task.managment.web.WebTest;
+import com.task.managment.web.dto.EmailDto;
 import com.task.managment.web.dto.PageDto;
 import com.task.managment.web.dto.ProjectDetailsDto;
 import com.task.managment.web.dto.ProjectDto;
@@ -34,12 +36,17 @@ import java.util.stream.IntStream;
 
 import static com.task.managment.web.security.MockUser.DEFAULT_USER_ID_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -61,6 +68,8 @@ class ProjectControllerTest {
     private GetProjectDetailsUseCase getProjectDetailsUseCase;
     @MockBean
     private UpdateProjectUseCase updateProjectUseCase;
+    @MockBean
+    private AddProjectMemberByEmailUseCase addProjectMemberByEmailUseCase;
 
     @MockUser
     @Test
@@ -290,6 +299,93 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.reason").value("Action not allowed"))
                 .andExpect(jsonPath("$.message").value(errorMessage))
                 .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
+    }
+
+    @MockUser
+    @Test
+    void addProjectMember_shouldAddMember_whenAllConditionsMet() throws Exception {
+        final var givenRequestBody = new EmailDto();
+        givenRequestBody.setEmail("member@mail.com");
+        final var givenProjectId = randomProjectId();
+
+        mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(givenRequestBody)))
+                .andExpect(status().isOk());
+
+        verify(addProjectMemberByEmailUseCase)
+                .addMember(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(givenRequestBody.getEmail()));
+    }
+
+    @MockUser
+    @Test
+    void addProjectMember_shouldReturnBadRequest_whenRequestBodyIsMissing() throws Exception {
+        final var givenProjectId = randomProjectId();
+        mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Bad request"))
+                .andExpect(jsonPath("$.message").value("Required request body is missing"))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d/members".formatted(givenProjectId.value())));
+
+        verifyNoMoreInteractions(addProjectMemberByEmailUseCase);
+    }
+
+    @MockUser
+    @Test
+    void addProjectMember_shouldReturnBadRequest_whenRequestBodyIsInvalid() throws Exception {
+        final var givenRequestBody = new EmailDto();
+        final var givenProjectId = randomProjectId();
+
+        mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(givenRequestBody)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Bad request"))
+                .andExpect(jsonPath("$.message").value("Request validation error"))
+                .andExpect(jsonPath("$.errors.email").value("Email is required"))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d/members".formatted(givenProjectId.value())));
+
+        verifyNoInteractions(addProjectMemberByEmailUseCase);
+    }
+
+    @MockUser
+    @Test
+    void addProjectMember_shouldReturnNotFound_whenEntityNotFound() throws Exception {
+        final var errorMessage = "Project not found";
+        final var givenRequestBody = new EmailDto();
+        givenRequestBody.setEmail("member@mail.com");
+        final var givenProjectId = randomProjectId();
+        doThrow(new EntityNotFoundException(errorMessage)).when(addProjectMemberByEmailUseCase)
+                .addMember(any(), any(), any());
+        mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(givenRequestBody)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Entity not found"))
+                .andExpect(jsonPath("$.message").value(errorMessage))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d/members".formatted(givenProjectId.value())));
+    }
+
+    @MockUser
+    @Test
+    void addProjectMember_shouldReturnForbidden_whenNotEnoughPrivileges() throws Exception {
+        final var errorMessage = "Not enough privileges";
+        final var givenRequestBody = new EmailDto();
+        givenRequestBody.setEmail("member@mail.com");
+        final var givenProjectId = randomProjectId();
+        doThrow(new InsufficientPrivilegesException(errorMessage)).when(addProjectMemberByEmailUseCase)
+                .addMember(any(), any(), any());
+        mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(givenRequestBody)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Action not allowed"))
+                .andExpect(jsonPath("$.message").value(errorMessage))
+                .andExpect(jsonPath("$.path").value("/api/projects/%d/members".formatted(givenProjectId.value())));
     }
 
     private void assertMatches(ProjectDetails expected, ProjectDetailsDto actual) {
