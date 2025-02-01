@@ -5,6 +5,7 @@ import com.task.management.application.model.ProjectId;
 
 import java.util.Optional;
 
+@Deprecated
 public interface FindProjectDetailsPort {
     Optional<ProjectDetails> findProjectDetails(ProjectId projectId);
 }

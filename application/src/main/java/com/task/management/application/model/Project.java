@@ -16,15 +16,15 @@ public class Project {
     private final ProjectId id;
     private String title;
     private String description;
-    private UserId owner;
-    private final Set<UserId> members;
+    private ProjectUser owner;
+    private final Set<ProjectUser> members;
 
     @Builder
     public Project(ProjectId id,
                    String title,
                    String description,
-                   UserId owner,
-                   Set<UserId> members) {
+                   ProjectUser owner,
+                   Set<ProjectUser> members) {
         this.id = id;
         this.title = requireNonNull(title, "Title is required");
         this.description = requireNonNull(description, "Description is required");
@@ -32,15 +32,18 @@ public class Project {
         this.members = Optional.ofNullable(members).orElse(new HashSet<>());
     }
 
-    public Set<UserId> getMembers() {
+    public Set<ProjectUser> getMembers() {
         return Collections.unmodifiableSet(this.members);
     }
 
     public boolean hasMember(UserId userId) {
-        return isOwner(userId) || members.contains(userId);
+        requireNonNull(userId, "User id is required");
+        return isOwner(userId)
+                || members.stream().anyMatch(projectUser -> userId.equals(projectUser.id()));
     }
 
     public boolean isOwner(UserId userId) {
-        return Objects.equals(this.owner, userId);
+        requireNonNull(userId, "User id is required");
+        return Objects.equals(this.owner.id(), userId);
     }
 }

@@ -6,6 +6,7 @@ import com.task.management.application.exception.InsufficientPrivilegesException
 import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectDetails;
 import com.task.management.application.model.ProjectId;
+import com.task.management.application.model.ProjectUser;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.AddProjectMemberByEmailUseCase;
 import com.task.management.application.port.in.CreateProjectUseCase;
@@ -52,6 +53,7 @@ public class ProjectService implements CreateProjectUseCase,
         return findProjectsByMemberPort.findProjectsByMember(userId, page);
     }
 
+    @Deprecated
     @Override
     public ProjectDetails getProjectDetails(UserId currentUser, ProjectId projectId) throws EntityNotFoundException, InsufficientPrivilegesException {
         userIdRequired(currentUser);
@@ -67,11 +69,12 @@ public class ProjectService implements CreateProjectUseCase,
         userIdRequired(userId);
         requireNonNull(createProjectDto, "Create project dto is required");
         validationService.validate(createProjectDto);
+        final var owner = ProjectUser.withId(userId);
         final var project = Project.builder()
                 .title(createProjectDto.getTitle())
                 .description(createProjectDto.getDescription())
-                .owner(userId)
-                .members(Set.of(userId))
+                .owner(owner)
+                .members(Set.of(owner))
                 .build();
         return addProjectPort.add(project);
     }

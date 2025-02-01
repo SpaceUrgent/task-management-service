@@ -6,6 +6,7 @@ import com.task.management.application.model.ProjectDetails;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
 
+@Deprecated
 public interface GetProjectDetailsUseCase {
     ProjectDetails getProjectDetails(UserId currentUser, ProjectId projectId) throws EntityNotFoundException, InsufficientPrivilegesException;
 }

@@ -6,6 +6,7 @@ import com.task.management.application.exception.InsufficientPrivilegesException
 import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectDetails;
 import com.task.management.application.model.ProjectId;
+import com.task.management.application.model.ProjectUser;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.dto.CreateProjectDto;
 import com.task.management.application.port.in.dto.UpdateProjectDto;
@@ -26,6 +27,7 @@ import org.mockito.stubbing.Answer;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.task.management.application.service.TestUtils.EMAIL;
@@ -80,10 +82,11 @@ class ProjectServiceTest {
         final var user = getTestUser();
         final var givenCurrentUser = user.getId();
         final var givenProjectId = randomProjectId();
+        final var owner = ProjectUser.withId(givenCurrentUser);
         final var project = Project.builder()
                 .id(givenProjectId)
-                .owner(givenCurrentUser)
-                .members(Set.of(givenCurrentUser))
+                .owner(owner)
+                .members(Set.of(owner))
                 .title(PROJECT_TITLE)
                 .description(PROJECT_DESCRIPTION)
                 .build();
@@ -109,10 +112,11 @@ class ProjectServiceTest {
         final var user = getTestUser();
         final var givenCurrentUser = randomUserId();
         final var givenProjectId = randomProjectId();
+        final var owner = ProjectUser.withId(user.getId());
         final var project = Project.builder()
                 .id(givenProjectId)
-                .owner(user.getId())
-                .members(Set.of(user.getId()))
+                .owner(owner)
+                .members(Set.of(owner))
                 .title(PROJECT_TITLE)
                 .description(PROJECT_DESCRIPTION)
                 .build();
@@ -133,8 +137,8 @@ class ProjectServiceTest {
         final var created = projectService.createProject(givenUserId, givenCreateProjectDto);
         assertEquals(givenCreateProjectDto.getTitle(), created.getTitle());
         assertEquals(givenCreateProjectDto.getDescription(), created.getDescription());
-        assertEquals(givenUserId, created.getOwner());
-        assertEquals(Set.of(givenUserId), created.getMembers());
+        assertEquals(givenUserId, created.getOwner().id());
+        assertEquals(Set.of(givenUserId), created.getMembers().stream().map(ProjectUser::id).collect(Collectors.toSet()));
     }
 
     @Test
@@ -142,10 +146,11 @@ class ProjectServiceTest {
         final var givenCurrentUserId = randomUserId();
         final var givenProjectId = randomProjectId();
         final var givenUpdateDto = getUpdateProjectDto();
+        final var owner = ProjectUser.withId(givenCurrentUserId);
         final var project = Project.builder()
                 .id(givenProjectId)
-                .owner(givenCurrentUserId)
-                .members(Set.of(givenCurrentUserId))
+                .owner(owner)
+                .members(Set.of(owner))
                 .title(PROJECT_TITLE)
                 .description(PROJECT_DESCRIPTION)
                 .build();
@@ -182,11 +187,12 @@ class ProjectServiceTest {
         final var givenCurrentUserId = randomUserId();
         final var givenProjectId = randomProjectId();
         final var givenUpdateDto = getUpdateProjectDto();
-        final var owner = randomUserId();
+        final var owner = ProjectUser.withId(randomUserId());
+        final var currentProjectUser = ProjectUser.withId(givenCurrentUserId);
         final var project = Project.builder()
                 .id(givenProjectId)
                 .owner(owner)
-                .members(Set.of(owner, givenCurrentUserId))
+                .members(Set.of(owner, currentProjectUser))
                 .title(PROJECT_TITLE)
                 .description(PROJECT_DESCRIPTION)
                 .build();
@@ -202,10 +208,11 @@ class ProjectServiceTest {
     @Test
     void addMember_shouldAddMember_whenAllConditionsMet() throws InsufficientPrivilegesException, EntityNotFoundException {
         final var givenCurrentUserId = randomUserId();
+        final var owner = ProjectUser.withId(givenCurrentUserId);
         final var project = Project.builder()
                 .id(randomProjectId())
-                .owner(givenCurrentUserId)
-                .members(Set.of(givenCurrentUserId))
+                .owner(owner)
+                .members(Set.of(owner))
                 .title(PROJECT_TITLE)
                 .description(PROJECT_DESCRIPTION)
                 .build();
@@ -234,10 +241,11 @@ class ProjectServiceTest {
     void addMember_shouldThrowEntityNotFoundException_whenUserByEmailNotFound() throws EntityNotFoundException {
         final var expectedErrorMessage = "User by email not found";
         final var givenCurrentUserId = randomUserId();
+        final var owner = ProjectUser.withId(givenCurrentUserId);
         final var project = Project.builder()
                 .id(randomProjectId())
-                .owner(givenCurrentUserId)
-                .members(Set.of(givenCurrentUserId))
+                .owner(owner)
+                .members(Set.of(owner))
                 .title(PROJECT_TITLE)
                 .description(PROJECT_DESCRIPTION)
                 .build();
@@ -255,12 +263,13 @@ class ProjectServiceTest {
     void addMember_shouldThrowInsufficientPrivilegesException_whenCurrentUserIsNotProjectMember() {
         final var givenCurrentUserId = randomUserId();
         final var givenProjectId = randomProjectId();
+        final var owner = ProjectUser.withId(randomUserId());
         final var project = Project.builder()
                 .id(givenProjectId)
                 .title(PROJECT_TITLE)
                 .description(PROJECT_DESCRIPTION)
-                .owner(randomUserId())
-                .members(Set.of(randomUserId()))
+                .owner(owner)
+                .members(Set.of(owner))
                 .build();
         doReturn(Optional.of(project)).when(findProjectPort).findById(eq(givenProjectId));
         final var exception = assertThrows(
@@ -290,13 +299,15 @@ class ProjectServiceTest {
     }
 
     private List<Project> randomProjectsWithMember(int pageSize, UserId givenUserId) {
+        final var owner = ProjectUser.withId(randomUserId());
+        final var givenMember = ProjectUser.withId(givenUserId);
         return IntStream.range(0 , pageSize)
                 .mapToObj(value -> Project.builder()
                         .id(randomProjectId())
                         .title("Title %d".formatted(value))
                         .description("Description %d".formatted(value))
-                        .owner(randomUserId())
-                        .members(Set.of(randomUserId(), givenUserId))
+                        .owner(owner)
+                        .members(Set.of(owner, givenMember))
                         .build())
                 .toList();
     }
