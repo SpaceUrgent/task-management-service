@@ -3,7 +3,9 @@ package com.task.management.persistence.jpa;
 import com.task.management.application.common.PageQuery;
 import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectId;
+import com.task.management.application.model.ProjectUser;
 import com.task.management.application.model.User;
+import com.task.management.application.model.UserId;
 import com.task.management.application.port.out.UpdateProjectPort.UpdateProjectCommand;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.repository.JpaProjectRepository;
@@ -40,7 +42,7 @@ class JpaProjectRepositoryAdapterTest {
     @Test
     void add_shouldReturnSavedProject() {
         var owner = userRepository.add(getTestUser());
-        final var givenProject = getTestProject(owner);
+        final var givenProject = getTestProject(owner.getId());
         final var added = projectRepository.add(givenProject);
         assertMatches(givenProject, added);
         final var savedJpaUser = jpaProjectRepository.findById(added.getId().value()).orElseThrow();
@@ -147,13 +149,13 @@ class JpaProjectRepositoryAdapterTest {
         assertEquals(expected.getId().value(), actual.getId());
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
-        assertEquals(expected.getOwner().value(), actual.getOwner().getId());
+        assertEquals(expected.getOwner().id().value(), actual.getOwner().getId());
     }
 
     private void assertMatches(Project expected, Project actual) {
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
-        assertEquals(expected.getOwner(), actual.getOwner());
+        assertEquals(expected.getOwner().id(), actual.getOwner().id());
     }
 
     private long countProjectEntitiesByMemberId(Long memberId) {
@@ -171,20 +173,21 @@ class JpaProjectRepositoryAdapterTest {
     }
 
     private Project saveAndGetTestProject(final User owner) {
-        return projectRepository.add(getTestProject(owner));
+        return projectRepository.add(getTestProject(owner.getId()));
     }
 
     private static Predicate<ProjectEntity> containsMemberWithIdPredicate(Long memberId) {
         return projectEntity -> projectEntity.getMembers().stream().anyMatch(userEntity -> memberId.equals(userEntity.getId()));
     }
 
-    private static Project getTestProject(User owner) {
+    private static Project getTestProject(UserId ownerId) {
         final var randomLong = randomLong();
+        final var owner = ProjectUser.withId(ownerId);
         return Project.builder()
                 .title("Project %d".formatted(randomLong))
                 .description("Project %d description".formatted(randomLong))
-                .owner(owner.getId())
-                .members(Set.of(owner.getId()))
+                .owner(owner)
+                .members(Set.of(owner))
                 .build();
     }
 

@@ -2,6 +2,7 @@ package com.task.management.persistence.jpa.mapper;
 
 import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectId;
+import com.task.management.application.model.ProjectUser;
 import com.task.management.application.model.UserId;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.entity.UserEntity;
@@ -9,6 +10,7 @@ import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,8 +22,9 @@ public class ProjectMapper {
 
     public ProjectEntity toEntity(Project project) {
         requireNonNull(project, "Project is required");
-        final var ownerReference = jpaUserRepository.getReferenceById(project.getOwner().value());
+        final var ownerReference = jpaUserRepository.getReferenceById(project.getOwner().id().value());
         final var memberReferences = project.getMembers().stream()
+                .map(ProjectUser::id)
                 .map(UserId::value)
                 .map(jpaUserRepository::getReferenceById)
                 .collect(Collectors.toList());
@@ -40,15 +43,23 @@ public class ProjectMapper {
                 .id(new ProjectId(projectEntity.getId()))
                 .title(projectEntity.getTitle())
                 .description(projectEntity.getDescription())
-                .owner(new UserId(projectEntity.getOwner().getId()))
-                .members(toMembers(projectEntity))
+                .owner(toProjectUser(projectEntity.getOwner()))
+                .members(toProjectUsers(projectEntity.getMembers()))
                 .build();
     }
 
-    private static Set<UserId> toMembers(ProjectEntity projectEntity) {
-        return projectEntity.getMembers().stream()
-                .map(UserEntity::getId)
-                .map(UserId::new)
+    private static Set<ProjectUser> toProjectUsers(List<UserEntity> userEntities) {
+        return userEntities.stream()
+                .map(ProjectMapper::toProjectUser)
                 .collect(Collectors.toSet());
+    }
+
+    private static ProjectUser toProjectUser(UserEntity userEntity) {
+        return ProjectUser.builder()
+                .id(new UserId(userEntity.getId()))
+                .email(userEntity.getEmail())
+                .firstName(userEntity.getFirstName())
+                .lastName(userEntity.getLastName())
+                .build();
     }
 }
