@@ -1,8 +1,10 @@
 package com.task.management.application.service;
 
+import com.task.management.application.dto.UserDTO;
 import com.task.management.application.exception.EmailExistsException;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.model.User;
+import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.dto.RegisterUserDto;
 import com.task.management.application.port.out.AddUserPort;
 import com.task.management.application.port.out.EmailExistsPort;
@@ -22,6 +24,7 @@ import static com.task.management.application.service.TestUtils.FIRST_NAME;
 import static com.task.management.application.service.TestUtils.LAST_NAME;
 import static com.task.management.application.service.TestUtils.PASSWORD;
 import static com.task.management.application.service.TestUtils.getTestUser;
+import static com.task.management.application.service.TestUtils.randomLong;
 import static com.task.management.application.service.TestUtils.randomUserId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,18 +53,34 @@ class UserServiceTest {
     @Test
     void register_shouldCreateNewUser_whenAllConditionsMet() throws EmailExistsException {
         final var registerDto = getRegisterUserDto();
+        final var expectedId = randomLong();
+        final var expectedUserDTO = UserDTO.builder()
+                .id(expectedId)
+                .email(registerDto.getEmail())
+                .firstName(registerDto.getFirstName())
+                .lastName(registerDto.getLastName())
+                .build();
 
         when(emailExistsPort.emailExists(registerDto.getEmail())).thenReturn(false);
         when(passwordEncryptor.encrypt(registerDto.getPassword())).thenReturn(ENCRYPTED_PASSWORD);
-        when(addUserPort.add(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(addUserPort.add(any())).thenAnswer(invocation -> {
+            var argument = (User) invocation.getArgument(0);
+            return User.builder()
+                    .id(new UserId(expectedId))
+                    .email(argument.getEmail())
+                    .firstName(argument.getFirstName())
+                    .lastName(argument.getLastName())
+                    .encryptedPassword(argument.getEncryptedPassword())
+                    .build();
+        });
 
-        User result = userService.register(registerDto);
-
-        assertNotNull(result);
-        assertEquals(registerDto.getEmail(), result.getEmail());
-        assertEquals(registerDto.getFirstName(), result.getFirstName());
-        assertEquals(registerDto.getLastName(), result.getLastName());
-        assertEquals(ENCRYPTED_PASSWORD, result.getEncryptedPassword());
+        UserDTO result = userService.register(registerDto);
+        assertEquals(expectedUserDTO, result);
+//        assertNotNull(result);
+//        assertEquals(registerDto.getEmail(), result.getEmail());
+//        assertEquals(registerDto.getFirstName(), result.getFirstName());
+//        assertEquals(registerDto.getLastName(), result.getLastName());
+//        assertEquals(ENCRYPTED_PASSWORD, result.getEncryptedPassword());
 
         verify(validationService, times(1)).validate(registerDto);
     }
@@ -79,9 +98,15 @@ class UserServiceTest {
 
     @Test
     void getUser_shouldReturnUser_whenUserWithGivenIdExists() throws EntityNotFoundException {
-        final var expectedUser = getTestUser();
-        doReturn(Optional.of(expectedUser)).when(findUserPort).findById(eq(expectedUser.getId()));
-        assertEquals(expectedUser, userService.getUser(expectedUser.getId()));
+        final var existingUser = getTestUser();
+        final var expectedUserDTO = UserDTO.builder()
+                .id(existingUser.getId().value())
+                .email(existingUser.getEmail())
+                .firstName(existingUser.getFirstName())
+                .lastName(existingUser.getLastName())
+                .build();
+        doReturn(Optional.of(existingUser)).when(findUserPort).findById(eq(existingUser.getId()));
+        assertEquals(expectedUserDTO, userService.getUser(existingUser.getId()));
     }
 
     @Test
@@ -97,9 +122,15 @@ class UserServiceTest {
 
     @Test
     void getUser_shouldReturnUser_whenUserWithGivenEmailExists() throws EntityNotFoundException {
-        final var expectedUser = getTestUser();
-        doReturn(Optional.of(expectedUser)).when(findUserPort).findByEmail(eq(expectedUser.getEmail()));
-        assertEquals(expectedUser, userService.getUser(expectedUser.getEmail()));
+        final var existingUser = getTestUser();
+        final var expectedUserDTO = UserDTO.builder()
+                .id(existingUser.getId().value())
+                .email(existingUser.getEmail())
+                .firstName(existingUser.getFirstName())
+                .lastName(existingUser.getLastName())
+                .build();
+        doReturn(Optional.of(existingUser)).when(findUserPort).findByEmail(eq(existingUser.getEmail()));
+        assertEquals(expectedUserDTO, userService.getUser(existingUser.getEmail()));
     }
 
     @Test

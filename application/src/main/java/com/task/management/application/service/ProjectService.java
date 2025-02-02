@@ -102,7 +102,7 @@ public class ProjectService implements CreateProjectUseCase,
         final var project = findOrThrow(projectId);
         checkUserIsMember(currentUserId, project);
         final var newMember = userService.getUser(memberEmail);
-        addProjectMemberPort.addMember(projectId, newMember.getId());
+        addProjectMemberPort.addMember(projectId, new UserId(newMember.id()));
     }
 
     private Project findOrThrow(ProjectId projectId) throws EntityNotFoundException {
