@@ -6,13 +6,13 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PageDto<T> {
+public class PageDTO<T> {
     private final int currentPage;
     private final int pageSize;
     private final List<T> data;
 
     @Builder
-    public PageDto(int currentPage,
+    public PageDTO(int currentPage,
                    int pageSize,
                    List<T> data) {
         this.currentPage = currentPage;

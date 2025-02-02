@@ -8,7 +8,6 @@ import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.ProjectUser;
 import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
-import org.junit.jupiter.api.Assertions;
 
 import java.util.List;
 import java.util.Random;

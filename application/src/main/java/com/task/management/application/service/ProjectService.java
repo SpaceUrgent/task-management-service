@@ -79,7 +79,6 @@ public class ProjectService implements CreateProjectUseCase,
                 .title(createProjectDto.getTitle())
                 .description(createProjectDto.getDescription())
                 .owner(owner)
-                .members(Set.of(owner))
                 .build();
         return projectMapper.toDTO(addProjectPort.add(project));
     }

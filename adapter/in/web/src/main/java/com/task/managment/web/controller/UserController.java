@@ -1,20 +1,16 @@
 package com.task.managment.web.controller;
 
+import com.task.management.application.dto.UserDTO;
 import com.task.management.application.exception.EntityNotFoundException;
+import com.task.management.application.port.in.GetUserByEmailUseCase;
 import com.task.management.application.port.in.GetUserUseCase;
-import com.task.managment.web.dto.ErrorDto;
-import com.task.managment.web.dto.UserDto;
-import com.task.managment.web.mapper.WebUserMapper;
 import com.task.managment.web.security.SecuredUser;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,26 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
     private final GetUserUseCase getUserUseCase;
-    private final WebUserMapper userMapper;
+    private final GetUserByEmailUseCase getUserByEmailUseCase;
+
+    @GetMapping("/email/{email}")
+    public UserDTO getUserByEmail(@PathVariable String email) throws EntityNotFoundException {
+        return getUserByEmailUseCase.getUser(email);
+    }
 
     @GetMapping(
             value = "/profile",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public UserDto getUserProfile() throws EntityNotFoundException {
-        final var user = getUserUseCase.getUser(currentUser().getId());
-        return userMapper.toDto(user);
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ErrorDto handleEntityNotFoundException(EntityNotFoundException exception,
-                                                HttpServletRequest request) {
-        return ErrorDto.builder()
-                .reason("Not found")
-                .message(exception.getMessage())
-                .request(request)
-                .build();
+    public UserDTO getUserProfile() throws EntityNotFoundException {
+        return getUserUseCase.getUser(currentUser().getId());
     }
 
     private SecuredUser currentUser() {

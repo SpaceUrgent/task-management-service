@@ -1,22 +1,20 @@
 package com.task.managment.web.controller;
 
 import com.task.management.application.common.PageQuery;
+import com.task.management.application.dto.ProjectDTO;
+import com.task.management.application.dto.ProjectDetailsDTO;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
-import com.task.management.application.port.in.AddProjectMemberByEmailUseCase;
+import com.task.management.application.port.in.AddProjectMemberUseCase;
 import com.task.management.application.port.in.CreateProjectUseCase;
 import com.task.management.application.port.in.GetAvailableProjectsUseCase;
 import com.task.management.application.port.in.GetProjectDetailsUseCase;
 import com.task.management.application.port.in.UpdateProjectUseCase;
-import com.task.management.application.port.in.dto.CreateProjectDto;
-import com.task.management.application.port.in.dto.UpdateProjectDto;
-import com.task.managment.web.dto.EmailDto;
-import com.task.managment.web.dto.PageDto;
-import com.task.managment.web.dto.ProjectDetailsDto;
-import com.task.managment.web.dto.ProjectDto;
-import com.task.managment.web.mapper.WebProjectMapper;
+import com.task.management.application.dto.CreateProjectDto;
+import com.task.management.application.dto.UpdateProjectDto;
+import com.task.managment.web.dto.PageDTO;
 import com.task.managment.web.security.SecuredUser;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -42,19 +40,17 @@ public class ProjectController {
     private final GetAvailableProjectsUseCase getAvailableProjectsUseCase;
     private final GetProjectDetailsUseCase getProjectDetailsUseCase;
     private final UpdateProjectUseCase updateProjectUseCase;
-    private final AddProjectMemberByEmailUseCase addProjectMemberByEmailUseCase;
-    private final WebProjectMapper projectMapper;
+    private final AddProjectMemberUseCase addProjectMemberByEmailUseCase;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public ProjectDto createProject(@RequestBody @Valid @NotNull
+    public ProjectDTO createProject(@RequestBody @Valid @NotNull
                                     CreateProjectDto createProjectDto) {
-        final var project = createProjectUseCase.createProject(currentUser().getId(), createProjectDto);
-        return projectMapper.toDto(project);
+        return createProjectUseCase.createProject(currentUser().getId(), createProjectDto);
     }
 
     @GetMapping
-    public PageDto<ProjectDto> getAvailableProjects(@RequestParam(name = "pageNumber", defaultValue = "1")
+    public PageDTO<ProjectDTO> getAvailableProjects(@RequestParam(name = "pageNumber", defaultValue = "1")
                                                     Integer pageNumber,
                                                     @RequestParam(name = "pageSize", defaultValue = "20")
                                                     Integer pageSize) {
@@ -62,40 +58,38 @@ public class ProjectController {
         final var projects = getAvailableProjectsUseCase.getAvailableProjects(
                 currentUserId, new PageQuery(pageNumber, pageSize)
         );
-        return PageDto.<ProjectDto>builder()
+        return PageDTO.<ProjectDTO>builder()
                 .currentPage(pageNumber)
                 .pageSize(pageSize)
-                .data(projectMapper.toDtoList(projects))
+                .data(projects)
                 .build();
     }
 
     @GetMapping("/{projectId}")
-    public ProjectDetailsDto getProjectDetails(@PathVariable Long projectId) throws InsufficientPrivilegesException, EntityNotFoundException {
+    public ProjectDetailsDTO getProjectDetails(@PathVariable Long projectId) throws InsufficientPrivilegesException, EntityNotFoundException {
         final var currentUserId = currentUserId();
-        final var projectDetails = getProjectDetailsUseCase.getProjectDetails(currentUserId, new ProjectId(projectId));
-        return projectMapper.toDto(projectDetails);
+        return getProjectDetailsUseCase.getProjectDetails(currentUserId, new ProjectId(projectId));
     }
 
     @PatchMapping("/{projectId}")
-    public ProjectDto updateProjectInfo(@PathVariable
+    public ProjectDTO updateProjectInfo(@PathVariable
                                         Long projectId,
                                         @RequestBody @Valid @NotNull
                                         UpdateProjectDto updateProjectDto) throws InsufficientPrivilegesException, EntityNotFoundException {
-        final var updated = updateProjectUseCase.updateProject(
+        return updateProjectUseCase.updateProject(
                 currentUserId(),
                 new ProjectId(projectId),
                 updateProjectDto
         );
-        return projectMapper.toDto(updated);
     }
 
-    @PutMapping("/{projectId}/members")
+    @PutMapping("/{projectId}/members/{memberId}")
     public void addProjectMember(@PathVariable
                                  Long projectId,
-                                 @RequestBody @Valid @NotNull
-                                 EmailDto emailDto) throws InsufficientPrivilegesException, EntityNotFoundException {
+                                 @PathVariable
+                                 Long memberId) throws InsufficientPrivilegesException, EntityNotFoundException {
         addProjectMemberByEmailUseCase.addMember(
-                currentUserId(), new ProjectId(projectId), emailDto.getEmail()
+                currentUserId(), new ProjectId(projectId), new UserId(memberId)
         );
     }
 

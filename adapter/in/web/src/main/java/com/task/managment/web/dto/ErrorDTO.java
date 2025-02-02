@@ -7,12 +7,11 @@ import lombok.Data;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ErrorDto {
+public class ErrorDTO {
     private final Instant timestamp;
     private final String reason;
     private final String message;
@@ -20,7 +19,7 @@ public class ErrorDto {
     private final String path;
 
     @Builder
-    public ErrorDto(String reason,
+    public ErrorDTO(String reason,
                     String message,
                     Map<String, String> errors,
                     HttpServletRequest request) {

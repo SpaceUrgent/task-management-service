@@ -3,10 +3,8 @@ package com.task.managment.web.controller;
 import com.task.management.application.dto.UserDTO;
 import com.task.management.application.exception.EmailExistsException;
 import com.task.management.application.port.in.RegisterUserUseCase;
-import com.task.management.application.port.in.dto.RegisterUserDto;
-import com.task.managment.web.dto.ErrorDto;
-import com.task.managment.web.dto.UserDto;
-import com.task.managment.web.mapper.WebUserMapper;
+import com.task.management.application.dto.RegisterUserDto;
+import com.task.managment.web.dto.ErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final WebUserMapper userMapper;
     private final RegisterUserUseCase registerUserUseCase;
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,8 +34,8 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(EmailExistsException.class)
-    public ErrorDto handleEmailExistsException(EmailExistsException exception, HttpServletRequest request) {
-        return ErrorDto.builder()
+    public ErrorDTO handleEmailExistsException(EmailExistsException exception, HttpServletRequest request) {
+        return ErrorDTO.builder()
                 .reason("Bad request")
                 .message(exception.getMessage())
                 .request(request)

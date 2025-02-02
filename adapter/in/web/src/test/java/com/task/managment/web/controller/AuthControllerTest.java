@@ -1,10 +1,11 @@
 package com.task.managment.web.controller;
 
+import com.task.management.application.dto.UserDTO;
 import com.task.management.application.exception.EmailExistsException;
 import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.RegisterUserUseCase;
-import com.task.management.application.port.in.dto.RegisterUserDto;
+import com.task.management.application.dto.RegisterUserDto;
 import com.task.management.application.port.out.FindUserPort;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
@@ -28,6 +29,7 @@ import static com.task.managment.web.TestUtils.ENCRYPTED_PASSWORD;
 import static com.task.managment.web.TestUtils.FIRST_NAME;
 import static com.task.managment.web.TestUtils.LAST_NAME;
 import static com.task.managment.web.TestUtils.PASSWORD;
+import static com.task.managment.web.TestUtils.randomLong;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -170,15 +172,14 @@ class AuthControllerTest {
         return registerUserDto;
     }
 
-    private static Answer<User> registerUserAnswer() {
+    private static Answer<UserDTO> registerUserAnswer() {
         return invocation -> {
             final var registerUserDto = (RegisterUserDto) invocation.getArgument(0);
-            return User.builder()
-                    .id(new UserId(new Random().nextLong()))
+            return UserDTO.builder()
+                    .id(randomLong())
                     .email(registerUserDto.getEmail())
                     .firstName(registerUserDto.getFirstName())
                     .lastName(registerUserDto.getLastName())
-                    .encryptedPassword(ENCRYPTED_PASSWORD)
                     .build();
         };
     }
