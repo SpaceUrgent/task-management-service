@@ -30,8 +30,8 @@ public class GlobalExceptionHandler {
                                         HttpServletRequest request) {
         final var errors = getErrorsMap(exception);
         return ErrorDTO.builder()
-                .reason("Bad request")
-                .message("Request validation error")
+                .reason(ErrorDTO.REASON_BAD_REQUEST)
+                .message(ErrorDTO.MESSAGE_INVALID_REQUEST)
                 .errors(errors)
                 .request(request)
                 .build();
@@ -43,8 +43,8 @@ public class GlobalExceptionHandler {
                                                            HttpServletRequest request) {
         final var errors = getErrorsMap(exception);
         return ErrorDTO.builder()
-                .reason("Bad request")
-                .message("Request validation error")
+                .reason(ErrorDTO.REASON_BAD_REQUEST)
+                .message(ErrorDTO.MESSAGE_INVALID_REQUEST)
                 .errors(errors)
                 .request(request)
                 .build();
@@ -55,8 +55,8 @@ public class GlobalExceptionHandler {
     public ErrorDTO handleHttpMessageNotReadableException(HttpMessageNotReadableException exception,
                                                           HttpServletRequest request) {
         return ErrorDTO.builder()
-                .reason("Bad request")
-                .message("Required request body is missing")
+                .reason(ErrorDTO.REASON_BAD_REQUEST)
+                .message(ErrorDTO.MESSAGE_MISSING_REQUEST_BODY)
                 .request(request)
                 .build();
     }
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
     public ErrorDTO handleEntityNotFoundException(EntityNotFoundException exception,
                                                   HttpServletRequest request) {
         return ErrorDTO.builder()
-                .reason("Entity not found")
+                .reason(ErrorDTO.REASON_ENTITY_NOT_FOUND)
                 .message(exception.getMessage())
                 .request(request)
                 .build();
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
     public ErrorDTO handleInsufficientPrivilegesException(InsufficientPrivilegesException exception,
                                                           HttpServletRequest request) {
         return ErrorDTO.builder()
-                .reason("Action not allowed")
+                .reason(ErrorDTO.REASON_ACTION_NOT_ALLOWED)
                 .message(exception.getMessage())
                 .request(request)
                 .build();

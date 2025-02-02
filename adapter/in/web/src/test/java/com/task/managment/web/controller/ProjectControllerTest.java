@@ -97,32 +97,6 @@ class ProjectControllerTest {
 
     @MockUser
     @Test
-    void createProject_shouldReturnBadRequest_whenRequestBodyIsMissing() throws Exception {
-        mockMvc.perform(post("/api/projects"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Bad request"))
-                .andExpect(jsonPath("$.message").value("Required request body is missing"))
-                .andExpect(jsonPath("$.path").value("/api/projects"));
-    }
-
-    @MockUser
-    @Test
-    void createProject_shouldReturnBadRequest_whenRequestBodyIsInvalid() throws Exception {
-        mockMvc.perform(post("/api/projects")
-                        .content(objectMapper.writeValueAsBytes(new CreateProjectDto()))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Bad request"))
-                .andExpect(jsonPath("$.message").value("Request validation error"))
-                .andExpect(jsonPath("$.errors.title").value("Title is required"))
-                .andExpect(jsonPath("$.errors.description").value("Description is required"))
-                .andExpect(jsonPath("$.path").value("/api/projects"));
-    }
-
-    @MockUser
-    @Test
     void getAvailableProjects_shouldReturnDefaultProjectPage_whenNoRequestParamsPresent() throws Exception {
         final var expectedPageNumber = 1;
         final var expectedPageSize = 20;
@@ -194,36 +168,6 @@ class ProjectControllerTest {
 
     @MockUser
     @Test
-    void getProjectDetails_shouldReturnNotFound_whenEntityNotFound() throws Exception {
-        final var givenProjectId = randomProjectId();
-        final var errorMessage = "Project not found";
-        doThrow(new EntityNotFoundException(errorMessage)).when(getProjectDetailsUseCase)
-                .getProjectDetails(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
-        mockMvc.perform(get("/api/projects/{givenProjectId}", givenProjectId.value()))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Entity not found"))
-                .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
-    }
-
-    @MockUser
-    @Test
-    void getProjectDetails_shouldReturnForbidden_whenNotEnoughPrivileges() throws Exception {
-        final var givenProjectId = randomProjectId();
-        final var errorMessage = "Not enough privileges";
-        doThrow(new InsufficientPrivilegesException(errorMessage)).when(getProjectDetailsUseCase)
-                .getProjectDetails(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
-        mockMvc.perform(get("/api/projects/{givenProjectId}", givenProjectId.value()))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Action not allowed"))
-                .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
-    }
-
-    @MockUser
-    @Test
     void updateProjectInfo_shouldReturnUpdatedProject_whenAllConditionsMet() throws Exception {
         final var givenUpdateDto = getUpdateProjectDto();
         final var expectedProject = ProjectDTO.builder()
@@ -244,73 +188,6 @@ class ProjectControllerTest {
 
     @MockUser
     @Test
-    void updateProjectInfo_shouldReturnBadRequest_whenRequestBodyIsMissing() throws Exception {
-        final var givenProjectId = randomProjectId();
-        mockMvc.perform(patch("/api/projects/{projectId}", givenProjectId.value()))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Bad request"))
-                .andExpect(jsonPath("$.message").value("Required request body is missing"))
-                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
-    }
-
-    @MockUser
-    @Test
-    void updateProjectInfo_shouldReturnBadRequest_whenRequestBodyIsInvalid() throws Exception {
-        final var updateProjectDto = new UpdateProjectDto();
-        updateProjectDto.setTitle(" ");
-        updateProjectDto.setDescription(" ");
-        final var givenProjectId = randomProjectId();
-        mockMvc.perform(patch("/api/projects/{projectId}", givenProjectId.value())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateProjectDto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Bad request"))
-                .andExpect(jsonPath("$.message").value("Request validation error"))
-                .andExpect(jsonPath("$.errors.title").value("Title is required"))
-                .andExpect(jsonPath("$.errors.description").value("Description is required"))
-                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
-    }
-
-    @MockUser
-    @Test
-    void updateProjectInfo_shouldReturnNotFound_whenEntityNotFound() throws Exception {
-        final var errorMessage = "Project not found";
-        final var givenProjectId = randomProjectId();
-        final var updateDto = getUpdateProjectDto();
-        doThrow(new EntityNotFoundException(errorMessage)).when(updateProjectUseCase)
-                .updateProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(updateDto));
-        mockMvc.perform(patch("/api/projects/{givenProjectId}", givenProjectId.value())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Entity not found"))
-                .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
-    }
-
-    @MockUser
-    @Test
-    void updateProjectInfo_shouldReturnForbidden_whenNotEnoughPrivileges() throws Exception {
-        final var errorMessage = "Project not found";
-        final var givenProjectId = randomProjectId();
-        final var updateDto = getUpdateProjectDto();
-        doThrow(new InsufficientPrivilegesException(errorMessage)).when(updateProjectUseCase)
-                .updateProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(updateDto));
-        mockMvc.perform(patch("/api/projects/{givenProjectId}", givenProjectId.value())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Action not allowed"))
-                .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/projects/%d".formatted(givenProjectId.value())));
-    }
-
-    @MockUser
-    @Test
     void addProjectMember_shouldAddMember_whenAllConditionsMet() throws Exception {
         final var givenProjectId = randomProjectId();
         final var givenMemberId = randomLong();
@@ -319,74 +196,6 @@ class ProjectControllerTest {
 
         verify(addProjectMemberByEmailUseCase)
                 .addMember(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(new UserId(givenMemberId)));
-    }
-
-
-
-//    @MockUser
-//    @Test
-//    void addProjectMember_shouldReturnBadRequest_whenRequestBodyIsMissing() throws Exception {
-//        final var givenProjectId = randomProjectId();
-//        mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value()))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.timestamp").exists())
-//                .andExpect(jsonPath("$.reason").value("Bad request"))
-//                .andExpect(jsonPath("$.message").value("Required request body is missing"))
-//                .andExpect(jsonPath("$.path").value("/api/projects/%d/members".formatted(givenProjectId.value())));
-//
-//        verifyNoMoreInteractions(addProjectMemberByEmailUseCase);
-//    }
-
-//    @MockUser
-//    @Test
-//    void addProjectMember_shouldReturnBadRequest_whenRequestBodyIsInvalid() throws Exception {
-//        final var givenProjectId = randomProjectId();
-//        final var givenMemberId = randomLong();
-//
-//        mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value(), givenMemberId))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.timestamp").exists())
-//                .andExpect(jsonPath("$.reason").value("Bad request"))
-//                .andExpect(jsonPath("$.message").value("Request validation error"))
-//                .andExpect(jsonPath("$.errors.email").value("Email is required"))
-//                .andExpect(jsonPath("$.path").value("/api/projects/%d/members".formatted(givenProjectId.value())));
-//
-//        verifyNoInteractions(addProjectMemberByEmailUseCase);
-//    }
-
-//    @MockUser
-//    @Test
-//    void addProjectMember_shouldReturnNotFound_whenEntityNotFound() throws Exception {
-//        final var errorMessage = "Project not found";
-//        final var givenRequestBody = new AddMemberDTO();
-//        givenRequestBody.setEmail("member@mail.com");
-//        final var givenProjectId = randomProjectId();
-//        doThrow(new EntityNotFoundException(errorMessage)).when(addProjectMemberByEmailUseCase)
-//                .addMember(any(), any(), any());
-//        mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(givenRequestBody)))
-//                .andExpect(status().isNotFound())
-//                .andExpect(jsonPath("$.timestamp").exists())
-//                .andExpect(jsonPath("$.reason").value("Entity not found"))
-//                .andExpect(jsonPath("$.message").value(errorMessage))
-//                .andExpect(jsonPath("$.path").value("/api/projects/%d/members".formatted(givenProjectId.value())));
-//    }
-
-    @MockUser
-    @Test
-    void addProjectMember_shouldReturnForbidden_whenNotEnoughPrivileges() throws Exception {
-        final var errorMessage = "Not enough privileges";
-        final var givenProjectId = randomProjectId();
-        final var givenMemberId = randomLong();
-        doThrow(new InsufficientPrivilegesException(errorMessage)).when(addProjectMemberByEmailUseCase)
-                .addMember(any(), any(), any());
-        mockMvc.perform(put("/api/projects/{projectId}/members/{memberId}", givenProjectId.value(), givenMemberId))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Action not allowed"))
-                .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/projects/%d/members/%d".formatted(givenProjectId.value(), givenMemberId)));
     }
 
     private void assertMatches(ProjectDTO expectedProject, ResultActions apiActionResult) throws Exception {

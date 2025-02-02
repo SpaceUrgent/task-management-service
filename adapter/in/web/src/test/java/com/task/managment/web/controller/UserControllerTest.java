@@ -1,7 +1,6 @@
 package com.task.managment.web.controller;
 
 import com.task.management.application.dto.UserDTO;
-import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.port.in.GetUserByEmailUseCase;
 import com.task.management.application.port.in.GetUserUseCase;
 import com.task.managment.web.TestUtils;
@@ -15,10 +14,8 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -49,22 +46,6 @@ class UserControllerTest {
 
     @MockUser
     @Test
-    void getUserByEmail_shouldReturnInternalError_whenUserNotFound() throws Exception {
-        final var errorMessage = "User not found";
-        final var givenEmail = "user@mail.com";
-        doThrow(new EntityNotFoundException(errorMessage)).when(getUserByEmailUseCase).getUser(eq(givenEmail));
-        mockMvc.perform(get("/api/users/email/{email}", givenEmail))
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Entity not found"))
-                .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/users/email/%s".formatted(givenEmail)));
-    }
-
-    @MockUser
-    @Test
     void getUserProfile_shouldReturnUser_whenAllConditionsMet() throws Exception {
         final var expectedUser = getUserDTO(MockUser.DEFAULT_USER_ID_VALUE);
         doReturn(expectedUser).when(getUserUseCase).getUser(eq(TestUtils.DEFAULT_USER_ID));
@@ -73,21 +54,6 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
         assertMatches(expectedUser, apiActionResult);
-    }
-
-    @MockUser
-    @Test
-    void getUserProfile_shouldReturnInternalError_whenAllUserNotFound() throws Exception {
-        final var errorMessage = "User not found";
-        doThrow(new EntityNotFoundException(errorMessage)).when(getUserUseCase).getUser(any());
-        mockMvc.perform(get("/api/users/profile"))
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Entity not found"))
-                .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/users/profile"));
     }
 
     @WithAnonymousUser

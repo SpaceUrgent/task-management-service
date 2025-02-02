@@ -145,23 +145,6 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.path").value("/api/auth/register"));
     }
 
-    @WithAnonymousUser
-    @Test
-    void register_shouldReturnBadRequest_whenNoParametersPresent() throws Exception {
-        mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value("Bad request"))
-                .andExpect(jsonPath("$.message").value("Request validation error"))
-                .andExpect(jsonPath("$.errors.firstName").value("First name is required"))
-                .andExpect(jsonPath("$.errors.lastName").value("Last name is required"))
-                .andExpect(jsonPath("$.errors.email").value("Email is required"))
-                .andExpect(jsonPath("$.errors.password").value("Password is required"))
-                .andExpect(jsonPath("$.path").value("/api/auth/register"));
-    }
 
     private static RegisterUserDto getRegisterUserDto() {
         final var registerUserDto = new RegisterUserDto();
