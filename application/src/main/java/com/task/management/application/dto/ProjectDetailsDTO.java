@@ -2,7 +2,7 @@ package com.task.management.application.dto;
 
 import lombok.Builder;
 
-import java.util.Set;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
@@ -11,7 +11,7 @@ public record ProjectDetailsDTO(
         String title,
         String description,
         ProjectUserDTO owner,
-        Set<ProjectUserDTO> members
+        List<ProjectUserDTO> members
 ) {
 
     @Builder

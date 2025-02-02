@@ -64,7 +64,7 @@ public final class TestUtils {
                 .title("Project-%d".formatted(projectIdValue))
                 .description("Project-%d description".formatted(projectIdValue))
                 .owner(owner)
-                .members(Set.of(owner))
+                .members(List.of(owner))
                 .build();
     }
 

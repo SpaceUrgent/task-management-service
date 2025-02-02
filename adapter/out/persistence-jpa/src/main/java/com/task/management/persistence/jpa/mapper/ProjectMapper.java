@@ -10,6 +10,7 @@ import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,17 +24,14 @@ public class ProjectMapper {
     public ProjectEntity toEntity(Project project) {
         requireNonNull(project, "Project is required");
         final var ownerReference = jpaUserRepository.getReferenceById(project.getOwner().id().value());
-        final var memberReferences = project.getMembers().stream()
-                .map(ProjectUser::id)
-                .map(UserId::value)
-                .map(jpaUserRepository::getReferenceById)
-                .collect(Collectors.toList());
         return ProjectEntity.builder()
                 .createdAt(Instant.now())
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .owner(ownerReference)
-                .members(memberReferences)
+                .members(new ArrayList<>() {{
+                    add(ownerReference);
+                }})
                 .build();
     }
 
@@ -44,14 +42,7 @@ public class ProjectMapper {
                 .title(projectEntity.getTitle())
                 .description(projectEntity.getDescription())
                 .owner(toProjectUser(projectEntity.getOwner()))
-                .members(toProjectUsers(projectEntity.getMembers()))
                 .build();
-    }
-
-    private static Set<ProjectUser> toProjectUsers(List<UserEntity> userEntities) {
-        return userEntities.stream()
-                .map(ProjectMapper::toProjectUser)
-                .collect(Collectors.toSet());
     }
 
     private static ProjectUser toProjectUser(UserEntity userEntity) {

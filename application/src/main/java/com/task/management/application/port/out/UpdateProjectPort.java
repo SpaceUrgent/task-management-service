@@ -4,9 +4,5 @@ import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectId;
 
 public interface UpdateProjectPort {
-    Project update(ProjectId id, UpdateProjectCommand command);
-
     Project update(Project project);
-
-    record UpdateProjectCommand(String title, String description){}
 }
