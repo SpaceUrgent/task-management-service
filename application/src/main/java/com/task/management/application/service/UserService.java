@@ -3,13 +3,13 @@ package com.task.management.application.service;
 import com.task.management.application.dto.UserDTO;
 import com.task.management.application.exception.EmailExistsException;
 import com.task.management.application.exception.EntityNotFoundException;
-import com.task.management.application.mapper.UserMapper;
+import com.task.management.application.service.mapper.UserMapper;
 import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.GetUserByEmailUseCase;
 import com.task.management.application.port.in.GetUserUseCase;
 import com.task.management.application.port.in.RegisterUserUseCase;
-import com.task.management.application.port.in.dto.RegisterUserDto;
+import com.task.management.application.dto.RegisterUserDto;
 import com.task.management.application.port.out.AddUserPort;
 import com.task.management.application.port.out.EmailExistsPort;
 import com.task.management.application.port.out.EncryptPasswordPort;
@@ -17,7 +17,7 @@ import com.task.management.application.port.out.FindUserPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.task.management.application.service.ValidationService.userIdRequired;
+import static com.task.management.application.service.Validation.userIdRequired;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j

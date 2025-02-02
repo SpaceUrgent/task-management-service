@@ -5,6 +5,6 @@ import com.task.management.application.exception.InsufficientPrivilegesException
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
 
-public interface AddProjectMemberByEmailUseCase {
-    void addMember(UserId currentUserId, ProjectId projectId, String email) throws InsufficientPrivilegesException, EntityNotFoundException;
+public interface AddProjectMemberUseCase {
+    void addMember(UserId currentUserId, ProjectId projectId, UserId memberId) throws InsufficientPrivilegesException, EntityNotFoundException;
 }

@@ -1,4 +1,4 @@
-package com.task.management.application.mapper;
+package com.task.management.application.service.mapper;
 
 import com.task.management.application.dto.UserDTO;
 import com.task.management.application.model.User;

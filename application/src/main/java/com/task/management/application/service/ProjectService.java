@@ -1,71 +1,76 @@
 package com.task.management.application.service;
 
 import com.task.management.application.common.PageQuery;
+import com.task.management.application.dto.ProjectDTO;
+import com.task.management.application.dto.ProjectDetailsDTO;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.exception.InsufficientPrivilegesException;
+import com.task.management.application.service.mapper.ProjectMapper;
 import com.task.management.application.model.Project;
-import com.task.management.application.model.ProjectDetails;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.ProjectUser;
 import com.task.management.application.model.UserId;
-import com.task.management.application.port.in.AddProjectMemberByEmailUseCase;
+import com.task.management.application.port.in.AddProjectMemberUseCase;
 import com.task.management.application.port.in.CreateProjectUseCase;
 import com.task.management.application.port.in.GetAvailableProjectsUseCase;
 import com.task.management.application.port.in.GetProjectDetailsUseCase;
 import com.task.management.application.port.in.UpdateProjectUseCase;
-import com.task.management.application.port.in.dto.CreateProjectDto;
-import com.task.management.application.port.in.dto.UpdateProjectDto;
+import com.task.management.application.dto.CreateProjectDto;
+import com.task.management.application.dto.UpdateProjectDto;
 import com.task.management.application.port.out.AddProjectMemberPort;
 import com.task.management.application.port.out.AddProjectPort;
-import com.task.management.application.port.out.FindProjectDetailsPort;
+import com.task.management.application.port.out.GetProjectDetailsPort;
 import com.task.management.application.port.out.FindProjectPort;
 import com.task.management.application.port.out.FindProjectsByMemberPort;
+import com.task.management.application.port.out.ProjectHasMemberPort;
 import com.task.management.application.port.out.UpdateProjectPort;
-import com.task.management.application.port.out.UpdateProjectPort.UpdateProjectCommand;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Set;
 
-import static com.task.management.application.service.ValidationService.projectIdRequired;
-import static com.task.management.application.service.ValidationService.userIdRequired;
+import static com.task.management.application.service.Validation.parameterRequired;
+import static com.task.management.application.service.Validation.projectIdRequired;
+import static com.task.management.application.service.Validation.userIdRequired;
 import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
 public class ProjectService implements CreateProjectUseCase,
-                                       AddProjectMemberByEmailUseCase,
+                                       AddProjectMemberUseCase,
                                        GetAvailableProjectsUseCase,
                                        GetProjectDetailsUseCase,
                                        UpdateProjectUseCase {
+    private final ProjectMapper projectMapper = new ProjectMapper();
     private final ValidationService validationService;
-    private final UserService userService;
     private final AddProjectPort addProjectPort;
+    private final ProjectHasMemberPort projectHasMemberPort;
     private final AddProjectMemberPort addProjectMemberPort;
     private final FindProjectPort findProjectPort;
     private final FindProjectsByMemberPort findProjectsByMemberPort;
-    private final FindProjectDetailsPort findProjectDetailsPort;
+    private final GetProjectDetailsPort getProjectDetailsPort;
     private final UpdateProjectPort updateProjectPort;
 
     @Override
-    public List<Project> getAvailableProjects(UserId userId, PageQuery page) {
-        userIdRequired(userId);
-        requireNonNull(page, "Page is required");
-        return findProjectsByMemberPort.findProjectsByMember(userId, page);
+    public List<ProjectDTO> getAvailableProjects(UserId userId, PageQuery page) {
+        parameterRequired(userId, "User id");
+        parameterRequired(page, "Page query");
+        return findProjectsByMemberPort.findProjectsByMember(userId, page)
+                .stream()
+                .map(projectMapper::toDTO)
+                .toList();
     }
 
-    @Deprecated
     @Override
-    public ProjectDetails getProjectDetails(UserId currentUser, ProjectId projectId) throws EntityNotFoundException, InsufficientPrivilegesException {
+    public ProjectDetailsDTO getProjectDetails(UserId currentUser, ProjectId projectId) throws EntityNotFoundException, InsufficientPrivilegesException {
         userIdRequired(currentUser);
         projectIdRequired(projectId);
-        final var projectDetails = findProjectDetailsOrThrow(projectId);
-        checkUserIsMember(currentUser, projectDetails.project());
-        return projectDetails;
+        checkUserIsMember(currentUser, projectId);
+        return getProjectDetailsPort.getProjectDetails(projectId);
     }
 
     @Override
-    public Project createProject(final UserId userId,
-                                 final CreateProjectDto createProjectDto) {
+    public ProjectDTO createProject(final UserId userId,
+                                    final CreateProjectDto createProjectDto) {
         userIdRequired(userId);
         requireNonNull(createProjectDto, "Create project dto is required");
         validationService.validate(createProjectDto);
@@ -76,11 +81,11 @@ public class ProjectService implements CreateProjectUseCase,
                 .owner(owner)
                 .members(Set.of(owner))
                 .build();
-        return addProjectPort.add(project);
+        return projectMapper.toDTO(addProjectPort.add(project));
     }
 
     @Override
-    public Project updateProject(final UserId currentUser,
+    public ProjectDTO updateProject(final UserId currentUser,
                                  final ProjectId projectId,
                                  final UpdateProjectDto updateProjectDto) throws EntityNotFoundException, InsufficientPrivilegesException {
         userIdRequired(currentUser);
@@ -89,20 +94,26 @@ public class ProjectService implements CreateProjectUseCase,
         validationService.validate(updateProjectDto);
         final var project = findOrThrow(projectId);
         checkUserIsOwner(currentUser, project);
-        return updateProjectPort.update(projectId, new UpdateProjectCommand(updateProjectDto.getTitle(), updateProjectDto.getDescription()));
+        project.setTitle(updateProjectDto.getTitle());
+        project.setDescription(updateProjectDto.getDescription());
+        return projectMapper.toDTO(updateProjectPort.update(project));
     }
 
     @Override
     public void addMember(final UserId currentUserId,
                           final ProjectId projectId,
-                          final String memberEmail) throws InsufficientPrivilegesException, EntityNotFoundException {
+                          final UserId memberId) throws InsufficientPrivilegesException, EntityNotFoundException {
         userIdRequired(currentUserId);
         projectIdRequired(projectId);
-        requireNonNull(memberEmail, "Email is required");
-        final var project = findOrThrow(projectId);
-        checkUserIsMember(currentUserId, project);
-        final var newMember = userService.getUser(memberEmail);
-        addProjectMemberPort.addMember(projectId, new UserId(newMember.id()));
+        userIdRequired(memberId);
+        checkUserIsMember(currentUserId, projectId);
+        addProjectMemberPort.addMember(projectId, memberId);
+    }
+
+    private void checkUserIsMember(UserId userId, ProjectId projectId) throws InsufficientPrivilegesException {
+        if (!projectHasMemberPort.hasMember(projectId, userId)) {
+            throw new InsufficientPrivilegesException("Current user does not have access to project");
+        }
     }
 
     private Project findOrThrow(ProjectId projectId) throws EntityNotFoundException {
@@ -110,20 +121,9 @@ public class ProjectService implements CreateProjectUseCase,
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
     }
 
-    private ProjectDetails findProjectDetailsOrThrow(ProjectId projectId) throws EntityNotFoundException {
-        return findProjectDetailsPort.findProjectDetails(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
-    }
-
     private static void checkUserIsOwner(UserId userId, Project project) throws InsufficientPrivilegesException {
         if (!project.isOwner(userId)) {
             throw new InsufficientPrivilegesException("Operation allowed only to the project owner");
-        }
-    }
-
-    private static void checkUserIsMember(UserId currentUserId, Project project) throws InsufficientPrivilegesException {
-        if (!project.hasMember(currentUserId)) {
-            throw new InsufficientPrivilegesException("Current user does not have access to project");
         }
     }
 }

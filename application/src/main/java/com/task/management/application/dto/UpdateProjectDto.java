@@ -1,4 +1,4 @@
-package com.task.management.application.port.in.dto;
+package com.task.management.application.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

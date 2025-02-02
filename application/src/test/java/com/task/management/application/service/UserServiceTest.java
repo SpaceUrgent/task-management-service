@@ -5,7 +5,7 @@ import com.task.management.application.exception.EmailExistsException;
 import com.task.management.application.exception.EntityNotFoundException;
 import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
-import com.task.management.application.port.in.dto.RegisterUserDto;
+import com.task.management.application.dto.RegisterUserDto;
 import com.task.management.application.port.out.AddUserPort;
 import com.task.management.application.port.out.EmailExistsPort;
 import com.task.management.application.port.out.EncryptPasswordPort;
@@ -76,11 +76,6 @@ class UserServiceTest {
 
         UserDTO result = userService.register(registerDto);
         assertEquals(expectedUserDTO, result);
-//        assertNotNull(result);
-//        assertEquals(registerDto.getEmail(), result.getEmail());
-//        assertEquals(registerDto.getFirstName(), result.getFirstName());
-//        assertEquals(registerDto.getLastName(), result.getLastName());
-//        assertEquals(ENCRYPTED_PASSWORD, result.getEncryptedPassword());
 
         verify(validationService, times(1)).validate(registerDto);
     }
