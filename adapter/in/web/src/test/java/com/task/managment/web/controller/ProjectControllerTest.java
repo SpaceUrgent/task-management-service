@@ -6,8 +6,6 @@ import com.task.management.application.common.PageQuery;
 import com.task.management.application.dto.ProjectDTO;
 import com.task.management.application.dto.ProjectDetailsDTO;
 import com.task.management.application.dto.ProjectUserDTO;
-import com.task.management.application.exception.EntityNotFoundException;
-import com.task.management.application.exception.InsufficientPrivilegesException;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.AddProjectMemberUseCase;
@@ -18,10 +16,16 @@ import com.task.management.application.port.in.UpdateProjectUseCase;
 import com.task.management.application.dto.CreateProjectDto;
 import com.task.management.application.dto.UpdateProjectDto;
 import com.task.managment.web.WebTest;
+import com.task.managment.web.WebTestConfiguration;
 import com.task.managment.web.dto.PageDTO;
 import com.task.managment.web.security.MockUser;
+import com.task.managment.web.security.SecurityConfiguration;
+import com.task.managment.web.security.UserDetailServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,10 +41,8 @@ import static com.task.managment.web.TestUtils.randomProjectDetailsDTO;
 import static com.task.managment.web.TestUtils.randomProjectUserDTO;
 import static com.task.managment.web.security.MockUser.DEFAULT_USER_ID_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -50,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebTest
+@WebTest(controllerClass = ProjectController.class)
 class ProjectControllerTest {
     private final static String PROJECT_TITLE = "Project title";
     private final static String PROJECT_DESCRIPTION = "Project description";

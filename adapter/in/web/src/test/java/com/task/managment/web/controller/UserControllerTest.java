@@ -5,9 +5,15 @@ import com.task.management.application.port.in.GetUserByEmailUseCase;
 import com.task.management.application.port.in.GetUserUseCase;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
+import com.task.managment.web.WebTestConfiguration;
 import com.task.managment.web.security.MockUser;
+import com.task.managment.web.security.SecurityConfiguration;
+import com.task.managment.web.security.UserDetailServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -22,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebTest
+@WebTest(controllerClass = UserController.class)
 class UserControllerTest {
 
     @Autowired

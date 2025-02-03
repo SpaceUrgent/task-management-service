@@ -8,6 +8,9 @@ import com.task.managment.web.security.SecurityConfiguration;
 import com.task.managment.web.security.UserDetailServiceImpl;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.AliasFor;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,15 +22,16 @@ import java.lang.annotation.Target;
 @SpringBootTest(
         classes = {
                 WebTestConfiguration.class,
-                GlobalExceptionHandler.class,
-                AuthController.class,
-                UserController.class,
-                ProjectController.class,
                 SecurityConfiguration.class,
                 UserDetailServiceImpl.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
+@SpringJUnitConfig
+@Import({})
 public @interface WebTest {
+
+        @AliasFor(annotation = Import.class, attribute = "value")
+        Class<?> controllerClass();
 }

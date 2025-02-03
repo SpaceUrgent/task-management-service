@@ -2,18 +2,24 @@ package com.task.managment.web.controller;
 
 import com.task.management.application.dto.UserDTO;
 import com.task.management.application.exception.EmailExistsException;
-import com.task.management.application.model.User;
-import com.task.management.application.model.UserId;
 import com.task.management.application.port.in.RegisterUserUseCase;
 import com.task.management.application.dto.RegisterUserDto;
 import com.task.management.application.port.out.FindUserPort;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
+import com.task.managment.web.WebTestConfiguration;
 import com.task.managment.web.security.SecuredUser;
+import com.task.managment.web.security.SecurityConfiguration;
+import com.task.managment.web.security.UserDetailServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,10 +28,7 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.Random;
-
 import static com.task.managment.web.TestUtils.EMAIL;
-import static com.task.managment.web.TestUtils.ENCRYPTED_PASSWORD;
 import static com.task.managment.web.TestUtils.FIRST_NAME;
 import static com.task.managment.web.TestUtils.LAST_NAME;
 import static com.task.managment.web.TestUtils.PASSWORD;
@@ -41,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebTest
+@WebTest(controllerClass = AuthController.class)
 class AuthControllerTest {
 
     @Autowired
