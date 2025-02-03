@@ -27,7 +27,6 @@ import com.task.management.application.port.out.UpdateProjectPort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Set;
 
 import static com.task.management.application.service.Validation.parameterRequired;
 import static com.task.management.application.service.Validation.projectIdRequired;
@@ -109,15 +108,19 @@ public class ProjectService implements CreateProjectUseCase,
         addProjectMemberPort.addMember(projectId, memberId);
     }
 
-    private void checkUserIsMember(UserId userId, ProjectId projectId) throws InsufficientPrivilegesException {
-        if (!projectHasMemberPort.hasMember(projectId, userId)) {
-            throw new InsufficientPrivilegesException("Current user does not have access to project");
+    public boolean isProjectMember(UserId userId, ProjectId projectId) {
+        return projectHasMemberPort.hasMember(projectId, userId);
+    }
+
+    public void checkUserIsMember(UserId userId, ProjectId projectId) throws InsufficientPrivilegesException {
+        if (!isProjectMember(userId, projectId)) {
+            throw new InsufficientPrivilegesException("User with id %d does not have access to project".formatted(userId.value()));
         }
     }
 
     private Project findOrThrow(ProjectId projectId) throws EntityNotFoundException {
         return findProjectPort.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Project with id %d not found".formatted(projectId.value())));
     }
 
     private static void checkUserIsOwner(UserId userId, Project project) throws InsufficientPrivilegesException {

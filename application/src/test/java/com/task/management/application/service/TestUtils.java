@@ -6,12 +6,12 @@ import com.task.management.application.dto.ProjectUserDTO;
 import com.task.management.application.model.Project;
 import com.task.management.application.model.ProjectId;
 import com.task.management.application.model.ProjectUser;
+import com.task.management.application.model.TaskId;
 import com.task.management.application.model.User;
 import com.task.management.application.model.UserId;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -96,6 +96,14 @@ public final class TestUtils {
 
     public static UserId randomUserId() {
         return new UserId(randomLong());
+    }
+
+    public static ProjectId randomProjectId() {
+        return new ProjectId(randomLong());
+    }
+
+    public static TaskId randomTaskId() {
+        return new TaskId(randomLong());
     }
 
     public static long randomLong() {
