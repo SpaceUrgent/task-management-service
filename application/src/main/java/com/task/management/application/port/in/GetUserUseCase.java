@@ -1,9 +1,0 @@
-package com.task.management.application.port.in;
-
-import com.task.management.application.dto.UserDTO;
-import com.task.management.application.exception.EntityNotFoundException;
-import com.task.management.application.model.UserId;
-
-public interface GetUserUseCase {
-    UserDTO getUser(UserId id) throws EntityNotFoundException;
-}

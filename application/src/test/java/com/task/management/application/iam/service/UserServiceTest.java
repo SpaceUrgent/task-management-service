@@ -1,0 +1,103 @@
+package com.task.management.application.iam.service;
+
+import com.task.management.application.common.UseCaseException;
+import com.task.management.application.common.ValidationService;
+import com.task.management.application.iam.exception.EmailExistsException;
+import com.task.management.application.iam.model.User;
+import com.task.management.application.iam.model.UserId;
+import com.task.management.application.iam.model.UserProfile;
+import com.task.management.application.iam.port.in.command.RegisterUserCommand;
+import com.task.management.application.iam.port.out.EmailExistsPort;
+import com.task.management.application.iam.port.out.EncryptPasswordPort;
+import com.task.management.application.iam.port.out.FindUserProfileByIdPort;
+import com.task.management.application.iam.port.out.SaveUserPort;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+import java.util.Random;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
+
+    @SuppressWarnings("unused")
+    @Mock
+    private ValidationService validationService;
+    @Mock
+    private EncryptPasswordPort encryptPasswordPort;
+    @Mock
+    private EmailExistsPort emailExistsPort;
+    @Mock
+    private SaveUserPort saveUserPort;
+    @Mock
+    private FindUserProfileByIdPort findUserByIdPort;
+    @InjectMocks
+    private UserService userService;
+
+    @Test
+    void register_shouldSaveNewUser_whenAllConditionsMet() throws EmailExistsException {
+        final var encryptedPassword = "encryptedPassword";
+        final var givenCommand = registerUserCommand();
+        doReturn(false).when(emailExistsPort).emailExists(eq(givenCommand.email()));
+        doReturn(encryptedPassword).when(encryptPasswordPort).encrypt(eq(givenCommand.password()));
+        final var expectedUser = User.builder()
+                .email(givenCommand.email())
+                .firstName(givenCommand.firstName())
+                .lastName(givenCommand.lastName())
+                .encryptedPassword(encryptedPassword)
+                .build();
+        userService.register(givenCommand);
+        verify(saveUserPort).save(eq(expectedUser));
+    }
+
+    @Test
+    void register_shouldThrowEmailExistsException_whenEmailExists() {
+        final var givenCommand = registerUserCommand();
+        doReturn(true).when(emailExistsPort).emailExists(eq(givenCommand.email()));
+        assertThrows(EmailExistsException.class, () -> userService.register(givenCommand));
+        verifyNoMoreInteractions(saveUserPort);
+    }
+
+    @Test
+    void getUserProfile_shouldReturnUserProfile_whenAllConditionsMet() throws UseCaseException {
+        final var expectedUserProfile = UserProfile.builder()
+                .id(randomUserId())
+                .email("user@mail.com")
+                .firstName("FName")
+                .lastName("LName")
+                .build();
+        final var givenActorId = expectedUserProfile.id();
+        doReturn(Optional.of(expectedUserProfile)).when(findUserByIdPort).find(eq(givenActorId));
+        assertEquals(expectedUserProfile, userService.getUserProfile(givenActorId));
+    }
+
+    @Test
+    void getUserProfile_shouldThrowEntityNotFoundException_whenUserDoesNotExist() {
+        final var givenActorId = randomUserId();
+        doReturn(Optional.empty()).when(findUserByIdPort).find(eq(givenActorId));
+        assertThrows(UseCaseException.EntityNotFoundException.class, () -> userService.getUserProfile(givenActorId));
+    }
+
+    private UserId randomUserId() {
+        return new UserId(new Random().nextLong());
+    }
+
+    private static RegisterUserCommand registerUserCommand() {
+        return RegisterUserCommand.builder()
+                .email("new-user@mail.com")
+                .firstName("FName")
+                .lastName("LName")
+                .password("password123456".toCharArray())
+                .build();
+    }
+}
