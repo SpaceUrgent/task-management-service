@@ -10,6 +10,7 @@ import com.task.management.application.project.port.out.FindTaskByIdPort;
 import com.task.management.application.project.port.out.SaveTaskPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -170,6 +172,48 @@ class TaskServiceTest {
                 () -> taskService.updateTask(givenActorId, givenCommand)
         );
         verifyNoMoreInteractions(saveTaskPort);
+    }
+
+    @Test
+    void updateStatus_shouldSaveUpdatedTask_whenAllConditionsMet() throws UseCaseException {
+        final var task = randomTask();
+        final var givenActorId = task.getAssignee().id();
+        final var givenTaskId = task.getId();
+        final var givenTaskStatus = TaskStatus.DONE;
+        final var taskCaptor = ArgumentCaptor.forClass(Task.class);
+        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenTaskId));
+        doAnswer(self(Task.class)).when(saveTaskPort).save(taskCaptor.capture());
+        taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus);
+        final var saved = taskCaptor.getValue();
+        assertEquals(task.getId(), saved.getId());
+        assertEquals(givenTaskStatus, saved.getStatus());
+    }
+
+    @Test
+    void updateStatus_shouldThrowEntityNotFoundException_whenTaskNotFound() {
+        final var givenActorId = randomProjectUserId();
+        final var givenTaskId = randomTaskId();
+        final var givenTaskStatus = TaskStatus.DONE;
+        doReturn(Optional.empty()).when(findTaskByIdPort).find(eq(givenTaskId));
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus)
+        );
+        verifyNoInteractions(saveTaskPort);
+    }
+
+    @Test
+    void updateStatus_shouldThrowIllegalAccessException_whenUserIsNorOwnerNorAssignee() {
+        final var task = randomTask();
+        final var givenActorId = randomProjectUserId();
+        final var givenTaskId = randomTaskId();
+        final var givenTaskStatus = TaskStatus.DONE;
+        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenTaskId));
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus)
+        );
+        verifyNoInteractions(saveTaskPort);
     }
 
     private static Task randomTask() {

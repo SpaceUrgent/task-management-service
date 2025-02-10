@@ -4,6 +4,7 @@ import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.ValidationService;
 import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.model.TaskId;
+import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
 import com.task.management.application.project.port.in.command.UpdateTaskCommand;
 import com.task.management.application.project.port.out.FindTaskByIdPort;
@@ -14,9 +15,12 @@ import com.task.management.application.project.port.in.CreateTaskUseCase;
 import com.task.management.application.project.port.in.command.CreateTaskCommand;
 import lombok.RequiredArgsConstructor;
 
+import static com.task.management.application.common.Validation.parameterRequired;
+
 @RequiredArgsConstructor
 public class TaskService implements CreateTaskUseCase,
-                                    UpdateTaskUseCase
+                                    UpdateTaskUseCase,
+                                    UpdateTaskStatusUseCase
 {
     private final ValidationService validationService;
     private final ProjectUserService projectUserService;
@@ -43,6 +47,7 @@ public class TaskService implements CreateTaskUseCase,
         return saveTaskPort.save(task);
     }
 
+    @Override
     public Task updateTask(final ProjectUserId actorId,
                            final UpdateTaskCommand command) throws UseCaseException {
         validationService.validate(command);
@@ -53,14 +58,31 @@ public class TaskService implements CreateTaskUseCase,
         return saveTaskPort.save(task);
     }
 
+    @Override
+    public void updateStatus(final ProjectUserId actorId, final TaskId taskId, final TaskStatus status) throws UseCaseException {
+        parameterRequired(actorId, "Actor id");
+        parameterRequired(taskId, "Task id");
+        parameterRequired(status, "Task status");
+        final var task = findOrThrow(taskId);
+        checkAllowedToUpdateStatus(actorId, task);
+        task.setStatus(status);
+        saveTaskPort.save(task);
+    }
+
     private Task findOrThrow(TaskId id) throws UseCaseException.EntityNotFoundException {
         return findTaskByIdPort.find(id)
                 .orElseThrow(() -> new UseCaseException.EntityNotFoundException("Task with id %d not found".formatted(id.value())));
     }
 
-    private void checkUserIsOwner(ProjectUserId currentUser, Task task) throws UseCaseException.IllegalAccessException {
-        if (!task.isOwner(currentUser)) {
+    private void checkUserIsOwner(ProjectUserId userId, Task task) throws UseCaseException.IllegalAccessException {
+        if (!task.isOwner(userId)) {
             throw new UseCaseException.IllegalAccessException("Current user is not allowed modify task");
+        }
+    }
+
+    private void checkAllowedToUpdateStatus(ProjectUserId userId, Task task) throws UseCaseException.IllegalAccessException {
+        if (!task.isOwner(userId) && !task.isAssignee(userId)) {
+            throw new UseCaseException.IllegalAccessException("Current user is not allowed to update task status");
         }
     }
 

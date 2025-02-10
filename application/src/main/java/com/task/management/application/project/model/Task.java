@@ -34,7 +34,11 @@ public class Task {
         this.assignee = requireNonNull(assignee, "Assignee is required");
     }
 
-    public boolean isOwner(ProjectUserId currentUser) {
-        return Objects.equals(this.owner.id(), currentUser);
+    public boolean isOwner(ProjectUserId userId) {
+        return Objects.equals(this.owner.id(), userId);
+    }
+
+    public boolean isAssignee(ProjectUserId userId) {
+        return Objects.equals(this.assignee.id(), userId);
     }
 }
