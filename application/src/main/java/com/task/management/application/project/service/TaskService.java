@@ -21,6 +21,8 @@ import com.task.management.application.project.port.in.CreateTaskUseCase;
 import com.task.management.application.project.port.in.command.CreateTaskCommand;
 import lombok.RequiredArgsConstructor;
 
+import java.time.Instant;
+
 import static com.task.management.application.common.Validation.parameterRequired;
 
 @RequiredArgsConstructor
@@ -45,6 +47,7 @@ public class TaskService implements CreateTaskUseCase,
                 .orElseThrow(TaskService::doesNotHavaAccessException);
         final var assignee = getAssignee(command.assigneeId(), projectId);
         var task = Task.builder()
+                .createdTime(Instant.now())
                 .project(projectId)
                 .title(command.title())
                 .description(command.description())

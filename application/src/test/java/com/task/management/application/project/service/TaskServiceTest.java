@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static com.task.management.application.project.service.ProjectTestUtils.randomProjectId;
@@ -75,6 +76,7 @@ class TaskServiceTest {
                 .when(saveTaskPort)
                 .save(any());
         final var created = taskService.createTask(givenActorId, givenCommand);
+        assertNotNull(created.getCreatedTime());
         assertEquals(givenCommand.title(), created.getTitle());
         assertEquals(givenCommand.description(), created.getDescription());
         assertEquals(givenActorId, created.getOwner().id());
@@ -302,6 +304,7 @@ class TaskServiceTest {
     private static TaskDetails randomTaskDetails() {
         return TaskDetails.builder()
                 .id(randomTaskId())
+                .createdTime(Instant.now())
                 .projectId(randomProjectId())
                 .status(TaskStatus.IN_PROGRESS)
                 .title("Title")
@@ -314,6 +317,7 @@ class TaskServiceTest {
     private static Task randomTask() {
         return Task.builder()
                 .id(randomTaskId())
+                .createdTime(Instant.now())
                 .project(randomProjectId())
                 .status(TaskStatus.IN_PROGRESS)
                 .title("Title")
