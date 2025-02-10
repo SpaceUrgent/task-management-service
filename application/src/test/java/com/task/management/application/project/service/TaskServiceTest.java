@@ -1,13 +1,18 @@
 package com.task.management.application.project.service;
 
+import com.task.management.application.common.Page;
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.ValidationService;
+import com.task.management.application.project.model.ProjectId;
 import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.model.Task;
 import com.task.management.application.project.model.TaskDetails;
+import com.task.management.application.project.model.TaskPreview;
 import com.task.management.application.project.model.TaskStatus;
 import com.task.management.application.project.port.in.command.CreateTaskCommand;
 import com.task.management.application.project.port.in.command.UpdateTaskCommand;
+import com.task.management.application.project.port.in.query.FindTasksQuery;
+import com.task.management.application.project.port.out.FindProjectTasksPort;
 import com.task.management.application.project.port.out.FindTaskByIdPort;
 import com.task.management.application.project.port.out.FindTaskDetailsByIdPort;
 import com.task.management.application.project.port.out.SaveTaskPort;
@@ -22,7 +27,9 @@ import org.mockito.quality.Strictness;
 
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static com.task.management.application.project.service.ProjectTestUtils.randomProjectId;
 import static com.task.management.application.project.service.ProjectTestUtils.randomProjectUser;
@@ -52,6 +59,8 @@ class TaskServiceTest {
     private FindTaskByIdPort findTaskByIdPort;
     @Mock
     private FindTaskDetailsByIdPort findTaskDetailsByIdPort;
+    @Mock
+    private FindProjectTasksPort findProjectTasksPort;
     @InjectMocks
     private TaskService taskService;
 
@@ -301,6 +310,54 @@ class TaskServiceTest {
         );
     }
 
+    @Test
+    void findTasks_shouldReturnTaskPreviewPage_whenAllConditionsMet() throws UseCaseException {
+        final var givenQuery = FindTasksQuery.builder()
+                .pageNo(1)
+                .pageSize(20)
+                .projectId(randomProjectId())
+                .build();
+        final var givenActorId = randomProjectUserId();
+        final var expected = Page.<TaskPreview>builder()
+                .pageNo(givenQuery.pageNo())
+                .pageSize(givenQuery.pageSize())
+                .total(100)
+                .totalPages(5)
+                .content(randomTaskPreviews(givenQuery.pageSize(), givenQuery.projectId()))
+                .build();
+        doReturn(true).when(projectUserService).isMember(eq(givenActorId), eq(givenQuery.projectId()));
+        doReturn(expected).when(findProjectTasksPort).findProjectTasks(eq(givenQuery));
+        assertEquals(expected, taskService.findTasks(givenActorId, givenQuery));
+    }
+
+    @Test
+    void findTasks_shouldThrowIllegalAccessException_whenActorIsNotProjectMember() throws UseCaseException {
+        final var givenQuery = FindTasksQuery.builder()
+                .pageNo(1)
+                .pageSize(20)
+                .projectId(randomProjectId())
+                .build();
+        final var givenActorId = randomProjectUserId();
+        doReturn(false).when(projectUserService).isMember(eq(givenActorId), eq(givenQuery.projectId()));
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> taskService.findTasks(givenActorId, givenQuery)
+        );
+    }
+
+    private static Task randomTask() {
+        return Task.builder()
+                .id(randomTaskId())
+                .createdTime(Instant.now())
+                .project(randomProjectId())
+                .status(TaskStatus.IN_PROGRESS)
+                .title("Title")
+                .description("Description")
+                .owner(randomProjectUser())
+                .assignee(randomProjectUser())
+                .build();
+    }
+
     private static TaskDetails randomTaskDetails() {
         return TaskDetails.builder()
                 .id(randomTaskId())
@@ -314,15 +371,18 @@ class TaskServiceTest {
                 .build();
     }
 
-    private static Task randomTask() {
-        return Task.builder()
+    private static List<TaskPreview> randomTaskPreviews(int total, ProjectId projectId) {
+         return IntStream.range(0, total)
+                 .mapToObj(value -> randomTaskPreview(projectId))
+                 .toList();
+    }
+
+    private static TaskPreview randomTaskPreview(ProjectId projectId) {
+        return TaskPreview.builder()
                 .id(randomTaskId())
                 .createdTime(Instant.now())
-                .project(randomProjectId())
-                .status(TaskStatus.IN_PROGRESS)
                 .title("Title")
-                .description("Description")
-                .owner(randomProjectUser())
+                .status(TaskStatus.IN_PROGRESS)
                 .assignee(randomProjectUser())
                 .build();
     }

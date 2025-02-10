@@ -1,5 +1,6 @@
 package com.task.management.application.project.service;
 
+import com.task.management.application.common.Page;
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.ValidationService;
 import com.task.management.application.project.model.ProjectId;
@@ -7,11 +8,15 @@ import com.task.management.application.project.model.ProjectUser;
 import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.model.TaskDetails;
 import com.task.management.application.project.model.TaskId;
+import com.task.management.application.project.model.TaskPreview;
 import com.task.management.application.project.port.in.AssignTaskUseCase;
+import com.task.management.application.project.port.in.FindTasksUseCase;
 import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
 import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
 import com.task.management.application.project.port.in.command.UpdateTaskCommand;
+import com.task.management.application.project.port.in.query.FindTasksQuery;
+import com.task.management.application.project.port.out.FindProjectTasksPort;
 import com.task.management.application.project.port.out.FindTaskByIdPort;
 import com.task.management.application.project.port.out.FindTaskDetailsByIdPort;
 import com.task.management.application.project.port.out.SaveTaskPort;
@@ -30,13 +35,15 @@ public class TaskService implements CreateTaskUseCase,
                                     UpdateTaskUseCase,
                                     UpdateTaskStatusUseCase,
                                     AssignTaskUseCase,
-                                    GetTaskDetailsUseCase
+                                    GetTaskDetailsUseCase,
+                                    FindTasksUseCase
 {
     private final ValidationService validationService;
     private final ProjectUserService projectUserService;
     private final SaveTaskPort saveTaskPort;
     private final FindTaskByIdPort findTaskByIdPort;
     private final FindTaskDetailsByIdPort findTaskDetailsByIdPort;
+    private final FindProjectTasksPort findProjectTasksPort;
 
     @Override
     public Task createTask(final ProjectUserId actorId,
@@ -70,7 +77,9 @@ public class TaskService implements CreateTaskUseCase,
     }
 
     @Override
-    public void updateStatus(final ProjectUserId actorId, final TaskId taskId, final TaskStatus status) throws UseCaseException {
+    public void updateStatus(final ProjectUserId actorId,
+                             final TaskId taskId,
+                             final TaskStatus status) throws UseCaseException {
         parameterRequired(actorId, "Actor id");
         parameterRequired(taskId, "Task id");
         parameterRequired(status, "Task status");
@@ -81,7 +90,9 @@ public class TaskService implements CreateTaskUseCase,
     }
 
     @Override
-    public void assignTask(ProjectUserId actorId, TaskId taskId, ProjectUserId assigneeId) throws UseCaseException {
+    public void assignTask(final ProjectUserId actorId,
+                           final TaskId taskId,
+                           final ProjectUserId assigneeId) throws UseCaseException {
         parameterRequired(actorId, "Actor id");
         parameterRequired(taskId, "Task id");
         parameterRequired(assigneeId, "Assignee id is required");
@@ -93,12 +104,22 @@ public class TaskService implements CreateTaskUseCase,
     }
 
     @Override
-    public TaskDetails getTaskDetails(ProjectUserId actorId, TaskId taskId) throws UseCaseException {
+    public TaskDetails getTaskDetails(final ProjectUserId actorId,
+                                      final TaskId taskId) throws UseCaseException {
         parameterRequired(actorId, "Actor id");
         parameterRequired(taskId, "Task id");
         final var taskDetails = findTaskDetailsOrThrow(taskId);
         checkIsMember(actorId, taskDetails.projectId());
         return taskDetails;
+    }
+
+    @Override
+    public Page<TaskPreview> findTasks(final ProjectUserId actorId,
+                                       final FindTasksQuery query) throws UseCaseException {
+        parameterRequired(actorId, "Actor id");
+        parameterRequired(query, "Query");
+        checkIsMember(actorId, query.projectId());
+        return findProjectTasksPort.findProjectTasks(query);
     }
 
     private Task findOrThrow(TaskId id) throws UseCaseException.EntityNotFoundException {
