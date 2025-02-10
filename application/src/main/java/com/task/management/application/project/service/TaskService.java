@@ -2,8 +2,11 @@ package com.task.management.application.project.service;
 
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.ValidationService;
+import com.task.management.application.project.model.ProjectId;
+import com.task.management.application.project.model.ProjectUser;
 import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.model.TaskId;
+import com.task.management.application.project.port.in.AssignTaskUseCase;
 import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
 import com.task.management.application.project.port.in.command.UpdateTaskCommand;
@@ -20,7 +23,8 @@ import static com.task.management.application.common.Validation.parameterRequire
 @RequiredArgsConstructor
 public class TaskService implements CreateTaskUseCase,
                                     UpdateTaskUseCase,
-                                    UpdateTaskStatusUseCase
+                                    UpdateTaskStatusUseCase,
+                                    AssignTaskUseCase
 {
     private final ValidationService validationService;
     private final ProjectUserService projectUserService;
@@ -34,8 +38,7 @@ public class TaskService implements CreateTaskUseCase,
         final var projectId = command.projectId();
         final var owner = projectUserService.findProjectMember(actorId, projectId)
                 .orElseThrow(TaskService::doesNotHavaAccessException);
-        final var assignee = projectUserService.findProjectMember(command.assigneeId(), projectId)
-                .orElseThrow(TaskService::projectMemberNotFoundException);
+        final var assignee = getAssignee(command.assigneeId(), projectId);
         var task = Task.builder()
                 .project(projectId)
                 .title(command.title())
@@ -69,9 +72,26 @@ public class TaskService implements CreateTaskUseCase,
         saveTaskPort.save(task);
     }
 
+    @Override
+    public void assignTask(ProjectUserId actorId, TaskId taskId, ProjectUserId assigneeId) throws UseCaseException {
+        parameterRequired(actorId, "Actor id");
+        parameterRequired(taskId, "Task id");
+        parameterRequired(assigneeId, "Assignee id is required");
+        final var task = findOrThrow(taskId);
+        checkAllowedToAssign(actorId, task);
+        final var assignee = getAssignee(assigneeId, task.getProject());
+        task.setAssignee(assignee);
+        saveTaskPort.save(task);
+    }
+
     private Task findOrThrow(TaskId id) throws UseCaseException.EntityNotFoundException {
         return findTaskByIdPort.find(id)
                 .orElseThrow(() -> new UseCaseException.EntityNotFoundException("Task with id %d not found".formatted(id.value())));
+    }
+
+    private ProjectUser getAssignee(ProjectUserId assigneeId, ProjectId projectId) throws UseCaseException.IllegalAccessException {
+        return projectUserService.findProjectMember(assigneeId, projectId)
+                .orElseThrow(TaskService::projectMemberNotFoundException);
     }
 
     private void checkUserIsOwner(ProjectUserId userId, Task task) throws UseCaseException.IllegalAccessException {
@@ -81,9 +101,19 @@ public class TaskService implements CreateTaskUseCase,
     }
 
     private void checkAllowedToUpdateStatus(ProjectUserId userId, Task task) throws UseCaseException.IllegalAccessException {
-        if (!task.isOwner(userId) && !task.isAssignee(userId)) {
+        if (!hasDirectAccessToTask(userId, task)) {
             throw new UseCaseException.IllegalAccessException("Current user is not allowed to update task status");
         }
+    }
+
+    private void checkAllowedToAssign(ProjectUserId userId, Task task) throws UseCaseException.IllegalAccessException {
+        if (!hasDirectAccessToTask(userId, task)) {
+            throw new UseCaseException.IllegalAccessException("Current user is not allowed to assign task");
+        }
+    }
+
+    private boolean hasDirectAccessToTask(ProjectUserId userId, Task task) {
+        return task.isOwner(userId) || task.isAssignee(userId);
     }
 
     private static UseCaseException.IllegalAccessException doesNotHavaAccessException() {

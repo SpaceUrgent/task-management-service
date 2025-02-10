@@ -2,6 +2,7 @@ package com.task.management.application.project.service;
 
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.ValidationService;
+import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.model.Task;
 import com.task.management.application.project.model.TaskStatus;
 import com.task.management.application.project.port.in.command.CreateTaskCommand;
@@ -212,6 +213,50 @@ class TaskServiceTest {
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
                 () -> taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus)
+        );
+        verifyNoInteractions(saveTaskPort);
+    }
+
+    @Test
+    void assignTask_shouldSaveUpdatedTask_whenAllConditionsMet() throws UseCaseException {
+        final var task = randomTask();
+        final var assignee = randomProjectUser();
+        final var givenActorId = task.getAssignee().id();
+        final var givenTaskId = task.getId();
+        final var givenAssigneeId = assignee.id();
+        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenTaskId));
+        doReturn(Optional.of(assignee)).when(projectUserService).findProjectMember(eq(givenAssigneeId), eq(task.getProject()));
+        final var taskCaptor = ArgumentCaptor.forClass(Task.class);
+        doAnswer(self(Task.class)).when(saveTaskPort).save(taskCaptor.capture());
+        taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId);
+        final var saved = taskCaptor.getValue();
+        assertEquals(task.getId(), saved.getId());
+        assertEquals(givenAssigneeId, saved.getAssignee().id());
+    }
+
+    @Test
+    void assignTask_shouldThrowEntityNotFoundException_whenTaskNotFound() {
+        final var givenActorId = randomProjectUserId();
+        final var givenTaskId = randomTaskId();
+        final var givenAssigneeId = randomProjectUserId();
+        doReturn(Optional.empty()).when(findTaskByIdPort).find(eq(givenTaskId));
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId)
+        );
+        verifyNoInteractions(saveTaskPort);
+    }
+
+    @Test
+    void assignTask_shouldThrowIllegalAccessException_whenActorDoesNotHaveAccess() throws UseCaseException {
+        final var task = randomTask();
+        final var givenActorId = randomProjectUserId();
+        final var givenTaskId = task.getId();
+        final var givenAssigneeId = randomProjectUserId();
+        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenTaskId));
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId)
         );
         verifyNoInteractions(saveTaskPort);
     }
