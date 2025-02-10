@@ -5,12 +5,15 @@ import com.task.management.application.common.ValidationService;
 import com.task.management.application.project.model.ProjectId;
 import com.task.management.application.project.model.ProjectUser;
 import com.task.management.application.project.model.ProjectUserId;
+import com.task.management.application.project.model.TaskDetails;
 import com.task.management.application.project.model.TaskId;
 import com.task.management.application.project.port.in.AssignTaskUseCase;
+import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
 import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
 import com.task.management.application.project.port.in.command.UpdateTaskCommand;
 import com.task.management.application.project.port.out.FindTaskByIdPort;
+import com.task.management.application.project.port.out.FindTaskDetailsByIdPort;
 import com.task.management.application.project.port.out.SaveTaskPort;
 import com.task.management.application.project.model.Task;
 import com.task.management.application.project.model.TaskStatus;
@@ -24,12 +27,14 @@ import static com.task.management.application.common.Validation.parameterRequire
 public class TaskService implements CreateTaskUseCase,
                                     UpdateTaskUseCase,
                                     UpdateTaskStatusUseCase,
-                                    AssignTaskUseCase
+                                    AssignTaskUseCase,
+                                    GetTaskDetailsUseCase
 {
     private final ValidationService validationService;
     private final ProjectUserService projectUserService;
     private final SaveTaskPort saveTaskPort;
     private final FindTaskByIdPort findTaskByIdPort;
+    private final FindTaskDetailsByIdPort findTaskDetailsByIdPort;
 
     @Override
     public Task createTask(final ProjectUserId actorId,
@@ -84,8 +89,22 @@ public class TaskService implements CreateTaskUseCase,
         saveTaskPort.save(task);
     }
 
+    @Override
+    public TaskDetails getTaskDetails(ProjectUserId actorId, TaskId taskId) throws UseCaseException {
+        parameterRequired(actorId, "Actor id");
+        parameterRequired(taskId, "Task id");
+        final var taskDetails = findTaskDetailsOrThrow(taskId);
+        checkIsMember(actorId, taskDetails.projectId());
+        return taskDetails;
+    }
+
     private Task findOrThrow(TaskId id) throws UseCaseException.EntityNotFoundException {
         return findTaskByIdPort.find(id)
+                .orElseThrow(() -> new UseCaseException.EntityNotFoundException("Task with id %d not found".formatted(id.value())));
+    }
+
+    private TaskDetails findTaskDetailsOrThrow(TaskId id) throws UseCaseException.EntityNotFoundException {
+        return findTaskDetailsByIdPort.findTaskDetailsById(id)
                 .orElseThrow(() -> new UseCaseException.EntityNotFoundException("Task with id %d not found".formatted(id.value())));
     }
 
@@ -123,5 +142,11 @@ public class TaskService implements CreateTaskUseCase,
 
     private static UseCaseException.IllegalAccessException projectMemberNotFoundException() {
         return new UseCaseException.IllegalAccessException("Project member not found");
+    }
+
+    private void checkIsMember(ProjectUserId userId, ProjectId projectId) throws UseCaseException {
+        if (!projectUserService.isMember(userId, projectId)) {
+            throw new UseCaseException.IllegalAccessException("Current does not have access to project");
+        }
     }
 }

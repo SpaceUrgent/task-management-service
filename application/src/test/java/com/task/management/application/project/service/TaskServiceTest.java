@@ -4,10 +4,12 @@ import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.ValidationService;
 import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.model.Task;
+import com.task.management.application.project.model.TaskDetails;
 import com.task.management.application.project.model.TaskStatus;
 import com.task.management.application.project.port.in.command.CreateTaskCommand;
 import com.task.management.application.project.port.in.command.UpdateTaskCommand;
 import com.task.management.application.project.port.out.FindTaskByIdPort;
+import com.task.management.application.project.port.out.FindTaskDetailsByIdPort;
 import com.task.management.application.project.port.out.SaveTaskPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +49,8 @@ class TaskServiceTest {
     private SaveTaskPort saveTaskPort;
     @Mock
     private FindTaskByIdPort findTaskByIdPort;
+    @Mock
+    private FindTaskDetailsByIdPort findTaskDetailsByIdPort;
     @InjectMocks
     private TaskService taskService;
 
@@ -259,6 +263,52 @@ class TaskServiceTest {
                 () -> taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId)
         );
         verifyNoInteractions(saveTaskPort);
+    }
+
+    @Test
+    void getTaskDetails_shouldReturnTaskDetails_whenAllConditionsMet() throws UseCaseException {
+        final var expected = randomTaskDetails();
+        final var givenActorId = randomProjectUserId();
+        final var givenTaskId = expected.id();
+        doReturn(Optional.of(expected)).when(findTaskDetailsByIdPort).findTaskDetailsById(eq(givenTaskId));
+        doReturn(true).when(projectUserService).isMember(eq(givenActorId), eq(expected.projectId()));
+        assertEquals(expected, taskService.getTaskDetails(givenActorId, givenTaskId));
+    }
+
+    @Test
+    void getTaskDetails_shouldThrowEntityNotFoundException_whenTaskNotFound() {
+        final var givenActorId = randomProjectUserId();
+        final var givenTaskId = randomTaskId();
+        doReturn(Optional.empty()).when(findTaskDetailsByIdPort).findTaskDetailsById(eq(givenTaskId));
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> taskService.getTaskDetails(givenActorId, givenTaskId)
+        );
+    }
+
+    @Test
+    void getTaskDetails_shouldThrowIllegalAccessException_whenActorIsNotProjectMember() throws UseCaseException {
+        final var expected = randomTaskDetails();
+        final var givenActorId = randomProjectUserId();
+        final var givenTaskId = expected.id();
+        doReturn(Optional.of(expected)).when(findTaskDetailsByIdPort).findTaskDetailsById(eq(givenTaskId));
+        doReturn(false).when(projectUserService).isMember(eq(givenActorId), eq(expected.projectId()));
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> taskService.getTaskDetails(givenActorId, givenTaskId)
+        );
+    }
+
+    private static TaskDetails randomTaskDetails() {
+        return TaskDetails.builder()
+                .id(randomTaskId())
+                .projectId(randomProjectId())
+                .status(TaskStatus.IN_PROGRESS)
+                .title("Title")
+                .description("Description")
+                .owner(randomProjectUser())
+                .assignee(randomProjectUser())
+                .build();
     }
 
     private static Task randomTask() {
