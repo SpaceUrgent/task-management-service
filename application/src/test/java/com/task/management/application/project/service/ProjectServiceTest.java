@@ -4,6 +4,7 @@ import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.ValidationService;
 import com.task.management.application.port.in.command.UpdateProjectCommand;
 import com.task.management.application.project.model.Project;
+import com.task.management.application.project.model.ProjectPreview;
 import com.task.management.application.project.model.ProjectUser;
 import com.task.management.application.project.port.out.AddProjectMemberPort;
 import com.task.management.application.project.port.out.FindProjectByIdPort;
@@ -71,7 +72,7 @@ class ProjectServiceTest {
 
     @Test
     void getAvailableProjects_shouldReturnProjectList() {
-        final var expectedProjects = randomProjects();
+        final var expectedProjects = randomProjectPreviews();
         final var givenActorId = randomProjectUserId();
         doReturn(expectedProjects).when(findProjectsByMemberPort).findProjectsByMember(eq(givenActorId));
         assertEquals(expectedProjects, projectService.getAvailableProjects(givenActorId));
@@ -198,10 +199,21 @@ class ProjectServiceTest {
         verifyNoMoreInteractions(addProjectMemberPort);
     }
 
-    private List<Project> randomProjects() {
+    private List<Project> randomProjectPreviews() {
         return IntStream.range(0, 10)
                 .mapToObj(value -> randomProject())
                 .toList();
+    }
+
+    private static ProjectPreview rendomProjectPreview() {
+        final var projectId = randomProjectId();
+        final var projectIdValue = projectId.value();
+        return ProjectPreview.builder()
+                .id(projectId)
+                .title("Title %d".formatted(projectIdValue))
+                .title("Description %d".formatted(projectIdValue))
+                .owner(randomProjectUser())
+                .build();
     }
 
     private static Project randomProject() {

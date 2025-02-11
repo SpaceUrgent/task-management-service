@@ -4,7 +4,6 @@ import com.task.management.application.common.Page;
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.ValidationService;
 import com.task.management.application.project.model.ProjectId;
-import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.model.Task;
 import com.task.management.application.project.model.TaskDetails;
 import com.task.management.application.project.model.TaskPreview;

@@ -4,6 +4,7 @@ import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.ValidationService;
 import com.task.management.application.port.in.command.UpdateProjectCommand;
 import com.task.management.application.project.model.ProjectId;
+import com.task.management.application.project.model.ProjectPreview;
 import com.task.management.application.project.model.ProjectUser;
 import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.port.in.AddProjectMemberUseCase;
@@ -44,14 +45,14 @@ public class ProjectService implements CreateProjectUseCase,
     private final FindProjectMembersPort findProjectMembersPort;
 
     @Override
-    public List<Project> getAvailableProjects(ProjectUserId actorId) {
-        parameterRequired(actorId, "User id");
+    public List<ProjectPreview> getAvailableProjects(ProjectUserId actorId) {
+        parameterRequired(actorId, "Actor id");
         return findProjectsByMemberPort.findProjectsByMember(actorId);
     }
 
     @Override
     public List<ProjectUser> getMembers(ProjectUserId actorId, ProjectId projectId) throws UseCaseException {
-        parameterRequired(actorId, "Current user id");
+        parameterRequired(actorId, "Actor id");
         parameterRequired(projectId, "Project id");
         checkIsMember(actorId, projectId);
         return findProjectMembersPort.findMembers(projectId);
@@ -59,7 +60,7 @@ public class ProjectService implements CreateProjectUseCase,
 
     @Override
     public Project getProject(ProjectUserId actorId, ProjectId projectId) throws UseCaseException {
-        parameterRequired(actorId, "Current user id");
+        parameterRequired(actorId, "Actor id");
         parameterRequired(projectId, "Project id");
         checkIsMember(actorId, projectId);
         return findOrThrow(projectId);
@@ -79,7 +80,7 @@ public class ProjectService implements CreateProjectUseCase,
 
     @Override
     public Project updateProject(ProjectUserId actorId, UpdateProjectCommand command) throws UseCaseException {
-        parameterRequired(actorId, "User id");
+        parameterRequired(actorId, "Actor id");
         validationService.validate(command);
         final var projectId = command.projectId();
         final var project = findOrThrow(projectId);
@@ -94,7 +95,7 @@ public class ProjectService implements CreateProjectUseCase,
 
     @Override
     public void addMember(ProjectUserId actorId, ProjectId projectId, String email) throws UseCaseException {
-        parameterRequired(actorId, "Current user id");
+        parameterRequired(actorId, "Actor id");
         parameterRequired(projectId, "Project id");
         emailRequired(email);
         checkIsMember(actorId, projectId);
