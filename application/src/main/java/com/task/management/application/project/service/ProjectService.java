@@ -19,10 +19,12 @@ import com.task.management.application.project.port.out.AddProjectMemberPort;
 import com.task.management.application.project.port.out.FindProjectByIdPort;
 import com.task.management.application.project.port.out.FindProjectMembersPort;
 import com.task.management.application.project.port.out.FindProjectsByMemberPort;
-import com.task.management.application.project.port.out.SaveProjectPort;
+import com.task.management.application.project.port.out.AddProjectPort;
+import com.task.management.application.project.port.out.UpdateProjectPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
 import java.util.List;
 
 import static com.task.management.application.common.Validation.emailRequired;
@@ -38,7 +40,8 @@ public class ProjectService implements CreateProjectUseCase,
                                         UpdateProjectUseCase {
     private final ValidationService validationService;
     private final ProjectUserService projectUserService;
-    private final SaveProjectPort saveProjectPort;
+    private final AddProjectPort saveProjectPort;
+    private final UpdateProjectPort updateProjectPort;
     private final AddProjectMemberPort addProjectMemberPort;
     private final FindProjectByIdPort findProjectByIdPort;
     private final FindProjectsByMemberPort findProjectsByMemberPort;
@@ -71,11 +74,12 @@ public class ProjectService implements CreateProjectUseCase,
         parameterRequired(actorId, "Actor id");
         validationService.validate(command);
         final var project = Project.builder()
+                .createdAt(Instant.now())
                 .title(command.title())
                 .description(command.description())
                 .owner(projectUserService.getProjectUser(actorId))
                 .build();
-        return saveProjectPort.save(project);
+        return saveProjectPort.add(project);
     }
 
     @Override
@@ -90,7 +94,7 @@ public class ProjectService implements CreateProjectUseCase,
         }
         project.setTitle(command.title());
         project.setDescription(command.description());
-        return saveProjectPort.save(project);
+        return updateProjectPort.update(project);
     }
 
     @Override

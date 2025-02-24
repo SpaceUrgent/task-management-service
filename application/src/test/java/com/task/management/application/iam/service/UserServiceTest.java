@@ -10,9 +10,10 @@ import com.task.management.application.iam.port.in.command.RegisterUserCommand;
 import com.task.management.application.iam.port.out.EmailExistsPort;
 import com.task.management.application.iam.port.out.EncryptPasswordPort;
 import com.task.management.application.iam.port.out.FindUserProfileByIdPort;
-import com.task.management.application.iam.port.out.SaveUserPort;
+import com.task.management.application.iam.port.out.AddUserPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,11 +22,15 @@ import java.util.Optional;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -38,7 +43,7 @@ class UserServiceTest {
     @Mock
     private EmailExistsPort emailExistsPort;
     @Mock
-    private SaveUserPort saveUserPort;
+    private AddUserPort addUserPort;
     @Mock
     private FindUserProfileByIdPort findUserByIdPort;
     @InjectMocks
@@ -50,14 +55,16 @@ class UserServiceTest {
         final var givenCommand = registerUserCommand();
         doReturn(false).when(emailExistsPort).emailExists(eq(givenCommand.email()));
         doReturn(encryptedPassword).when(encryptPasswordPort).encrypt(eq(givenCommand.password()));
-        final var expectedUser = User.builder()
-                .email(givenCommand.email())
-                .firstName(givenCommand.firstName())
-                .lastName(givenCommand.lastName())
-                .encryptedPassword(encryptedPassword)
-                .build();
+        final var userCaptor = ArgumentCaptor.forClass(User.class);
+        doAnswer(invocation -> invocation.getArgument(0)).when(addUserPort).add(userCaptor.capture());
         userService.register(givenCommand);
-        verify(saveUserPort).save(eq(expectedUser));
+        verify(addUserPort).add(any());
+        final var added = userCaptor.getValue();
+        assertNotNull(added.getCreatedAt());
+        assertEquals(givenCommand.email(), added.getEmail());
+        assertEquals(givenCommand.firstName(), added.getFirstName());
+        assertEquals(givenCommand.lastName(), added.getLastName());
+        assertEquals(encryptedPassword, added.getEncryptedPassword());
     }
 
     @Test
@@ -65,7 +72,7 @@ class UserServiceTest {
         final var givenCommand = registerUserCommand();
         doReturn(true).when(emailExistsPort).emailExists(eq(givenCommand.email()));
         assertThrows(EmailExistsException.class, () -> userService.register(givenCommand));
-        verifyNoMoreInteractions(saveUserPort);
+        verifyNoMoreInteractions(addUserPort);
     }
 
     @Test

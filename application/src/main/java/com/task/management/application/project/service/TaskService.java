@@ -19,11 +19,12 @@ import com.task.management.application.project.port.in.query.FindTasksQuery;
 import com.task.management.application.project.port.out.FindProjectTasksPort;
 import com.task.management.application.project.port.out.FindTaskByIdPort;
 import com.task.management.application.project.port.out.FindTaskDetailsByIdPort;
-import com.task.management.application.project.port.out.SaveTaskPort;
+import com.task.management.application.project.port.out.AddTaskPort;
 import com.task.management.application.project.model.Task;
 import com.task.management.application.project.model.TaskStatus;
 import com.task.management.application.project.port.in.CreateTaskUseCase;
 import com.task.management.application.project.port.in.command.CreateTaskCommand;
+import com.task.management.application.project.port.out.UpdateTaskPort;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
@@ -40,7 +41,8 @@ public class TaskService implements CreateTaskUseCase,
 {
     private final ValidationService validationService;
     private final ProjectUserService projectUserService;
-    private final SaveTaskPort saveTaskPort;
+    private final AddTaskPort saveTaskPort;
+    private final UpdateTaskPort updateTaskPort;
     private final FindTaskByIdPort findTaskByIdPort;
     private final FindTaskDetailsByIdPort findTaskDetailsByIdPort;
     private final FindProjectTasksPort findProjectTasksPort;
@@ -54,7 +56,7 @@ public class TaskService implements CreateTaskUseCase,
                 .orElseThrow(TaskService::doesNotHavaAccessException);
         final var assignee = getAssignee(command.assigneeId(), projectId);
         var task = Task.builder()
-                .createdTime(Instant.now())
+                .createdAt(Instant.now())
                 .project(projectId)
                 .title(command.title())
                 .description(command.description())
@@ -62,7 +64,7 @@ public class TaskService implements CreateTaskUseCase,
                 .owner(owner)
                 .assignee(assignee)
                 .build();
-        return saveTaskPort.save(task);
+        return saveTaskPort.add(task);
     }
 
     @Override
@@ -73,7 +75,7 @@ public class TaskService implements CreateTaskUseCase,
         checkUserIsOwner(actorId, task);
         task.setTitle(command.title());
         task.setDescription(command.description());
-        return saveTaskPort.save(task);
+        return updateTaskPort.update(task);
     }
 
     @Override
@@ -86,7 +88,7 @@ public class TaskService implements CreateTaskUseCase,
         final var task = findOrThrow(taskId);
         checkAllowedToUpdateStatus(actorId, task);
         task.setStatus(status);
-        saveTaskPort.save(task);
+        updateTaskPort.update(task);
     }
 
     @Override
@@ -100,7 +102,7 @@ public class TaskService implements CreateTaskUseCase,
         checkAllowedToAssign(actorId, task);
         final var assignee = getAssignee(assigneeId, task.getProject());
         task.setAssignee(assignee);
-        saveTaskPort.save(task);
+        updateTaskPort.update(task);
     }
 
     @Override
@@ -118,7 +120,7 @@ public class TaskService implements CreateTaskUseCase,
                                        final FindTasksQuery query) throws UseCaseException {
         parameterRequired(actorId, "Actor id");
         parameterRequired(query, "Query");
-        checkIsMember(actorId, query.projectId());
+        checkIsMember(actorId, query.getProjectId());
         return findProjectTasksPort.findProjectTasks(query);
     }
 

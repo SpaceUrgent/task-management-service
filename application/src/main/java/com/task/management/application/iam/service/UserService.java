@@ -9,12 +9,14 @@ import com.task.management.application.iam.port.in.GetUserProfileUseCase;
 import com.task.management.application.iam.port.in.command.RegisterUserCommand;
 import com.task.management.application.iam.model.User;
 import com.task.management.application.iam.port.in.RegisterUserUseCase;
-import com.task.management.application.iam.port.out.SaveUserPort;
+import com.task.management.application.iam.port.out.AddUserPort;
 import com.task.management.application.iam.port.out.EmailExistsPort;
 import com.task.management.application.iam.port.out.FindUserProfileByIdPort;
 import com.task.management.application.iam.port.out.EncryptPasswordPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.Instant;
 
 
 @Slf4j
@@ -24,7 +26,7 @@ public class UserService implements RegisterUserUseCase,
     private final ValidationService validationService;
     private final EncryptPasswordPort encryptPasswordPort;
     private final EmailExistsPort emailExistsPort;
-    private final SaveUserPort saveUserPort;
+    private final AddUserPort saveUserPort;
     private final FindUserProfileByIdPort findUserByIdPort;
 
     @Override
@@ -37,12 +39,13 @@ public class UserService implements RegisterUserUseCase,
         }
         final var encryptedPassword = encryptPasswordPort.encrypt(command.password());
         var user = User.builder()
+                .createdAt(Instant.now())
                 .email(email)
                 .firstName(command.firstName())
                 .lastName(command.lastName())
                 .encryptedPassword(encryptedPassword)
                 .build();
-        saveUserPort.save(user);
+        saveUserPort.add(user);
     }
 
     @Override

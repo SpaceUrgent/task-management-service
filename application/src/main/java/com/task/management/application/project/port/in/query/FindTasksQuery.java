@@ -1,38 +1,74 @@
 package com.task.management.application.project.port.in.query;
 
-import com.task.management.application.common.Validation;
+import com.task.management.application.common.PagedQuery;
+import com.task.management.application.common.Sort;
 import com.task.management.application.project.model.ProjectId;
 import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.model.TaskStatus;
-import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-import java.util.List;
 import java.util.Set;
 
-import static com.task.management.application.common.Validation.parameterRequired;
+import static java.util.Objects.requireNonNull;
 
-public record FindTasksQuery(
-        ProjectId projectId,
-        Integer pageNo,
-        Integer pageSize,
-        Set<TaskStatus> statuses,
-        ProjectUserId assignee,
-        List<Sort> sortBy
-) {
+@Getter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class FindTasksQuery extends PagedQuery {
+    private final ProjectId projectId;
+    private final Set<TaskStatus> statuses;
+    private final ProjectUserId assigneeId;
 
-    @Builder
-    public FindTasksQuery {
-        parameterRequired(projectId, "Project id");
-        parameterRequired(pageNo, "Page no");
-        parameterRequired(pageSize, "Page size");
+    private FindTasksQuery(Builder builder) {
+        super(builder);
+        this.projectId = projectIdRequired(builder.projectId);
+        this.statuses = builder.statuses;
+        this.assigneeId = builder.assigneeId;
     }
 
-    public record Sort(String field, Direction direction) {
-        public Sort {
-            parameterRequired(field, "Field");
-            parameterRequired(direction, "Direction");
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private static ProjectId projectIdRequired(ProjectId projectId) {
+        return requireNonNull(projectId, "Project id is required");
+    }
+
+    public static class Builder extends PagedQuery.PagedQueryBuilder<Builder, FindTasksQuery> {
+        private ProjectId projectId;
+        private Set<TaskStatus> statuses;
+        private ProjectUserId assigneeId;
+
+        @Override
+        public FindTasksQuery build() {
+            return new FindTasksQuery(this);
         }
 
-        public enum Direction {ASC, DESC}
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        public Builder projectId(ProjectId projectId) {
+            this.projectId = projectId;
+            return this;
+        }
+
+        public Builder statusIn(Set<TaskStatus> statuses) {
+            this.statuses = statuses;
+            return this;
+        }
+
+        public Builder assigneeId(ProjectUserId assigneeId) {
+            this.assigneeId = assigneeId;
+            return this;
+        }
+
+        public Builder sortByCreatedAt(Sort.Direction direction) {
+            this.sortBy.add(Sort.by("createdAt", direction));
+            return this;
+        }
     }
 }

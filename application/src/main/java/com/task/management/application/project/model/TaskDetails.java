@@ -8,7 +8,7 @@ import static com.task.management.application.common.Validation.parameterRequire
 
 public record TaskDetails(
         TaskId id,
-        Instant createdTime,
+        Instant createdAt,
         ProjectId projectId,
         String title,
         String description,
@@ -19,7 +19,7 @@ public record TaskDetails(
     @Builder
     public TaskDetails {
         parameterRequired(id, "Id");
-        parameterRequired(createdTime, "Created time");
+        parameterRequired(createdAt, "Created time");
         parameterRequired(projectId, "Project id");
         parameterRequired(title, "Title");
         parameterRequired(description, "Description");

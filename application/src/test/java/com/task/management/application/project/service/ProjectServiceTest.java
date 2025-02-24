@@ -10,14 +10,16 @@ import com.task.management.application.project.port.out.AddProjectMemberPort;
 import com.task.management.application.project.port.out.FindProjectByIdPort;
 import com.task.management.application.project.port.out.FindProjectMembersPort;
 import com.task.management.application.project.port.out.FindProjectsByMemberPort;
-import com.task.management.application.project.port.out.SaveProjectPort;
+import com.task.management.application.project.port.out.AddProjectPort;
 import com.task.management.application.project.port.in.command.CreateProjectCommand;
+import com.task.management.application.project.port.out.UpdateProjectPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -29,6 +31,7 @@ import static com.task.management.application.project.service.ProjectTestUtils.r
 import static com.task.management.application.project.service.ProjectTestUtils.randomProjectUsers;
 import static com.task.management.application.project.service.ProjectTestUtils.self;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,7 +50,9 @@ class ProjectServiceTest {
     @Mock
     private ProjectUserService projectUserService;
     @Mock
-    private SaveProjectPort saveProjectPort;
+    private AddProjectPort addProjectPort;
+    @Mock
+    private UpdateProjectPort updateProjectPort;
     @Mock
     private FindProjectByIdPort findProjectByIdPort;
     @Mock
@@ -64,8 +69,9 @@ class ProjectServiceTest {
         final var command = createProjectCommand();
         final var givenActorId = randomProjectUserId();
         doAnswer(getProjectUserAnswer()).when(projectUserService).getProjectUser(eq(givenActorId));
-        doAnswer(self(Project.class)).when(saveProjectPort).save(any());
+        doAnswer(self(Project.class)).when(addProjectPort).add(any());
         final var created = projectService.createProject(givenActorId, command);
+        assertNotNull(created.getCreatedAt());
         assertEquals(command.title(), created.getTitle());
         assertEquals(command.description(), created.getDescription());
     }
@@ -138,13 +144,14 @@ class ProjectServiceTest {
         final var givenCommand = updateProjectCommand(project);
         final var expectedProject = Project.builder()
                 .id(project.getId())
+                .createdAt(project.getCreatedAt())
                 .title(givenCommand.title())
                 .description(givenCommand.description())
                 .owner(project.getOwner())
                 .build();
         final var givenActorId = project.getOwner().id();
         doReturn(Optional.of(project)).when(findProjectByIdPort).find(eq(project.getId()));
-        doAnswer(self(Project.class)).when(saveProjectPort).save(any());
+        doAnswer(self(Project.class)).when(updateProjectPort).update(any());
         assertEquals(expectedProject, projectService.updateProject(givenActorId, givenCommand));
     }
 
@@ -158,7 +165,7 @@ class ProjectServiceTest {
                 UseCaseException.EntityNotFoundException.class,
                 () -> projectService.updateProject(givenActorId, givenCommand)
         );
-        verifyNoInteractions(saveProjectPort);
+        verifyNoInteractions(updateProjectPort);
     }
 
     @Test
@@ -171,7 +178,7 @@ class ProjectServiceTest {
                 UseCaseException.IllegalAccessException.class,
                 () -> projectService.updateProject(givenActorId, givenCommand)
         );
-        verifyNoInteractions(saveProjectPort);
+        verifyNoInteractions(updateProjectPort);
     }
 
     @Test
@@ -221,6 +228,7 @@ class ProjectServiceTest {
         final var owner = ProjectUser.withId(randomProjectUserId());
         return Project.builder()
                 .id(projectId)
+                .createdAt(Instant.now())
                 .title("Title %d".formatted(projectId.value()))
                 .description("Description %d".formatted(projectId.value()))
                 .owner(owner)

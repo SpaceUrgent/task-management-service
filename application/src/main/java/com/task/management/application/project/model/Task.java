@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 @Data
 public class Task {
     private final TaskId id;
-    private final Instant createdTime;
+    private final Instant createdAt;
     private final ProjectId project;
     private String title;
     private String description;
@@ -21,7 +21,7 @@ public class Task {
 
     @Builder
     public Task(TaskId id,
-                Instant createdTime,
+                Instant createdAt,
                 ProjectId project,
                 String title,
                 String description,
@@ -29,7 +29,7 @@ public class Task {
                 ProjectUser owner,
                 ProjectUser assignee) {
         this.id = id;
-        this.createdTime = requireNonNull(createdTime, "Created time is required");
+        this.createdAt = requireNonNull(createdAt, "Created time is required");
         this.project = requireNonNull(project, "Project id is required");
         this.title = requireNonNull(title, "Title is required");
         this.description = description;

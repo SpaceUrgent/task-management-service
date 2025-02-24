@@ -8,7 +8,7 @@ import static com.task.management.application.common.Validation.parameterRequire
 
 public record TaskPreview(
         TaskId id,
-        Instant createdTime,
+        Instant createdAt,
         String title,
         TaskStatus status,
         ProjectUser assignee
@@ -16,7 +16,7 @@ public record TaskPreview(
     @Builder
     public TaskPreview {
         parameterRequired(id, "Task id");
-        parameterRequired(createdTime, "Created time");
+        parameterRequired(createdAt, "Created time");
         parameterRequired(title, "Title");
         parameterRequired(status, "Status");
         parameterRequired(assignee, "Assignee");
