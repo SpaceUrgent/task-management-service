@@ -59,3 +59,4 @@ where p.description = 'Project with test member' and not exists (
     from projects_members pm
     where pm.project_id = p.id and pm.member_id = u.id
 );
+

@@ -1,27 +1,22 @@
 package com.task.management.persistence.jpa;
 
-import com.task.management.application.common.PageQuery;
-import com.task.management.application.dto.ProjectDetailsDTO;
-import com.task.management.application.model.Project;
-import com.task.management.application.model.ProjectId;
-import com.task.management.application.model.UserId;
-import com.task.management.application.port.out.AddProjectMemberPort;
-import com.task.management.application.port.out.AddProjectPort;
-import com.task.management.application.port.out.GetProjectDetailsPort;
-import com.task.management.application.port.out.FindProjectPort;
-import com.task.management.application.port.out.FindProjectsByMemberPort;
-import com.task.management.application.port.out.ProjectHasMemberPort;
-import com.task.management.application.port.out.UpdateProjectPort;
+import com.task.management.application.project.model.Project;
+import com.task.management.application.project.model.ProjectId;
+import com.task.management.application.project.model.ProjectPreview;
+import com.task.management.application.project.model.ProjectUserId;
+import com.task.management.application.project.port.out.AddProjectMemberPort;
+import com.task.management.application.project.port.out.AddProjectPort;
+import com.task.management.application.project.port.out.FindProjectByIdPort;
+import com.task.management.application.project.port.out.FindProjectsByMemberPort;
+import com.task.management.application.project.port.out.UpdateProjectPort;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
-import com.task.management.persistence.jpa.entity.UserEntity;
-import com.task.management.persistence.jpa.mapper.ProjectDetailsMapper;
 import com.task.management.persistence.jpa.mapper.ProjectMapper;
+import com.task.management.persistence.jpa.mapper.ProjectPreviewMapper;
 import com.task.management.persistence.jpa.repository.JpaProjectRepository;
 import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,83 +24,77 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
-public class JpaProjectRepositoryAdapter implements AddProjectPort,
-                                                    FindProjectPort,
+public class JpaProjectRepositoryAdapter implements FindProjectByIdPort,
                                                     FindProjectsByMemberPort,
-                                                    GetProjectDetailsPort,
+                                                    AddProjectPort,
                                                     UpdateProjectPort,
-                                                    AddProjectMemberPort,
-                                                    ProjectHasMemberPort {
-    private final JpaProjectRepository jpaProjectRepository;
+                                                    AddProjectMemberPort {
     private final JpaUserRepository jpaUserRepository;
+    private final JpaProjectRepository jpaProjectRepository;
     private final ProjectMapper projectMapper;
-    private final ProjectDetailsMapper projectDetailsMapper;
+    private final ProjectPreviewMapper projectPreviewMapper;
 
     @Override
-    public Project add(final Project project) {
-        projectRequired(project);
-        var projectEntity = projectMapper.toEntity(project);
-        projectEntity = jpaProjectRepository.save(projectEntity);
-        return projectMapper.toModel(projectEntity);
-    }
-
-    @Override
-    public Optional<Project> findById(ProjectId id) {
+    public Optional<Project> find(ProjectId id) {
         projectIdRequired(id);
         return jpaProjectRepository.findById(id.value()).map(projectMapper::toModel);
     }
 
     @Override
-    public List<Project> findProjectsByMember(UserId member, PageQuery page) {
-        requireNonNull(member, "Member id is required");
-        requireNonNull(page, "Page is required");
-        return jpaProjectRepository.findByMember(member.value(), JpaPage.of(page)).get()
-                .map(projectMapper::toModel)
+    public List<ProjectPreview> findProjectsByMember(ProjectUserId memberId) {
+        memberIdRequired(memberId);
+        return jpaProjectRepository.findByMemberId(memberId.value())
+                .map(projectPreviewMapper::toModel)
                 .toList();
     }
 
     @Override
-    public ProjectDetailsDTO getProjectDetails(ProjectId projectId) {
-        projectIdRequired(projectId);
-        return jpaProjectRepository.findById(projectId.value())
-                .map(projectDetailsMapper::toDTO)
-                .orElse(null);
-    }
-
-    @Override
-    public Project update(final Project project) {
+    public Project add(Project project) {
         projectRequired(project);
-        var projectEntity = getProjectEntity(project.getId().value());
-        projectEntity.setUpdatedAt(Instant.now());
-        projectEntity.setTitle(project.getTitle());
-        projectEntity.setDescription(project.getDescription());
-        projectEntity.setOwner(jpaUserRepository.getReferenceById(project.getOwner().id().value()));
+        final var ownerReference = jpaUserRepository.getReferenceById(project.getOwner().id().value());
+        var projectEntity = ProjectEntity.builder()
+                .createdAt(project.getCreatedAt())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .owner(ownerReference)
+                .members(new ArrayList<>() {{
+                    add(ownerReference);
+                }})
+                .build();
         projectEntity = jpaProjectRepository.save(projectEntity);
         return projectMapper.toModel(projectEntity);
     }
 
     @Override
-    public boolean hasMember(ProjectId projectId, UserId userId) {
-        projectIdRequired(projectId);
-        requireNonNull(userId, "User id is required");
-        return jpaProjectRepository.findById(projectId.value())
-                .map(ProjectEntity::getMembers)
-                .orElse(new ArrayList<>()).stream()
-                .anyMatch(userEntity -> userId.value().equals(userEntity.getId()));
+    public Project update(Project project) {
+        projectRequired(project);
+        projectIdRequired(project.getId());
+        var projectEntity = getProject(project.getId());
+        final var ownerEntityReference = jpaUserRepository.getReferenceById(project.getOwner().id().value());
+        projectEntity.setTitle(project.getTitle());
+        projectEntity.setDescription(project.getDescription());
+        projectEntity.setOwner(ownerEntityReference);
+        projectEntity = jpaProjectRepository.save(projectEntity);
+        return projectMapper.toModel(projectEntity);
     }
 
     @Override
-    public void addMember(ProjectId projectId, UserId memberId) {
+    public void addMember(ProjectId projectId, ProjectUserId memberId) {
         projectIdRequired(projectId);
-        requireNonNull(memberId, "Member id is required");
-        final var projectEntity = getProjectEntity(projectId.value());
-        projectEntity.addMember(jpaUserRepository.getReferenceById(memberId.value()));
+        memberIdRequired(memberId);
+        final var projectEntity = getProject(projectId);
+        final var memberEntityReference = jpaUserRepository.getReferenceById(memberId.value());
+        projectEntity.addMember(memberEntityReference);
+        jpaProjectRepository.save(projectEntity);
     }
 
-    private ProjectEntity getProjectEntity(final Long id) {
-        requireNonNull(id, "Project id is required");
-        return jpaProjectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project entity with id '%d' not found".formatted(id)));
+    private ProjectEntity getProject(ProjectId id) {
+        return jpaProjectRepository.findById(id.value())
+                .orElseThrow(() -> new EntityNotFoundException("Project with id %d not found".formatted(id.value())));
+    }
+
+    private static void memberIdRequired(ProjectUserId memberId) {
+        requireNonNull(memberId, "Member id is required");
     }
 
     private static void projectIdRequired(ProjectId projectId) {
@@ -113,6 +102,6 @@ public class JpaProjectRepositoryAdapter implements AddProjectPort,
     }
 
     private static void projectRequired(Project project) {
-        requireNonNull(project, "Project is required");
+        requireNonNull(project, "Project entity is required");
     }
 }

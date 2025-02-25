@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>persistence-jpa</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>19</maven.compiler.source>
@@ -22,7 +23,7 @@
         <dependency>
             <groupId>io.spaceurgent.taskmanagement</groupId>
             <artifactId>application</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

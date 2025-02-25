@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
@@ -25,11 +24,8 @@ public class UserEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    @Column(name = "updated_at")
-    private Instant updatedAt;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -53,7 +49,6 @@ public class UserEntity {
     @Builder
     public UserEntity(Long id,
                       Instant createdAt,
-                      Instant updatedAt,
                       String email,
                       String firstName,
                       String lastName,
@@ -61,7 +56,6 @@ public class UserEntity {
                       List<ProjectEntity> projects) {
         this.id = id;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;

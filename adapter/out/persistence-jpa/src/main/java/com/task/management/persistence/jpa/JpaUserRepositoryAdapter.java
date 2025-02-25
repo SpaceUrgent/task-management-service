@@ -1,11 +1,14 @@
 package com.task.management.persistence.jpa;
 
-import com.task.management.application.model.User;
-import com.task.management.application.model.UserId;
-import com.task.management.application.port.out.AddUserPort;
-import com.task.management.application.port.out.EmailExistsPort;
-import com.task.management.application.port.out.FindUserPort;
+import com.task.management.application.iam.model.User;
+import com.task.management.application.iam.model.UserId;
+import com.task.management.application.iam.model.UserProfile;
+import com.task.management.application.iam.port.out.EmailExistsPort;
+import com.task.management.application.iam.port.out.FindUserProfileByIdPort;
+import com.task.management.application.iam.port.out.AddUserPort;
+import com.task.management.persistence.jpa.dao.UserDao;
 import com.task.management.persistence.jpa.mapper.UserMapper;
+import com.task.management.persistence.jpa.mapper.UserProfileMapper;
 import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -13,36 +16,34 @@ import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
+
 @RequiredArgsConstructor
 public class JpaUserRepositoryAdapter implements AddUserPort,
-                                                 EmailExistsPort,
-                                                 FindUserPort {
-    private final JpaUserRepository jpaUserRepository;
+                                                 FindUserProfileByIdPort,
+                                                 EmailExistsPort {
+    private final UserDao jpaUserRepository;
+//    private final JpaUserRepository jpaUserRepository;
     private final UserMapper userMapper;
+    private final UserProfileMapper userProfileMapper;
 
-    @Override
-    public Optional<User> findById(UserId id) {
-        requireNonNull(id, "User id is required");
-        return jpaUserRepository.findById(id.value()).map(userMapper::toModel);
-    }
-
-    @Override
-    public Optional<User> findByEmail(String email) {
-        requireNonNull(email, "Email is required");
-        return jpaUserRepository.findByEmail(email).map(userMapper::toModel);
-    }
 
     @Override
     public User add(final User user) {
         requireNonNull(user, "User is required");
-        assert user.getId() == null : "New user is required";
-        var userEntity = userMapper.toEntity(user);
-        userEntity = jpaUserRepository.save(userEntity);
-        return userMapper.toModel(userEntity);
+        var entity = userMapper.toEntity(user);
+        jpaUserRepository.save(entity);
+        return userMapper.toModel(entity);
+    }
+
+    @Override
+    public Optional<UserProfile> find(UserId id) {
+        requireNonNull(id, "User id is required");
+        return jpaUserRepository.findById(id.value()).map(userProfileMapper::toModel);
     }
 
     @Override
     public boolean emailExists(String email) {
+        requireNonNull(email, "Email is required");
         return jpaUserRepository.existsByEmail(email);
     }
 }

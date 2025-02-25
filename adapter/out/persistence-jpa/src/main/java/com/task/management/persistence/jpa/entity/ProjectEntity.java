@@ -29,11 +29,8 @@ public class ProjectEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    @Column(name = "updated_at")
-    private Instant updatedAt;
 
     @Column(nullable = false)
     private String title;
@@ -59,14 +56,12 @@ public class ProjectEntity {
     @Builder
     public ProjectEntity(Long id,
                          Instant createdAt,
-                         Instant updatedAt,
                          String title,
                          String description,
                          UserEntity owner,
                          List<UserEntity> members) {
         this.id = id;
-        this.createdAt = requireNonNull(createdAt, "Created time is required");
-        this.updatedAt = updatedAt;
+        this.createdAt = requireNonNull(createdAt, "Created at is required");
         this.title = requireNonNull(title, "Title is required");
         this.description = requireNonNull(description, "Description is required");
         this.owner = requireNonNull(owner, "Owner is required");

@@ -1,23 +1,21 @@
 package com.task.management.persistence.jpa.mapper;
 
-import com.task.management.application.project.model.Project;
 import com.task.management.application.project.model.ProjectId;
+import com.task.management.application.project.model.ProjectPreview;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import lombok.RequiredArgsConstructor;
 
 import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
-public class ProjectMapper {
+public class ProjectPreviewMapper {
     private final ProjectUserMapper projectUserMapper;
 
-    public Project toModel(ProjectEntity entity) {
+    public ProjectPreview toModel(ProjectEntity entity) {
         requireNonNull(entity, "Entity is required");
-        return Project.builder()
+        return ProjectPreview.builder()
                 .id(new ProjectId(entity.getId()))
-                .createdAt(entity.getCreatedAt())
                 .title(entity.getTitle())
-                .description(entity.getDescription())
                 .owner(projectUserMapper.toModel(entity.getOwner()))
                 .build();
     }
