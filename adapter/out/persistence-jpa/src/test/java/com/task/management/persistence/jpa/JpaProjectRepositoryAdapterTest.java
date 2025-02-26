@@ -5,10 +5,10 @@ import com.task.management.application.project.model.ProjectId;
 import com.task.management.application.project.model.ProjectPreview;
 import com.task.management.application.project.model.ProjectUser;
 import com.task.management.application.project.model.ProjectUserId;
+import com.task.management.persistence.jpa.dao.ProjectEntityDao;
+import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.entity.UserEntity;
-import com.task.management.persistence.jpa.repository.JpaProjectRepository;
-import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -32,9 +32,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 class JpaProjectRepositoryAdapterTest {
     @Autowired
-    private JpaUserRepository jpaUserRepository;
+    private UserEntityDao userEntityDao;
     @Autowired
-    private JpaProjectRepository jpaProjectRepository;
+    private ProjectEntityDao projectEntityDao;
     @Autowired
     private JpaProjectRepositoryAdapter projectRepositoryAdapter;
 
@@ -44,7 +44,7 @@ class JpaProjectRepositoryAdapterTest {
     )
     @Test
     void add_shouldReturnSavedProject() {
-        final var owner = jpaUserRepository.findAll().stream()
+        final var owner = userEntityDao.findAll().stream()
                 .findFirst()
                 .map(UserEntity::getId)
                 .map(ProjectUserId::new)
@@ -58,7 +58,7 @@ class JpaProjectRepositoryAdapterTest {
                 .build();
         final var added = projectRepositoryAdapter.add(givenProject);
         assertMatches(givenProject, added);
-        final var projectEntity = jpaProjectRepository.findById(added.getId().value()).orElse(null);
+        final var projectEntity = projectEntityDao.findById(added.getId().value()).orElse(null);
         assertNotNull(projectEntity);
         assertMatches(projectEntity, added);
     }
@@ -69,7 +69,7 @@ class JpaProjectRepositoryAdapterTest {
     )
     @Test
     void findById_shouldReturnOptionalOfProject_whenProjectExists() {
-        final var projectEntity = jpaProjectRepository.findAll().stream()
+        final var projectEntity = projectEntityDao.findAll().stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Project in DB is required for test"));
         final var givenProjectId = new ProjectId(projectEntity.getId());
@@ -94,9 +94,9 @@ class JpaProjectRepositoryAdapterTest {
     )
     @Test
     void findProjectsByMember_shouldReturnProjectList() {
-        final var memberEntity = jpaUserRepository.findByEmail("member@mail.com")
+        final var memberEntity = userEntityDao.findByEmail("member@mail.com")
                 .orElseThrow(() -> new IllegalStateException("Test user is missing"));
-        final var memberProjectEntities = jpaProjectRepository.findAll().stream()
+        final var memberProjectEntities = projectEntityDao.findAll().stream()
                 .filter(projectEntity -> projectEntity.getMembers().contains(memberEntity))
                 .toList();
         final var givenMemberId = new ProjectUserId(memberEntity.getId());
@@ -113,10 +113,10 @@ class JpaProjectRepositoryAdapterTest {
     )
     @Test
     void addMember_shouldAddNewMemberToProject() {
-        final var projectEntity = jpaProjectRepository.findAll().stream()
+        final var projectEntity = projectEntityDao.findAll().stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("At least 1 project is expected int DB for test"));
-        final var userEntities = jpaUserRepository.findAll();
+        final var userEntities = userEntityDao.findAll();
         final var newMemberUserEntity = userEntities.stream()
                 .filter(entity -> !projectEntity.getMembers().contains(entity))
                 .findFirst()
@@ -124,7 +124,7 @@ class JpaProjectRepositoryAdapterTest {
         final var givenProjectId = new ProjectId(projectEntity.getId());
         final var givenMemberId = new ProjectUserId(newMemberUserEntity.getId());
         projectRepositoryAdapter.addMember(givenProjectId, givenMemberId);
-        final var updatedProjectEntity = jpaProjectRepository.findById(projectEntity.getId()).orElseThrow();
+        final var updatedProjectEntity = projectEntityDao.findById(projectEntity.getId()).orElseThrow();
         assertTrue(updatedProjectEntity.getMembers().contains(newMemberUserEntity));
     }
 
@@ -137,10 +137,10 @@ class JpaProjectRepositoryAdapterTest {
     )
     @Test
     void update_shouldReturnUpdatedProject() {
-        final var projectEntity = jpaProjectRepository.findAll().stream()
+        final var projectEntity = projectEntityDao.findAll().stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("At least 1 project is expected int DB for test"));
-        final var userEntities = jpaUserRepository.findAll();
+        final var userEntities = userEntityDao.findAll();
         final var newOwnerUserEntity = userEntities.stream()
                 .filter(entity -> !projectEntity.getOwner().equals(entity))
                 .findFirst()
@@ -154,7 +154,7 @@ class JpaProjectRepositoryAdapterTest {
                 .build();
         final var updatedProject = projectRepositoryAdapter.update(givenProject);
         assertMatches(givenProject, updatedProject);
-        final var updateProjectEntity = jpaProjectRepository.findById(projectEntity.getId()).orElseThrow();
+        final var updateProjectEntity = projectEntityDao.findById(projectEntity.getId()).orElseThrow();
         assertMatches(updateProjectEntity, updatedProject);
     }
 

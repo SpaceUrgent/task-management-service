@@ -3,10 +3,10 @@ package com.task.management.persistence.jpa;
 import com.task.management.application.project.model.ProjectId;
 import com.task.management.application.project.model.ProjectUser;
 import com.task.management.application.project.model.ProjectUserId;
+import com.task.management.persistence.jpa.dao.ProjectEntityDao;
+import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.entity.UserEntity;
-import com.task.management.persistence.jpa.repository.JpaProjectRepository;
-import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -42,13 +42,13 @@ class JpaProjectUserRepositoryAdapterTest {
     @Autowired
     private JpaProjectUserRepositoryAdapter projectUserRepositoryAdapter;
     @Autowired
-    private JpaUserRepository jpaUserRepository;
+    private UserEntityDao userEntityDao;
     @Autowired
-    private JpaProjectRepository jpaProjectRepository;
+    private ProjectEntityDao projectEntityDao;
 
     @Test
     void findMember_shouldReturnOptionalOfMember_whenMemberExists() {
-        final var existingUser = jpaUserRepository.findAll().stream()
+        final var existingUser = userEntityDao.findAll().stream()
                 .filter(userWithProjects())
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("At least onw user with project expected for test"));
@@ -72,7 +72,7 @@ class JpaProjectUserRepositoryAdapterTest {
 
     @Test
     void findMembers_shouldReturnListOfMembers() {
-        final var project = jpaProjectRepository.findAll().stream()
+        final var project = projectEntityDao.findAll().stream()
                 .max(Comparator.comparing(projectEntity -> projectEntity.getMembers().size()))
                 .orElseThrow(() -> new IllegalStateException("Project with members expected"));
         final var givenProjectId = new ProjectId(project.getId());
@@ -112,7 +112,7 @@ class JpaProjectUserRepositoryAdapterTest {
     }
 
     private UserEntity getJpaUser() {
-        return jpaUserRepository.findAll().stream()
+        return userEntityDao.findAll().stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("At least 1 user is expected for test"));
     }

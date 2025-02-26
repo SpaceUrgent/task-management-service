@@ -8,6 +8,8 @@ import java.util.Objects;
 
 
 public class UserProfileMapper {
+    UserProfileMapper() {
+    }
 
     public UserProfile toModel(UserEntity userEntity) {
         Objects.requireNonNull(userEntity, "User entity is required");

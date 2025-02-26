@@ -3,8 +3,8 @@ package com.task.management.persistence.jpa;
 import com.task.management.application.iam.model.User;
 import com.task.management.application.iam.model.UserId;
 import com.task.management.application.iam.model.UserProfile;
+import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.UserEntity;
-import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -36,7 +36,7 @@ class JpaUserRepositoryAdapterTest {
     @Autowired
     private JpaUserRepositoryAdapter userRepositoryAdapter;
     @Autowired
-    private JpaUserRepository jpaUserRepository;
+    private UserEntityDao userEntityDao;
 
     @Test
     void save_shouldReturnSaved_whenNewUserSaved() {
@@ -49,12 +49,12 @@ class JpaUserRepositoryAdapterTest {
                 .build();
         final var saved = userRepositoryAdapter.add(givenUser);
         assertMatches(givenUser, saved);
-        assertMatches(saved, jpaUserRepository.findById(saved.getId().value()).orElseThrow());
+        assertMatches(saved, userEntityDao.findById(saved.getId().value()).orElseThrow());
     }
 
     @Test
     void save_shouldReturnUpdated_whenExistedUserWasSaved() {
-        final var existingUserEntity = jpaUserRepository.findAll().stream().findFirst().orElseThrow();
+        final var existingUserEntity = userEntityDao.findAll().stream().findFirst().orElseThrow();
         final var givenUser = User.builder()
                 .id(new UserId(existingUserEntity.getId()))
                 .createdAt(Instant.now())
@@ -65,12 +65,12 @@ class JpaUserRepositoryAdapterTest {
                 .build();
         final var saved = userRepositoryAdapter.add(givenUser);
         assertEquals(givenUser, saved);
-        assertMatches(saved, jpaUserRepository.findById(saved.getId().value()).orElseThrow());
+        assertMatches(saved, userEntityDao.findById(saved.getId().value()).orElseThrow());
     }
 
     @Test
     void findUserProfile_shouldReturnOptionalOfUserProfile_whenUserExists() {
-        final var existingUserEntity = jpaUserRepository.findAll().stream().findFirst().orElseThrow();
+        final var existingUserEntity = userEntityDao.findAll().stream().findFirst().orElseThrow();
         final var givenUserId = new UserId(existingUserEntity.getId());
         final var result = userRepositoryAdapter.find(givenUserId);
         assertTrue(result.isPresent());
@@ -85,7 +85,7 @@ class JpaUserRepositoryAdapterTest {
 
     @Test
     void emailExists_shouldReturnTrue_whenUserWithGivenEmailExists() {
-        final var existingUserEntity = jpaUserRepository.findAll().stream().findFirst().orElseThrow();
+        final var existingUserEntity = userEntityDao.findAll().stream().findFirst().orElseThrow();
         final var givenEmail = existingUserEntity.getEmail();
         assertTrue(userRepositoryAdapter.emailExists(givenEmail));
     }

@@ -5,7 +5,6 @@ import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.application.project.model.TaskStatus;
 import com.task.management.application.project.port.in.query.FindTasksQuery;
 import com.task.management.persistence.jpa.entity.TaskEntity;
-import com.task.management.persistence.jpa.repository.FindPageQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.JoinType;

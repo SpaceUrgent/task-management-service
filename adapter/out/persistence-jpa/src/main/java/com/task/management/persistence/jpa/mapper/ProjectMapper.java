@@ -7,9 +7,12 @@ import lombok.RequiredArgsConstructor;
 
 import static java.util.Objects.requireNonNull;
 
-@RequiredArgsConstructor
 public class ProjectMapper {
     private final ProjectUserMapper projectUserMapper;
+
+    ProjectMapper(ProjectUserMapper projectUserMapper) {
+        this.projectUserMapper = projectUserMapper;
+    }
 
     public Project toModel(ProjectEntity entity) {
         requireNonNull(entity, "Entity is required");

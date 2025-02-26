@@ -9,11 +9,12 @@ import com.task.management.application.project.port.out.AddProjectPort;
 import com.task.management.application.project.port.out.FindProjectByIdPort;
 import com.task.management.application.project.port.out.FindProjectsByMemberPort;
 import com.task.management.application.project.port.out.UpdateProjectPort;
+import com.task.management.persistence.jpa.dao.ProjectEntityDao;
+import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
+import com.task.management.persistence.jpa.mapper.Mappers;
 import com.task.management.persistence.jpa.mapper.ProjectMapper;
 import com.task.management.persistence.jpa.mapper.ProjectPreviewMapper;
-import com.task.management.persistence.jpa.repository.JpaProjectRepository;
-import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -29,10 +30,10 @@ public class JpaProjectRepositoryAdapter implements FindProjectByIdPort,
                                                     AddProjectPort,
                                                     UpdateProjectPort,
                                                     AddProjectMemberPort {
-    private final JpaUserRepository jpaUserRepository;
-    private final JpaProjectRepository jpaProjectRepository;
-    private final ProjectMapper projectMapper;
-    private final ProjectPreviewMapper projectPreviewMapper;
+    private final UserEntityDao jpaUserRepository;
+    private final ProjectEntityDao jpaProjectRepository;
+    private final ProjectMapper projectMapper = Mappers.projectMapper;
+    private final ProjectPreviewMapper projectPreviewMapper = Mappers.projectPreviewMapper;
 
     @Override
     public Optional<Project> find(ProjectId id) {
@@ -51,7 +52,7 @@ public class JpaProjectRepositoryAdapter implements FindProjectByIdPort,
     @Override
     public Project add(Project project) {
         projectRequired(project);
-        final var ownerReference = jpaUserRepository.getReferenceById(project.getOwner().id().value());
+        final var ownerReference = jpaUserRepository.getReference(project.getOwner().id().value());
         var projectEntity = ProjectEntity.builder()
                 .createdAt(project.getCreatedAt())
                 .title(project.getTitle())
@@ -70,7 +71,7 @@ public class JpaProjectRepositoryAdapter implements FindProjectByIdPort,
         projectRequired(project);
         projectIdRequired(project.getId());
         var projectEntity = getProject(project.getId());
-        final var ownerEntityReference = jpaUserRepository.getReferenceById(project.getOwner().id().value());
+        final var ownerEntityReference = jpaUserRepository.getReference(project.getOwner().id().value());
         projectEntity.setTitle(project.getTitle());
         projectEntity.setDescription(project.getDescription());
         projectEntity.setOwner(ownerEntityReference);
@@ -83,7 +84,7 @@ public class JpaProjectRepositoryAdapter implements FindProjectByIdPort,
         projectIdRequired(projectId);
         memberIdRequired(memberId);
         final var projectEntity = getProject(projectId);
-        final var memberEntityReference = jpaUserRepository.getReferenceById(memberId.value());
+        final var memberEntityReference = jpaUserRepository.getReference(memberId.value());
         projectEntity.addMember(memberEntityReference);
         jpaProjectRepository.save(projectEntity);
     }

@@ -11,18 +11,22 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Data
 @Entity
 @Table(name = "tasks")
-public class TaskEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class TaskEntity extends JpaEntity<Long> {
+//    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

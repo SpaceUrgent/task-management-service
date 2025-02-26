@@ -4,12 +4,13 @@ import com.task.management.application.iam.model.User;
 import com.task.management.application.iam.model.UserId;
 import com.task.management.persistence.jpa.entity.UserEntity;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
 public class UserMapper {
+    UserMapper() {
+    }
 
     public UserEntity toEntity(User user) {
         requireNonNull(user, "User model is required");

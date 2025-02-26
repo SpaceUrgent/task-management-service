@@ -5,13 +5,15 @@ import com.task.management.application.project.model.Task;
 import com.task.management.application.project.model.TaskId;
 import com.task.management.application.project.model.TaskStatus;
 import com.task.management.persistence.jpa.entity.TaskEntity;
-import lombok.RequiredArgsConstructor;
 
 import static java.util.Objects.requireNonNull;
 
-@RequiredArgsConstructor
 public class TaskMapper {
     private final ProjectUserMapper projectUserMapper;
+
+    TaskMapper(ProjectUserMapper projectUserMapper) {
+        this.projectUserMapper = projectUserMapper;
+    }
 
     public Task toModel(TaskEntity entity) {
         requireNonNull(entity, "Task entity is required");

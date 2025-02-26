@@ -6,10 +6,10 @@ import com.task.management.application.iam.model.UserProfile;
 import com.task.management.application.iam.port.out.EmailExistsPort;
 import com.task.management.application.iam.port.out.FindUserProfileByIdPort;
 import com.task.management.application.iam.port.out.AddUserPort;
-import com.task.management.persistence.jpa.dao.UserDao;
+import com.task.management.persistence.jpa.dao.UserEntityDao;
+import com.task.management.persistence.jpa.mapper.Mappers;
 import com.task.management.persistence.jpa.mapper.UserMapper;
 import com.task.management.persistence.jpa.mapper.UserProfileMapper;
-import com.task.management.persistence.jpa.repository.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -21,11 +21,9 @@ import static java.util.Objects.requireNonNull;
 public class JpaUserRepositoryAdapter implements AddUserPort,
                                                  FindUserProfileByIdPort,
                                                  EmailExistsPort {
-    private final UserDao jpaUserRepository;
-//    private final JpaUserRepository jpaUserRepository;
-    private final UserMapper userMapper;
-    private final UserProfileMapper userProfileMapper;
-
+    private final UserEntityDao jpaUserRepository;
+    private final UserMapper userMapper = Mappers.userMapper;
+    private final UserProfileMapper userProfileMapper = Mappers.userProfileMapper;
 
     @Override
     public User add(final User user) {

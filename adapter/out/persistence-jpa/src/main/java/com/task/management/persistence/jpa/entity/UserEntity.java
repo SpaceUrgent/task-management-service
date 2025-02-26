@@ -9,6 +9,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.time.Instant;
@@ -16,13 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Data
 @Entity
 @Table(name = "users")
-public class UserEntity {
+public class UserEntity extends JpaEntity<Long> {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

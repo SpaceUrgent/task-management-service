@@ -5,6 +5,8 @@ import com.task.management.application.project.model.ProjectUserId;
 import com.task.management.persistence.jpa.entity.UserEntity;
 
 public class ProjectUserMapper {
+    ProjectUserMapper() {
+    }
 
     public ProjectUser toModel(UserEntity entity) {
         return ProjectUser.builder()

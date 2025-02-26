@@ -1,5 +1,7 @@
-package com.task.management.persistence.jpa.dao;
+package com.task.management.persistence.jpa.dao.impl;
 
+import com.task.management.persistence.jpa.dao.AbstractEntityDao;
+import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.UserEntity;
 import jakarta.persistence.EntityManager;
 
@@ -8,36 +10,20 @@ import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-public class UserDao {
-    private final EntityManager entityManager;
-
-    public UserDao(EntityManager entityManager) {
-        this.entityManager = entityManager;
+public class UserEntityDaoImpl extends AbstractEntityDao<UserEntity, Long> implements UserEntityDao {
+    public UserEntityDaoImpl(EntityManager entityManager) {
+        super(entityManager);
     }
 
-    public UserEntity save(UserEntity entity) {
-        requireNonNull(entity, "Entity is required");
-        if (entity.getId() == null) {
-            entityManager.persist(entity);
-        } else {
-            entityManager.merge(entity);
-        }
-        return entity;
-    }
-
-    public Optional<UserEntity> findById(Long id) {
-        userIdRequired(id);
-        return Optional.ofNullable(entityManager.find(UserEntity.class, id));
-    }
-
+    @Override
     public Optional<UserEntity> findByEmail(String email) {
         emailRequired(email);
         final var query = entityManager.createQuery("from UserEntity user where user.email = :email", UserEntity.class);
         query.setParameter("email", email);
-        final var result = query.getSingleResult();
-        return Optional.ofNullable(result);
+        return query.getResultStream().findFirst();
     }
 
+    @Override
     public Optional<UserEntity> findMember(Long userId, Long projectId) {
         userIdRequired(userId);
         projectIdRequired(projectId);
@@ -49,10 +35,10 @@ public class UserDao {
                 """, UserEntity.class);
         query.setParameter("userId", userId);
         query.setParameter("projectId", projectId);
-        final var result = query.getSingleResult();
-        return Optional.ofNullable(result);
+        return query.getResultStream().findFirst();
     }
 
+    @Override
     public List<UserEntity> findByProject(Long projectId) {
         projectIdRequired(projectId);
         final var query = entityManager.createQuery("""
@@ -64,6 +50,7 @@ public class UserDao {
         return query.getResultList();
     }
 
+    @Override
     public boolean existsByEmail(String email) {
         emailRequired(email);
         final var query = entityManager.createQuery("""
@@ -74,6 +61,11 @@ public class UserDao {
         query.setParameter("email", email);
         return query.getSingleResult();
     };
+
+    @Override
+    protected Class<UserEntity> entityClass() {
+        return UserEntity.class;
+    }
 
     private static void userIdRequired(Long userId) {
         requireNonNull(userId, "User id is required");

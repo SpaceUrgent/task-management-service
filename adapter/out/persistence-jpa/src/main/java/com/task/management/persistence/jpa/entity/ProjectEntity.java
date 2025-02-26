@@ -12,6 +12,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,14 +22,16 @@ import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Data
 @Entity
 @Table(name = "projects")
-@Data
-public class ProjectEntity {
+public class ProjectEntity extends JpaEntity<Long> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

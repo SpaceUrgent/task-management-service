@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.repository;
+package com.task.management.persistence.jpa.query;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
