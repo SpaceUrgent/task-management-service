@@ -3,6 +3,7 @@ package com.task.management.application.common;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -40,8 +41,13 @@ public abstract class PagedQuery {
             return self();
         }
 
-        protected Builder sortBy(String property, Sort.Direction direction) {
+        public Builder sortBy(String property, Sort.Direction direction) {
             this.sortBy.add(Sort.by(property, direction));
+            return self();
+        }
+
+        public Builder sortBy(Collection<Sort> sorts) {
+            this.sortBy.addAll(sorts);
             return self();
         }
 

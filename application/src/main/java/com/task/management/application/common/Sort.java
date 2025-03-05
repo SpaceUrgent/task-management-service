@@ -1,7 +1,6 @@
 package com.task.management.application.common;
 
 import lombok.Data;
-import lombok.Getter;
 
 import static java.util.Objects.requireNonNull;
 
