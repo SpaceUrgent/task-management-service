@@ -33,4 +33,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# configs
+**/application.yml
+
+# other
 Plan.txt

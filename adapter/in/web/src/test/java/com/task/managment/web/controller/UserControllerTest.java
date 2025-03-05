@@ -1,8 +1,8 @@
 package com.task.managment.web.controller;
 
-import com.task.management.application.iam.model.UserId;
-import com.task.management.application.iam.model.UserProfile;
-import com.task.management.application.iam.port.in.GetUserProfileUseCase;
+import com.task.management.domain.iam.model.UserId;
+import com.task.management.domain.iam.model.UserProfile;
+import com.task.management.domain.iam.port.in.GetUserProfileUseCase;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.security.MockUser;

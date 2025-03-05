@@ -1,9 +1,8 @@
 package com.task.management.persistence.jpa.mapper;
 
-import com.task.management.application.project.model.Project;
-import com.task.management.application.project.model.ProjectId;
+import com.task.management.domain.project.model.Project;
+import com.task.management.domain.project.model.ProjectId;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
-import lombok.RequiredArgsConstructor;
 
 import static java.util.Objects.requireNonNull;
 

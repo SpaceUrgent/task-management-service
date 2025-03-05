@@ -1,7 +1,7 @@
 package com.task.managment.web.controller;
 
-import com.task.management.application.common.UseCaseException;
-import com.task.management.application.common.UseCaseException.EntityNotFoundException;
+import com.task.management.domain.common.UseCaseException;
+import com.task.management.domain.common.UseCaseException.EntityNotFoundException;
 import com.task.managment.web.dto.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;

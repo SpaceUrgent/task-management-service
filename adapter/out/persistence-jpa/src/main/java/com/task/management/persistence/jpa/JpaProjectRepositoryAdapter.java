@@ -1,14 +1,14 @@
 package com.task.management.persistence.jpa;
 
-import com.task.management.application.project.model.Project;
-import com.task.management.application.project.model.ProjectId;
-import com.task.management.application.project.model.ProjectPreview;
-import com.task.management.application.project.model.ProjectUserId;
-import com.task.management.application.project.port.out.AddProjectMemberPort;
-import com.task.management.application.project.port.out.AddProjectPort;
-import com.task.management.application.project.port.out.FindProjectByIdPort;
-import com.task.management.application.project.port.out.FindProjectsByMemberPort;
-import com.task.management.application.project.port.out.UpdateProjectPort;
+import com.task.management.domain.project.model.Project;
+import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.project.model.ProjectPreview;
+import com.task.management.domain.project.model.ProjectUserId;
+import com.task.management.domain.project.port.out.AddProjectMemberPort;
+import com.task.management.domain.project.port.out.AddProjectPort;
+import com.task.management.domain.project.port.out.FindProjectByIdPort;
+import com.task.management.domain.project.port.out.FindProjectsByMemberPort;
+import com.task.management.domain.project.port.out.UpdateProjectPort;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;

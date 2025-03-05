@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>io.spaceurgent.taskmanagement</groupId>
-            <artifactId>application</artifactId>
+            <artifactId>domain</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>

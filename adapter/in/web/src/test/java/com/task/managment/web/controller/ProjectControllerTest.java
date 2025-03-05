@@ -2,25 +2,25 @@ package com.task.managment.web.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.task.management.application.common.Page;
-import com.task.management.application.common.Sort;
-import com.task.management.application.project.model.ProjectId;
-import com.task.management.application.project.model.ProjectPreview;
-import com.task.management.application.project.model.ProjectUser;
-import com.task.management.application.project.model.ProjectUserId;
-import com.task.management.application.project.model.TaskId;
-import com.task.management.application.project.model.TaskPreview;
-import com.task.management.application.project.model.TaskStatus;
-import com.task.management.application.project.port.in.AddProjectMemberUseCase;
-import com.task.management.application.project.port.in.CreateProjectUseCase;
-import com.task.management.application.project.port.in.CreateTaskUseCase;
-import com.task.management.application.project.port.in.FindTasksUseCase;
-import com.task.management.application.project.port.in.GetAvailableProjectsUseCase;
-import com.task.management.application.project.port.in.GetProjectMembersUseCase;
-import com.task.management.application.project.port.in.UpdateProjectUseCase;
-import com.task.management.application.project.port.in.command.CreateProjectCommand;
-import com.task.management.application.project.port.in.command.CreateTaskCommand;
-import com.task.management.application.project.port.in.query.FindTasksQuery;
+import com.task.management.domain.common.Page;
+import com.task.management.domain.common.Sort;
+import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.project.model.ProjectPreview;
+import com.task.management.domain.project.model.ProjectUser;
+import com.task.management.domain.project.model.ProjectUserId;
+import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.TaskPreview;
+import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.port.in.AddProjectMemberUseCase;
+import com.task.management.domain.project.port.in.CreateProjectUseCase;
+import com.task.management.domain.project.port.in.CreateTaskUseCase;
+import com.task.management.domain.project.port.in.FindTasksUseCase;
+import com.task.management.domain.project.port.in.GetAvailableProjectsUseCase;
+import com.task.management.domain.project.port.in.GetProjectMembersUseCase;
+import com.task.management.domain.project.port.in.UpdateProjectUseCase;
+import com.task.management.domain.project.port.in.command.CreateProjectCommand;
+import com.task.management.domain.project.port.in.command.CreateTaskCommand;
+import com.task.management.domain.project.port.in.query.FindTasksQuery;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.dto.ProjectPreviewDto;
@@ -137,7 +137,7 @@ class ProjectControllerTest {
     void updateProject() throws Exception {
         final var givenRequest = getUpdateProjectRequest();
         final var givenProjectId = randomProjectId();
-        final var expectedCommand = com.task.management.application.port.in.command.UpdateProjectCommand.builder()
+        final var expectedCommand = com.task.management.domain.port.in.command.UpdateProjectCommand.builder()
                 .projectId(givenProjectId)
                 .title(givenRequest.getTitle())
                 .description(givenRequest.getDescription())

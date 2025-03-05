@@ -1,8 +1,8 @@
 package com.task.management.persistence.jpa.mapper;
 
-import com.task.management.application.project.model.TaskId;
-import com.task.management.application.project.model.TaskPreview;
-import com.task.management.application.project.model.TaskStatus;
+import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.TaskPreview;
+import com.task.management.domain.project.model.TaskStatus;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import static java.util.Objects.requireNonNull;

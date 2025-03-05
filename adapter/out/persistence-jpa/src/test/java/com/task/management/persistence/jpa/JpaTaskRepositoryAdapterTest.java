@@ -1,15 +1,15 @@
 package com.task.management.persistence.jpa;
 
-import com.task.management.application.common.Sort;
-import com.task.management.application.project.model.ProjectId;
-import com.task.management.application.project.model.ProjectUser;
-import com.task.management.application.project.model.ProjectUserId;
-import com.task.management.application.project.model.Task;
-import com.task.management.application.project.model.TaskDetails;
-import com.task.management.application.project.model.TaskId;
-import com.task.management.application.project.model.TaskPreview;
-import com.task.management.application.project.model.TaskStatus;
-import com.task.management.application.project.port.in.query.FindTasksQuery;
+import com.task.management.domain.common.Sort;
+import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.project.model.ProjectUser;
+import com.task.management.domain.project.model.ProjectUserId;
+import com.task.management.domain.project.model.Task;
+import com.task.management.domain.project.model.TaskDetails;
+import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.TaskPreview;
+import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.port.in.query.FindTasksQuery;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;

@@ -1,7 +1,7 @@
 package com.task.management.persistence.jpa.mapper;
 
-import com.task.management.application.project.model.ProjectUser;
-import com.task.management.application.project.model.ProjectUserId;
+import com.task.management.domain.project.model.ProjectUser;
+import com.task.management.domain.project.model.ProjectUserId;
 import com.task.management.persistence.jpa.entity.UserEntity;
 
 public class ProjectUserMapper {

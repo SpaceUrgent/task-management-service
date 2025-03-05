@@ -1,10 +1,10 @@
 package com.task.managment.web;
 
-import com.task.management.application.iam.model.UserCredentials;
-import com.task.management.application.iam.model.UserId;
-import com.task.management.application.project.model.ProjectId;
-import com.task.management.application.project.model.ProjectUser;
-import com.task.management.application.project.model.ProjectUserId;
+import com.task.management.domain.iam.model.UserCredentials;
+import com.task.management.domain.iam.model.UserId;
+import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.project.model.ProjectUser;
+import com.task.management.domain.project.model.ProjectUserId;
 
 import java.util.List;
 import java.util.Random;

@@ -1,6 +1,6 @@
 package com.task.managment.web.mapper;
 
-import com.task.management.application.project.model.ProjectUser;
+import com.task.management.domain.project.model.ProjectUser;
 import com.task.managment.web.dto.ProjectUserDto;
 import org.springframework.stereotype.Component;
 

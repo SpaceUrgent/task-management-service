@@ -1,16 +1,16 @@
 package com.task.management.persistence.jpa;
 
-import com.task.management.application.common.Page;
-import com.task.management.application.project.model.Task;
-import com.task.management.application.project.model.TaskDetails;
-import com.task.management.application.project.model.TaskId;
-import com.task.management.application.project.model.TaskPreview;
-import com.task.management.application.project.port.in.query.FindTasksQuery;
-import com.task.management.application.project.port.out.AddTaskPort;
-import com.task.management.application.project.port.out.FindProjectTasksPort;
-import com.task.management.application.project.port.out.FindTaskByIdPort;
-import com.task.management.application.project.port.out.FindTaskDetailsByIdPort;
-import com.task.management.application.project.port.out.UpdateTaskPort;
+import com.task.management.domain.common.Page;
+import com.task.management.domain.project.model.Task;
+import com.task.management.domain.project.model.TaskDetails;
+import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.TaskPreview;
+import com.task.management.domain.project.port.in.query.FindTasksQuery;
+import com.task.management.domain.project.port.out.AddTaskPort;
+import com.task.management.domain.project.port.out.FindProjectTasksPort;
+import com.task.management.domain.project.port.out.FindTaskByIdPort;
+import com.task.management.domain.project.port.out.FindTaskDetailsByIdPort;
+import com.task.management.domain.project.port.out.UpdateTaskPort;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;

@@ -1,8 +1,8 @@
 package com.task.management.persistence.jpa;
 
-import com.task.management.application.iam.model.User;
-import com.task.management.application.iam.model.UserId;
-import com.task.management.application.iam.model.UserProfile;
+import com.task.management.domain.iam.model.User;
+import com.task.management.domain.iam.model.UserId;
+import com.task.management.domain.iam.model.UserProfile;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.UserEntity;
 import org.junit.jupiter.api.Test;

@@ -16,10 +16,11 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>application</module>
+        <module>domain</module>
         <module>adapter/out/persistence-jpa</module>
         <module>adapter/in/web</module>
         <module>adapter/out/password-encryption</module>
+        <module>application/spring-application</module>
     </modules>
 
     <properties>

@@ -1,6 +1,6 @@
 package com.task.management.password.encryption;
 
-import com.task.management.application.port.out.EncryptPasswordPort;
+import com.task.management.domain.iam.port.out.EncryptPasswordPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

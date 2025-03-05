@@ -1,7 +1,7 @@
 package com.task.managment.web.controller;
 
-import com.task.management.application.common.UseCaseException;
-import com.task.management.application.iam.port.in.GetUserProfileUseCase;
+import com.task.management.domain.common.UseCaseException;
+import com.task.management.domain.iam.port.in.GetUserProfileUseCase;
 import com.task.managment.web.dto.UserProfileDto;
 import com.task.managment.web.mapper.UserProfileResponseMapper;
 import com.task.managment.web.security.SecuredUser;

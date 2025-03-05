@@ -1,6 +1,6 @@
 package com.task.managment.web.mapper;
 
-import com.task.management.application.project.model.TaskPreview;
+import com.task.management.domain.project.model.TaskPreview;
 import com.task.managment.web.dto.TaskPreviewDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

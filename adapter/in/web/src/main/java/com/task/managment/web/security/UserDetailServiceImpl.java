@@ -1,6 +1,6 @@
 package com.task.managment.web.security;
 
-import com.task.management.application.iam.port.out.FindUserCredentialsPort;
+import com.task.management.domain.iam.port.out.FindUserCredentialsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

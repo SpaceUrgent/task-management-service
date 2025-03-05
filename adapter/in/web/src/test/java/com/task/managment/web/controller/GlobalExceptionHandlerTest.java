@@ -1,7 +1,7 @@
 package com.task.managment.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.task.management.application.common.UseCaseException;
+import com.task.management.domain.common.UseCaseException;
 import com.task.managment.web.dto.response.ErrorResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

@@ -1,7 +1,7 @@
 package com.task.management.persistence.jpa.mapper;
 
-import com.task.management.application.iam.model.User;
-import com.task.management.application.iam.model.UserId;
+import com.task.management.domain.iam.model.User;
+import com.task.management.domain.iam.model.UserId;
 import com.task.management.persistence.jpa.entity.UserEntity;
 
 import java.util.Optional;

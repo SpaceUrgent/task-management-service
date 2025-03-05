@@ -1,15 +1,15 @@
 package com.task.managment.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.task.management.application.project.model.ProjectUserId;
-import com.task.management.application.project.model.TaskDetails;
-import com.task.management.application.project.model.TaskId;
-import com.task.management.application.project.model.TaskStatus;
-import com.task.management.application.project.port.in.AssignTaskUseCase;
-import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
-import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
-import com.task.management.application.project.port.in.UpdateTaskUseCase;
-import com.task.management.application.project.port.in.command.UpdateTaskCommand;
+import com.task.management.domain.project.model.ProjectUserId;
+import com.task.management.domain.project.model.TaskDetails;
+import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.port.in.AssignTaskUseCase;
+import com.task.management.domain.project.port.in.GetTaskDetailsUseCase;
+import com.task.management.domain.project.port.in.UpdateTaskStatusUseCase;
+import com.task.management.domain.project.port.in.UpdateTaskUseCase;
+import com.task.management.domain.project.port.in.command.UpdateTaskCommand;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.dto.request.AssignTaskRequest;
 import com.task.managment.web.dto.request.UpdateTaskRequest;

@@ -1,6 +1,5 @@
 package com.task.managment.web.dto;
 
-import com.task.management.application.project.model.ProjectUser;
 import lombok.Builder;
 import lombok.Data;
 

@@ -1,9 +1,9 @@
 package com.task.managment.web.controller;
 
 
-import com.task.management.application.iam.exception.EmailExistsException;
-import com.task.management.application.iam.port.in.RegisterUserUseCase;
-import com.task.management.application.iam.port.in.command.RegisterUserCommand;
+import com.task.management.domain.iam.exception.EmailExistsException;
+import com.task.management.domain.iam.port.in.RegisterUserUseCase;
+import com.task.management.domain.iam.port.in.command.RegisterUserCommand;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.dto.request.RegisterUserRequest;
