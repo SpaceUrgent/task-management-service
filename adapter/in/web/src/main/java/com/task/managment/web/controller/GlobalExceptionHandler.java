@@ -1,8 +1,8 @@
 package com.task.managment.web.controller;
 
-import com.task.management.application.exception.EntityNotFoundException;
-import com.task.management.application.exception.InsufficientPrivilegesException;
-import com.task.managment.web.dto.ErrorDTO;
+import com.task.management.application.common.UseCaseException;
+import com.task.management.application.common.UseCaseException.EntityNotFoundException;
+import com.task.managment.web.dto.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -26,12 +26,12 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BindException.class)
-    public ErrorDTO handleBindException(BindException exception,
-                                        HttpServletRequest request) {
+    public ErrorResponse handleBindException(BindException exception,
+                                             HttpServletRequest request) {
         final var errors = getErrorsMap(exception);
-        return ErrorDTO.builder()
-                .reason(ErrorDTO.REASON_BAD_REQUEST)
-                .message(ErrorDTO.MESSAGE_INVALID_REQUEST)
+        return ErrorResponse.builder()
+                .reason(ErrorResponse.REASON_BAD_REQUEST)
+                .message(ErrorResponse.MESSAGE_INVALID_REQUEST)
                 .errors(errors)
                 .request(request)
                 .build();
@@ -39,12 +39,12 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HandlerMethodValidationException.class)
-    public ErrorDTO handleHandlerMethodValidationException(HandlerMethodValidationException exception,
-                                                           HttpServletRequest request) {
+    public ErrorResponse handleHandlerMethodValidationException(HandlerMethodValidationException exception,
+                                                                HttpServletRequest request) {
         final var errors = getErrorsMap(exception);
-        return ErrorDTO.builder()
-                .reason(ErrorDTO.REASON_BAD_REQUEST)
-                .message(ErrorDTO.MESSAGE_INVALID_REQUEST)
+        return ErrorResponse.builder()
+                .reason(ErrorResponse.REASON_BAD_REQUEST)
+                .message(ErrorResponse.MESSAGE_INVALID_REQUEST)
                 .errors(errors)
                 .request(request)
                 .build();
@@ -52,32 +52,32 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ErrorDTO handleHttpMessageNotReadableException(HttpMessageNotReadableException exception,
-                                                          HttpServletRequest request) {
-        return ErrorDTO.builder()
-                .reason(ErrorDTO.REASON_BAD_REQUEST)
-                .message(ErrorDTO.MESSAGE_MISSING_REQUEST_BODY)
+    public ErrorResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException exception,
+                                                               HttpServletRequest request) {
+        return ErrorResponse.builder()
+                .reason(ErrorResponse.REASON_BAD_REQUEST)
+                .message(ErrorResponse.MESSAGE_MISSING_REQUEST_BODY)
                 .request(request)
                 .build();
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(EntityNotFoundException.class)
-    public ErrorDTO handleEntityNotFoundException(EntityNotFoundException exception,
-                                                  HttpServletRequest request) {
-        return ErrorDTO.builder()
-                .reason(ErrorDTO.REASON_ENTITY_NOT_FOUND)
+    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException exception,
+                                                       HttpServletRequest request) {
+        return ErrorResponse.builder()
+                .reason(ErrorResponse.REASON_ENTITY_NOT_FOUND)
                 .message(exception.getMessage())
                 .request(request)
                 .build();
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ExceptionHandler(InsufficientPrivilegesException.class)
-    public ErrorDTO handleInsufficientPrivilegesException(InsufficientPrivilegesException exception,
-                                                          HttpServletRequest request) {
-        return ErrorDTO.builder()
-                .reason(ErrorDTO.REASON_ACTION_NOT_ALLOWED)
+    @ExceptionHandler(UseCaseException.IllegalAccessException.class)
+    public ErrorResponse handleIllegalAccessException(UseCaseException.IllegalAccessException exception,
+                                                      HttpServletRequest request) {
+        return ErrorResponse.builder()
+                .reason(ErrorResponse.REASON_ACTION_NOT_ALLOWED)
                 .message(exception.getMessage())
                 .request(request)
                 .build();

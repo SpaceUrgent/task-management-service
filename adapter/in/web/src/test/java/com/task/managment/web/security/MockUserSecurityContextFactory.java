@@ -1,7 +1,7 @@
 package com.task.managment.web.security;
 
-import com.task.management.application.model.User;
-import com.task.management.application.model.UserId;
+import com.task.management.application.iam.model.UserCredentials;
+import com.task.management.application.iam.model.UserId;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,14 +15,14 @@ public class MockUserSecurityContextFactory implements WithSecurityContextFactor
     @Override
     public SecurityContext createSecurityContext(MockUser annotation) {
         final var context = SecurityContextHolder.createEmptyContext();
-        final var mockUser = User.builder()
-                .id(new UserId(annotation.id()))
-                .email(annotation.email())
-                .firstName(annotation.firstName())
-                .lastName(annotation.lastName())
-                .encryptedPassword(annotation.password())
-                .build();
-        final var mockSecuredUser = new SecuredUser(mockUser);
+        final var mockUserCredentials = new UserCredentials(new UserId(annotation.id()), annotation.email(), annotation.password());
+//                .id(new UserId(annotation.id()))
+//                .email(annotation.email())
+//                .firstName(annotation.firstName())
+//                .lastName(annotation.lastName())
+//                .encryptedPassword(annotation.password())
+//                .build();
+        final var mockSecuredUser = new SecuredUser(mockUserCredentials);
         final var authentication = new UsernamePasswordAuthenticationToken(
                 mockSecuredUser,
                 annotation.password(),

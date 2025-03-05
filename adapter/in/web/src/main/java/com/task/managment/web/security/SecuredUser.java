@@ -1,7 +1,8 @@
 package com.task.managment.web.security;
 
-import com.task.management.application.model.User;
-import com.task.management.application.model.UserId;
+import com.task.management.application.iam.model.UserCredentials;
+import com.task.management.application.iam.model.UserId;
+import com.task.management.application.project.model.ProjectUserId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,14 +12,18 @@ import java.util.Collection;
 import static java.util.Objects.requireNonNull;
 
 public class SecuredUser implements UserDetails {
-    private final User user;
+    private final UserCredentials credentials;
 
-    public SecuredUser(User user) {
-        this.user = requireNonNull(user);
+    public SecuredUser(UserCredentials credentials) {
+        this.credentials = requireNonNull(credentials);
     }
 
     public UserId getId() {
-        return user.getId();
+        return credentials.id();
+    }
+
+    public ProjectUserId getProjectUserId() {
+        return new ProjectUserId(credentials.id().value());
     }
 
     @Override
@@ -28,11 +33,11 @@ public class SecuredUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getEncryptedPassword();
+        return credentials.encryptedPassword();
     }
 
     @Override
     public String getUsername() {
-        return this.user.getEmail();
+        return credentials.email();
     }
 }

@@ -1,10 +1,10 @@
 package com.task.managment.web.controller;
 
-import com.task.management.application.dto.UserDTO;
-import com.task.management.application.exception.EmailExistsException;
-import com.task.management.application.port.in.RegisterUserUseCase;
-import com.task.management.application.dto.RegisterUserDto;
-import com.task.managment.web.dto.ErrorDTO;
+import com.task.management.application.iam.exception.EmailExistsException;
+import com.task.management.application.iam.port.in.RegisterUserUseCase;
+import com.task.management.application.iam.port.in.command.RegisterUserCommand;
+import com.task.managment.web.dto.response.ErrorResponse;
+import com.task.managment.web.dto.request.RegisterUserRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,14 +28,20 @@ public class AuthController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public UserDTO register(@Valid RegisterUserDto registerUserDto) throws EmailExistsException {
-        return registerUserUseCase.register(registerUserDto);
+    public void register(@Valid RegisterUserRequest request) throws EmailExistsException {
+        final var command = RegisterUserCommand.builder()
+                .email(request.getEmail())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .password(request.getPassword())
+                .build();
+        registerUserUseCase.register(command);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(EmailExistsException.class)
-    public ErrorDTO handleEmailExistsException(EmailExistsException exception, HttpServletRequest request) {
-        return ErrorDTO.builder()
+    public ErrorResponse handleEmailExistsException(EmailExistsException exception, HttpServletRequest request) {
+        return ErrorResponse.builder()
                 .reason("Bad request")
                 .message(exception.getMessage())
                 .request(request)

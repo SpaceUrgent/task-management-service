@@ -1,19 +1,13 @@
 package com.task.managment.web.controller;
 
-import com.task.management.application.dto.UserDTO;
-import com.task.management.application.port.in.GetUserByEmailUseCase;
-import com.task.management.application.port.in.GetUserUseCase;
+import com.task.management.application.iam.model.UserId;
+import com.task.management.application.iam.model.UserProfile;
+import com.task.management.application.iam.port.in.GetUserProfileUseCase;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
-import com.task.managment.web.WebTestConfiguration;
 import com.task.managment.web.security.MockUser;
-import com.task.managment.web.security.SecurityConfiguration;
-import com.task.managment.web.security.UserDetailServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -34,27 +28,13 @@ class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private GetUserUseCase getUserUseCase;
-    @MockBean
-    private GetUserByEmailUseCase getUserByEmailUseCase;
-
-    @MockUser
-    @Test
-    void getUserByEmail_shouldReturnUser_whenAllConditionsMet() throws Exception {
-        final var expectedUser = getUserDTO(MockUser.DEFAULT_USER_ID_VALUE);
-        final var givenEmail = expectedUser.email();
-        doReturn(expectedUser).when(getUserByEmailUseCase).getUser(eq(givenEmail));
-        final var apiActionResult = mockMvc.perform(get("/api/users/email/{email}", givenEmail))
-                .andDo(print())
-                .andExpect(status().isOk());
-        assertMatches(expectedUser, apiActionResult);
-    }
+    private GetUserProfileUseCase getUserProfileUseCase;
 
     @MockUser
     @Test
     void getUserProfile_shouldReturnUser_whenAllConditionsMet() throws Exception {
-        final var expectedUser = getUserDTO(MockUser.DEFAULT_USER_ID_VALUE);
-        doReturn(expectedUser).when(getUserUseCase).getUser(eq(TestUtils.DEFAULT_USER_ID));
+        final var expectedUser = getUserProfile();
+        doReturn(expectedUser).when(getUserProfileUseCase).getUserProfile(eq(TestUtils.DEFAULT_USER_ID));
         final var apiActionResult = mockMvc.perform(get("/api/users/profile"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -70,20 +50,21 @@ class UserControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    private void assertMatches(UserDTO expectedUser, ResultActions apiActionResult) throws Exception {
-        apiActionResult.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(expectedUser.id()))
+    private void assertMatches(UserProfile expectedUser, ResultActions apiActionResult) throws Exception {
+        apiActionResult
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(expectedUser.id().value()))
                 .andExpect(jsonPath("$.email").value(expectedUser.email()))
                 .andExpect(jsonPath("$.firstName").value(expectedUser.firstName()))
                 .andExpect(jsonPath("$.lastName").value(expectedUser.lastName()));
     }
 
-    private static UserDTO getUserDTO(Long userIdValue) {
-        return UserDTO.builder()
-                .id(userIdValue)
-                .email("user-%d@mail.com".formatted(userIdValue))
-                .firstName("FName-%d".formatted(userIdValue))
-                .lastName("LName-%d".formatted(userIdValue))
+    private static UserProfile getUserProfile() {
+        return UserProfile.builder()
+                .id(new UserId(MockUser.DEFAULT_USER_ID_VALUE))
+                .email("user-%d@mail.com".formatted(MockUser.DEFAULT_USER_ID_VALUE))
+                .firstName("FName-%d".formatted(MockUser.DEFAULT_USER_ID_VALUE))
+                .lastName("LName-%d".formatted(MockUser.DEFAULT_USER_ID_VALUE))
                 .build();
     }
 }

@@ -1,9 +1,8 @@
 package com.task.managment.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.task.management.application.exception.EntityNotFoundException;
-import com.task.management.application.exception.InsufficientPrivilegesException;
-import com.task.managment.web.dto.ErrorDTO;
+import com.task.management.application.common.UseCaseException;
+import com.task.managment.web.dto.response.ErrorResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -45,8 +44,8 @@ class GlobalExceptionHandlerTest {
                         .params(new LinkedMultiValueMap<>()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value(ErrorDTO.REASON_BAD_REQUEST))
-                .andExpect(jsonPath("$.message").value(ErrorDTO.MESSAGE_INVALID_REQUEST))
+                .andExpect(jsonPath("$.reason").value(ErrorResponse.REASON_BAD_REQUEST))
+                .andExpect(jsonPath("$.message").value(ErrorResponse.MESSAGE_INVALID_REQUEST))
                 .andExpect(jsonPath("$.path").value(uriPath));
     }
 
@@ -56,8 +55,8 @@ class GlobalExceptionHandlerTest {
         mockMvc.perform(post(uriPath))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value(ErrorDTO.REASON_BAD_REQUEST))
-                .andExpect(jsonPath("$.message").value(ErrorDTO.MESSAGE_MISSING_REQUEST_BODY))
+                .andExpect(jsonPath("$.reason").value(ErrorResponse.REASON_BAD_REQUEST))
+                .andExpect(jsonPath("$.message").value(ErrorResponse.MESSAGE_MISSING_REQUEST_BODY))
                 .andExpect(jsonPath("$.path").value(uriPath));
     }
 
@@ -69,8 +68,8 @@ class GlobalExceptionHandlerTest {
                         .content(objectMapper.writeValueAsString(new TestRequest())))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value(ErrorDTO.REASON_BAD_REQUEST))
-                .andExpect(jsonPath("$.message").value(ErrorDTO.MESSAGE_INVALID_REQUEST))
+                .andExpect(jsonPath("$.reason").value(ErrorResponse.REASON_BAD_REQUEST))
+                .andExpect(jsonPath("$.message").value(ErrorResponse.MESSAGE_INVALID_REQUEST))
                 .andExpect(jsonPath("$.errors.param").value("Param is required"))
                 .andExpect(jsonPath("$.path").value(uriPath));
     }
@@ -81,7 +80,7 @@ class GlobalExceptionHandlerTest {
         mockMvc.perform(get(uriPath))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value(ErrorDTO.REASON_ENTITY_NOT_FOUND))
+                .andExpect(jsonPath("$.reason").value(ErrorResponse.REASON_ENTITY_NOT_FOUND))
                 .andExpect(jsonPath("$.message").value(TestController.ENTITY_NOT_FOUND_EXCEPTION.getMessage()))
                 .andExpect(jsonPath("$.path").value(uriPath));
     }
@@ -92,7 +91,7 @@ class GlobalExceptionHandlerTest {
         mockMvc.perform(get(uriPath))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.reason").value(ErrorDTO.REASON_ACTION_NOT_ALLOWED))
+                .andExpect(jsonPath("$.reason").value(ErrorResponse.REASON_ACTION_NOT_ALLOWED))
                 .andExpect(jsonPath("$.message").value(TestController.INSUFFICIENT_PRIVILEGES_EXCEPTION.getMessage()))
                 .andExpect(jsonPath("$.path").value(uriPath));
     }
@@ -100,8 +99,8 @@ class GlobalExceptionHandlerTest {
     @RestController
     @RequestMapping("/test")
     static class TestController {
-        static final EntityNotFoundException ENTITY_NOT_FOUND_EXCEPTION = new EntityNotFoundException("Test entity not found");
-        static final InsufficientPrivilegesException INSUFFICIENT_PRIVILEGES_EXCEPTION = new InsufficientPrivilegesException("User not allowed to perform request");
+        static final UseCaseException.EntityNotFoundException ENTITY_NOT_FOUND_EXCEPTION = new UseCaseException.EntityNotFoundException("Test entity not found");
+        static final UseCaseException.IllegalAccessException INSUFFICIENT_PRIVILEGES_EXCEPTION = new UseCaseException.IllegalAccessException("User not allowed to perform request");
 
         @PostMapping(
                 path = "/url-encoded-request",
@@ -115,12 +114,12 @@ class GlobalExceptionHandlerTest {
         }
 
         @GetMapping("/entity-not-found")
-        public void throwEntityNotFoundException() throws EntityNotFoundException {
+        public void throwEntityNotFoundException() throws UseCaseException.EntityNotFoundException {
             throw ENTITY_NOT_FOUND_EXCEPTION;
         }
 
         @GetMapping("/insufficient-privileges")
-        public void throwInsufficientPrivilegesException() throws InsufficientPrivilegesException {
+        public void throwInsufficientPrivilegesException() throws UseCaseException.IllegalAccessException {
             throw INSUFFICIENT_PRIVILEGES_EXCEPTION;
         }
     }

@@ -1,15 +1,13 @@
 package com.task.managment.web;
 
-import com.task.management.application.dto.ProjectDTO;
-import com.task.management.application.dto.ProjectDetailsDTO;
-import com.task.management.application.dto.ProjectUserDTO;
-import com.task.management.application.dto.UserDTO;
-import com.task.management.application.model.User;
-import com.task.management.application.model.UserId;
+import com.task.management.application.iam.model.UserCredentials;
+import com.task.management.application.iam.model.UserId;
+import com.task.management.application.project.model.ProjectId;
+import com.task.management.application.project.model.ProjectUser;
+import com.task.management.application.project.model.ProjectUserId;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.task.managment.web.security.MockUser.DEFAULT_USER_ID_VALUE;
@@ -25,49 +23,28 @@ public final class TestUtils {
     public final static String PASSWORD = "password123";
     public final static String ENCRYPTED_PASSWORD = "encryptedPassword";
 
-    public final static User DEFAULT_USER = User.builder()
-            .id(DEFAULT_USER_ID)
-            .email(EMAIL)
-            .firstName(FIRST_NAME)
-            .lastName(LAST_NAME)
-            .encryptedPassword(ENCRYPTED_PASSWORD)
-            .build();
+    public final static UserCredentials DEFAULT_CREDENTIALS = new UserCredentials(DEFAULT_USER_ID, EMAIL, ENCRYPTED_PASSWORD);
 
-    public static List<ProjectDTO> randomProjectDTOs(int total) {
-        return IntStream.range(0, total).mapToObj(value -> randomProjectDTO()).toList();
+    public final static ProjectUserId PROJECT_USER_ID = new ProjectUserId(DEFAULT_USER_ID_VALUE);
+
+    public static List<ProjectUser> randomProjectUsers() {
+        return IntStream.range(0, 20)
+                .mapToObj(value -> randomProjectUser())
+                .toList();
     }
 
-    public static ProjectDetailsDTO randomProjectDetailsDTO() {
-        final var projectId = randomLong();
-        final var owner = randomProjectUserDTO();
-        return ProjectDetailsDTO.builder()
-                .id(projectId)
-                .title("Project-%d".formatted(projectId))
-                .description("Project-%d description".formatted(projectId))
-                .owner(owner)
-                .members(List
-                        .of(owner))
+    public static ProjectUser randomProjectUser() {
+        final var idValue = randomLong();
+        return ProjectUser.builder()
+                .id(new ProjectUserId(idValue))
+                .email("user-%d".formatted(idValue))
+                .firstName("FName-%d".formatted(idValue))
+                .lastName("LName-%d".formatted(idValue))
                 .build();
     }
 
-    public static ProjectDTO randomProjectDTO() {
-        final var projectId = randomLong();
-        return ProjectDTO.builder()
-                .id(projectId)
-                .title("Project-%d".formatted(projectId))
-                .description("Project-%d description".formatted(projectId))
-                .owner(randomProjectUserDTO())
-                .build();
-    }
-
-    public static ProjectUserDTO randomProjectUserDTO() {
-        final var userId = randomLong();
-        return ProjectUserDTO.builder()
-                .id(userId)
-                .email("user%d@mail.com".formatted(userId))
-                .firstName("FName-%d".formatted(userId))
-                .lastName("LName-%d".formatted(userId))
-                .build();
+    public static ProjectId randomProjectId() {
+        return new ProjectId(randomLong());
     }
 
     public static Long randomLong() {
