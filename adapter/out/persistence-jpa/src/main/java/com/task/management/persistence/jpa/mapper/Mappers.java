@@ -9,4 +9,5 @@ public final class Mappers {
     public static final TaskMapper taskMapper = new TaskMapper(projectUserMapper);
     public static final TaskPreviewMapper taskPreviewMapper = new TaskPreviewMapper(projectUserMapper);
     public static final TaskDetailsMapper taskDetailsMapper = new TaskDetailsMapper(projectUserMapper);
+    public static final UserCredentialsMapper userCredentialsMapper = new UserCredentialsMapper();
 }

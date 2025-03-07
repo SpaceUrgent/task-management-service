@@ -1,6 +1,7 @@
 package com.task.management.persistence.jpa;
 
 import com.task.management.domain.iam.model.User;
+import com.task.management.domain.iam.model.UserCredentials;
 import com.task.management.domain.iam.model.UserId;
 import com.task.management.domain.iam.model.UserProfile;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
@@ -94,6 +95,26 @@ class JpaUserRepositoryAdapterTest {
     void emailExists_shouldReturnFalse_whenUserWithGivenEmailDoesNotExists() {
         final var givenEmail = "non-existing@mail.com";
         assertFalse(userRepositoryAdapter.emailExists(givenEmail));
+    }
+
+    @Test
+    void findCredentialsByEmail_shouldReturnOptionalOfCredentials_whenUserExists() {
+        final var existingUserEntity = userEntityDao.findAll().stream().findFirst().orElseThrow();
+        final var result = userRepositoryAdapter.findByEmail(existingUserEntity.getEmail());
+        assertTrue(result.isPresent());
+        assertMatches(existingUserEntity, result.get());
+    }
+
+    @Test
+    void findCredentialsByEmail_shouldReturnEmptyOptional_whenUserDoesNotExist() {
+        final var givenEmail = "non-existing@mail.com";
+        assertTrue(userRepositoryAdapter.findByEmail(givenEmail).isEmpty());
+    }
+
+    private void assertMatches(UserEntity expected, UserCredentials actual) {
+        assertEquals(expected.getId(), actual.id().value());
+        assertEquals(expected.getEmail(), actual.email());
+        assertEquals(expected.getEncryptedPassword(), actual.encryptedPassword());
     }
 
     private static void assertMatches(User expected, UserEntity actual) {
