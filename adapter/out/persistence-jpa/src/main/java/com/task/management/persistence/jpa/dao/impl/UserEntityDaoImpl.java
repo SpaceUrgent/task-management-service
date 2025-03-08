@@ -24,18 +24,18 @@ public class UserEntityDaoImpl extends AbstractEntityDao<UserEntity, Long> imple
     }
 
     @Override
-    public Optional<UserEntity> findMember(Long userId, Long projectId) {
+    public boolean isMember(Long userId, Long projectId) {
         userIdRequired(userId);
         projectIdRequired(projectId);
         final var query = entityManager.createQuery(
                 """
-                from UserEntity user\s
+                select count(*) > 0 from UserEntity user\s
                 inner join user.projects project\s
                 where user.id = :userId and project.id = :projectId
-                """, UserEntity.class);
+                """, boolean.class);
         query.setParameter("userId", userId);
         query.setParameter("projectId", projectId);
-        return query.getResultStream().findFirst();
+        return query.getSingleResult();
     }
 
     @Override

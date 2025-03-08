@@ -2,9 +2,6 @@ package com.task.management.persistence.jpa.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -20,7 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.task.management.domain.common.validation.Validation.notBlank;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -28,13 +26,6 @@ import static java.util.Objects.requireNonNull;
 @Entity
 @Table(name = "projects")
 public class ProjectEntity extends JpaEntity<Long> {
-
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 
     @Column(nullable = false)
     private String title;
@@ -60,20 +51,22 @@ public class ProjectEntity extends JpaEntity<Long> {
     @Builder
     public ProjectEntity(Long id,
                          Instant createdAt,
+                         Instant updatedAt,
                          String title,
                          String description,
                          UserEntity owner,
                          List<UserEntity> members) {
         this.id = id;
-        this.createdAt = requireNonNull(createdAt, "Created at is required");
-        this.title = requireNonNull(title, "Title is required");
-        this.description = requireNonNull(description, "Description is required");
-        this.owner = requireNonNull(owner, "Owner is required");
+        this.createdAt = parameterRequired(createdAt, "Created at");
+        this.updatedAt = updatedAt;
+        this.title = notBlank(title, "Title");
+        this.description = description;
+        this.owner = parameterRequired(owner, "Owner");
         this.members = Optional.ofNullable(members).orElse(new ArrayList<>());
     }
 
     public void addMember(UserEntity member) {
-        requireNonNull(member, "Member is required");
+        parameterRequired(member, "Member");
         this.members.add(member);
         member.getProjects().add(this);
     }

@@ -1,45 +1,24 @@
-package com.task.management.persistence.jpa;
+package com.task.management.persistence.jpa.project;
 
-import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.common.Email;
+import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.domain.project.model.ProjectUser;
 import com.task.management.domain.project.model.ProjectUserId;
-import com.task.management.domain.project.port.out.FindProjectMemberPort;
-import com.task.management.domain.project.port.out.FindProjectMembersPort;
-import com.task.management.domain.project.port.out.FindProjectUserByEmailPort;
-import com.task.management.domain.project.port.out.FindProjectUserByIdPort;
+import com.task.management.domain.project.port.out.ProjectUserRepositoryPort;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
-import com.task.management.persistence.jpa.mapper.Mappers;
-import com.task.management.persistence.jpa.mapper.ProjectUserMapper;
+import com.task.management.persistence.jpa.project.mapper.ProjectUserMapper;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 import java.util.Optional;
 
+import static com.task.management.domain.common.validation.Validation.emailRequired;
 import static java.util.Objects.requireNonNull;
 
+@AppComponent
 @RequiredArgsConstructor
-public class JpaProjectUserRepositoryAdapter implements FindProjectUserByIdPort,
-                                                        FindProjectUserByEmailPort,
-                                                        FindProjectMemberPort,
-                                                        FindProjectMembersPort {
+public class JpaProjectUserRepositoryAdapter implements ProjectUserRepositoryPort {
     private final UserEntityDao userEntityDao;
-    private final ProjectUserMapper projectUserMapper = Mappers.projectUserMapper;
-
-    @Override
-    public Optional<ProjectUser> findMember(ProjectUserId memberId, ProjectId projectId) {
-        requireNonNull(memberId, "Member id is required");
-        requireNonNull(projectId, "Project id is required");
-        return userEntityDao.findMember(memberId.value(), projectId.value()).map(projectUserMapper::toModel);
-    }
-
-    @Override
-    public List<ProjectUser> findMembers(ProjectId id) {
-        requireNonNull(id, "Project id is required");
-        return userEntityDao.findByProject(id.value())
-                .stream()
-                .map(projectUserMapper::toModel)
-                .toList();
-    }
+    private final ProjectUserMapper projectUserMapper = ProjectUserMapper.INSTANCE;
 
     @Override
     public Optional<ProjectUser> find(ProjectUserId id) {
@@ -48,8 +27,8 @@ public class JpaProjectUserRepositoryAdapter implements FindProjectUserByIdPort,
     }
 
     @Override
-    public Optional<ProjectUser> find(String email) {
-        requireNonNull(email, "Email is required");
-        return userEntityDao.findByEmail(email).map(projectUserMapper::toModel);
+    public Optional<ProjectUser> find(Email email) {
+        emailRequired(email);
+        return userEntityDao.findByEmail(email.value()).map(projectUserMapper::toModel);
     }
 }

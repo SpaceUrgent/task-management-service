@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa;
+package com.task.management.persistence.jpa.project;
 
 import com.task.management.domain.common.Sort;
 import com.task.management.domain.project.model.ProjectId;
@@ -10,6 +10,9 @@ import com.task.management.domain.project.model.TaskId;
 import com.task.management.domain.project.model.TaskPreview;
 import com.task.management.domain.project.model.TaskStatus;
 import com.task.management.domain.project.port.in.query.FindTasksQuery;
+import com.task.management.persistence.jpa.InvalidTestSetupException;
+import com.task.management.persistence.jpa.JpaTestConfiguration;
+import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
@@ -38,9 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
         executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD,
         scripts = "classpath:sql/clear.sql"
 )
-@Transactional
-@SpringBootTest(classes = JpaTestConfiguration.class)
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+@PersistenceTest
 class JpaTaskRepositoryAdapterTest {
     @Autowired
     private UserEntityDao userEntityDao;
@@ -59,22 +60,19 @@ class JpaTaskRepositoryAdapterTest {
             }
     )
     @Test
-    void add_shouldReturnSavedTask() {
-        final var projectEntity = projectEntityDao.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("At least 1 project is expected in DB for test"));
+    void save_shouldReturnSavedTask() {
+        final var projectEntity = getFirstProjectEntity();
         final var ownerId = new ProjectUserId(projectEntity.getOwner().getId());
-        final var owner = ProjectUser.withId(ownerId);
         final var givenTask = Task.builder()
                 .createdAt(Instant.now())
                 .title("New task title")
                 .description("New task description")
                 .status(TaskStatus.TO_DO)
                 .project(new ProjectId(projectEntity.getId()))
-                .owner(owner)
-                .assignee(owner)
+                .owner(ownerId)
+                .assignee(ownerId)
                 .build();
-        final var added = taskRepositoryAdapter.add(givenTask);
+        final var added = taskRepositoryAdapter.save(givenTask);
         assertNotNull(added.getId());
         assertMatches(givenTask, added);
         final var taskEntity = taskEntityDao.findById(added.getId().value()).orElseThrow();
@@ -86,10 +84,36 @@ class JpaTaskRepositoryAdapterTest {
             scripts = "classpath:sql/insert_task.sql"
     )
     @Test
-    void findById_shouldReturnOptionalOfTask_whenTaskExists() {
-        final var taskEntity = taskEntityDao.findAll().stream()
+    void save_shouldReturnUpdatedTask() {
+        final var taskEntity = getFirstTaskEntity();
+        final var newAssignee = userEntityDao.findAll().stream()
+                .filter(entity -> !taskEntity.getAssignee().equals(entity))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("At least 1 task is expected in DB for test"));
+                .map(entity -> ProjectUser.withId(new ProjectUserId(entity.getId())))
+                .orElseThrow(() -> new InvalidTestSetupException("New assignee user entity is expected in DB for test"));
+        final var givenTask = Task.builder()
+                .id(new TaskId(taskEntity.getId()))
+                .createdAt(taskEntity.getCreatedAt())
+                .title("Updated task title")
+                .description("Update task description")
+                .status(TaskStatus.DONE)
+                .project(new ProjectId(taskEntity.getProject().getId()))
+                .owner(new ProjectUserId(taskEntity.getOwner().getId()))
+                .assignee(newAssignee.id())
+                .build();
+        final var updated = taskRepositoryAdapter.save(givenTask);
+        assertMatches(givenTask, updated);
+        final var updateTaskEntity = taskEntityDao.findById(taskEntity.getId()).orElseThrow();
+        assertMatches(updated, updateTaskEntity);
+    }
+
+    @Sql(
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+            scripts = "classpath:sql/insert_task.sql"
+    )
+    @Test
+    void findById_shouldReturnOptionalOfTask_whenTaskExists() {
+        final var taskEntity = getFirstTaskEntity();
         final var givenTaskId = new TaskId(taskEntity.getId());
         final var foundOptional = taskRepositoryAdapter.find(givenTaskId);
         assertTrue(foundOptional.isPresent());
@@ -108,11 +132,9 @@ class JpaTaskRepositoryAdapterTest {
     )
     @Test
     void findTaskDetailsById_shouldReturnOptionalOfTaskDetails_whenTaskExists() {
-        final var taskEntity = taskEntityDao.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("At least 1 task is expected in DB for test"));
+        final var taskEntity = getFirstTaskEntity();
         final var givenTaskId = new TaskId(taskEntity.getId());
-        final var foundOptional = taskRepositoryAdapter.findTaskDetailsById(givenTaskId);
+        final var foundOptional = taskRepositoryAdapter.findTaskDetails(givenTaskId);
         assertTrue(foundOptional.isPresent());
         assertMatches(taskEntity, foundOptional.get());
     }
@@ -120,7 +142,7 @@ class JpaTaskRepositoryAdapterTest {
     @Test
     void findTaskDetailsById_shouldReturnEmptyOptional_whenTaskDoesNotExists() {
         final var givenTaskId = new TaskId(new Random().nextLong());
-        assertTrue(taskRepositoryAdapter.findTaskDetailsById(givenTaskId).isEmpty());
+        assertTrue(taskRepositoryAdapter.findTaskDetails(givenTaskId).isEmpty());
     }
 
     @Sql(
@@ -129,15 +151,12 @@ class JpaTaskRepositoryAdapterTest {
     )
     @Test
     void findProjectTasks_shouldReturnTaskPreviewPageWithAllTasks_whenNoFiltersPassed() {
-        final var projectId = projectEntityDao.findAll().stream()
-                .findFirst()
-                .map(ProjectEntity::getId)
-                .orElseThrow(() -> new IllegalStateException("At least 1 task is expected in DB for test"));
-        final var taskEntities = taskEntityDao.findAll().stream()
+        final var projectId = getFirstProjectEntity().getId();
+        final var expectedTaskEntities = taskEntityDao.findAll().stream()
                 .filter(entity -> Objects.equals(projectId, entity.getProject().getId()))
                 .toList();
         final var pageSize = 5;
-        final var totalPages = taskEntities.size() / pageSize;
+        final var totalPages = expectedTaskEntities.size() / pageSize;
         int currentPage = 1;
         while (currentPage <= totalPages) {
             final var givenQuery = FindTasksQuery.builder()
@@ -148,9 +167,9 @@ class JpaTaskRepositoryAdapterTest {
             final var resultPage = taskRepositoryAdapter.findProjectTasks(givenQuery);
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
             assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
-            assertEquals(taskEntities.size(), resultPage.total());
-            assertEquals(taskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
-            final var expected = slice(taskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
+            assertEquals(expectedTaskEntities.size(), resultPage.total());
+            assertEquals(expectedTaskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
+            final var expected = slice(expectedTaskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
             assertMatches(expected, resultPage.content());
             currentPage++;
         }
@@ -162,16 +181,13 @@ class JpaTaskRepositoryAdapterTest {
     )
     @Test
     void findProjectTasks_shouldReturnTaskSortedPreviewPageWithAllTasks_whenSortByPassed() {
-        final var projectId = projectEntityDao.findAll().stream()
-                .findFirst()
-                .map(ProjectEntity::getId)
-                .orElseThrow(() -> new IllegalStateException("At least 1 task is expected in DB for test"));
-        final var taskEntities = taskEntityDao.findAll().stream()
+        final var projectId = getFirstProjectEntity().getId();
+        final var expectedTaskEntities = taskEntityDao.findAll().stream()
                 .filter(entity -> Objects.equals(projectId, entity.getProject().getId()))
                 .sorted(Comparator.comparing(TaskEntity::getTitle).reversed())
                 .toList();
         final var pageSize = 5;
-        final var totalPages = taskEntities.size() / pageSize;
+        final var totalPages = expectedTaskEntities.size() / pageSize;
         int currentPage = 1;
         while (currentPage <= totalPages) {
             final var givenQuery = new FindTasksQueryWithSortByTitleBuilder()
@@ -183,9 +199,9 @@ class JpaTaskRepositoryAdapterTest {
             final var resultPage = taskRepositoryAdapter.findProjectTasks(givenQuery);
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
             assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
-            assertEquals(taskEntities.size(), resultPage.total());
-            assertEquals(taskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
-            final var expected = slice(taskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
+            assertEquals(expectedTaskEntities.size(), resultPage.total());
+            assertEquals(expectedTaskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
+            final var expected = slice(expectedTaskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
             assertMatches(expected, resultPage.content());
             currentPage++;
         }
@@ -197,25 +213,17 @@ class JpaTaskRepositoryAdapterTest {
     )
     @Test
     void findProjectTasks_shouldReturnFilteredTaskPreviewPage_whenFiltersPassed() {
-        final var projectId = projectEntityDao.findAll().stream()
-                .findFirst()
-                .map(ProjectEntity::getId)
-                .orElseThrow(() -> new IllegalStateException("At least 1 task is expected in DB for test"));
-        final var givenAssigneeId = userEntityDao.findByEmail("jsnow@mail.com")
-                .map(UserEntity::getId)
-                .map(ProjectUserId::new)
-                .orElseThrow(() -> new IllegalStateException("Expected test user is missing"));
+        final var projectId = getFirstProjectEntity().getId();
+        final var givenAssigneeId = new ProjectUserId(getUserEntityByEmail("jsnow@mail.com").getId());
         final var givenStatuses = Set.of(TaskStatus.TO_DO, TaskStatus.IN_PROGRESS);
-        final var statusValueList = givenStatuses.stream()
-                .map(TaskStatus::value)
-                .toList();
-        final var taskEntities = taskEntityDao.findAll().stream()
+
+        final var expectedTaskEntities = taskEntityDao.findAll().stream()
                 .filter(entity -> Objects.equals(projectId, entity.getProject().getId()))
                 .filter(entity -> Objects.equals(givenAssigneeId.value(), entity.getAssignee().getId()))
-                .filter(entity -> statusValueList.contains(entity.getStatus()))
+                .filter(entity -> givenStatuses.contains(entity.getStatus()))
                 .toList();
         final var pageSize = 5;
-        final var totalPages = taskEntities.size() / pageSize;
+        final var totalPages = expectedTaskEntities.size() / pageSize;
         int currentPage = 1;
         while (currentPage <= totalPages) {
             final var givenQuery = FindTasksQuery.builder()
@@ -228,12 +236,69 @@ class JpaTaskRepositoryAdapterTest {
             final var resultPage = taskRepositoryAdapter.findProjectTasks(givenQuery);
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
             assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
-            assertEquals(taskEntities.size(), resultPage.total());
-            assertEquals(taskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
-            final var expected = slice(taskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
+            assertEquals(expectedTaskEntities.size(), resultPage.total());
+            assertEquals(expectedTaskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
+            final var expected = slice(expectedTaskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
             assertMatches(expected, resultPage.content());
             currentPage++;
         }
+    }
+
+    private ProjectEntity getFirstProjectEntity() {
+        return projectEntityDao.findAll().stream()
+                .findFirst()
+                .orElseThrow(() -> new InvalidTestSetupException("At least 1 project is expected in DB for test"));
+    }
+
+    private TaskEntity getFirstTaskEntity() {
+        return taskEntityDao.findAll().stream()
+                .findFirst()
+                .orElseThrow(() -> new InvalidTestSetupException("At least 1 task is expected in DB for test"));
+    }
+
+    private UserEntity getUserEntityByEmail(String email) {
+        return userEntityDao.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("Expected test user is missing"));
+    }
+
+    private void assertMatches(TaskEntity expected, TaskDetails actual) {
+        assertEquals(expected.getId(), actual.id().value());
+        assertEquals(expected.getCreatedAt(), actual.createdAt());
+        assertEquals(expected.getTitle(), actual.title());
+        assertEquals(expected.getDescription(), actual.description());
+        assertEquals(expected.getStatus(), actual.status());
+        assertEquals(expected.getProject().getId(), actual.projectId().value());
+        assertEquals(expected.getOwner().getId(), actual.owner().id().value());
+        assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());
+    }
+
+    private void assertMatches(Task expected, Task actual) {
+        assertEquals(expected.getCreatedAt(), actual.getCreatedAt());
+        assertEquals(expected.getTitle(), actual.getTitle());
+        assertEquals(expected.getDescription(), actual.getDescription());
+        assertEquals(expected.getStatus(), actual.getStatus());
+        assertEquals(expected.getOwner(), actual.getOwner());
+        assertEquals(expected.getAssignee(), actual.getAssignee());
+    }
+
+    private void assertMatches(TaskEntity expected, Task actual) {
+        assertMatches(actual, expected);
+    }
+
+    private void assertMatches(Task expected, TaskEntity actual) {
+        assertEquals(expected.getId().value(), actual.getId());
+        assertEquals(expected.getCreatedAt(), actual.getCreatedAt());
+        assertEquals(expected.getTitle(), actual.getTitle());
+        assertEquals(expected.getDescription(), actual.getDescription());
+        assertEquals(expected.getStatus(), actual.getStatus());
+        assertEquals(expected.getOwner().value(), actual.getOwner().getId());
+        assertEquals(expected.getAssignee().value(), actual.getAssignee().getId());
+    }
+
+    private static <T> List<T> slice (List<T> target, int page, int size) {
+        return IntStream.range(page * size, (page * size) + size)
+                .mapToObj(target::get)
+                .toList();
     }
 
     private void assertMatches(List<TaskEntity> expected, List<TaskPreview> actual) {
@@ -246,81 +311,11 @@ class JpaTaskRepositoryAdapterTest {
         assertEquals(expected.getId(), actual.id().value());
         assertEquals(expected.getCreatedAt(), actual.createdAt());
         assertEquals(expected.getTitle(), actual.title());
-        assertEquals(expected.getStatus(), actual.status().value());
+        assertEquals(expected.getStatus(), actual.status());
         assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());
     }
-
-    @Sql(
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
-            scripts = "classpath:sql/insert_task.sql"
-    )
-    @Test
-    void update_shouldReturnUpdatedTask() {
-        final var taskEntity = taskEntityDao.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("At least 1 task is expected in DB for test"));
-        final var newAssignee = userEntityDao.findAll().stream()
-                .filter(entity -> !taskEntity.getAssignee().equals(entity))
-                .findFirst()
-                .map(entity -> ProjectUser.withId(new ProjectUserId(entity.getId())))
-                .orElseThrow(() -> new IllegalStateException("New assignee user entity is expected in DB for test"));
-        final var givenTask = Task.builder()
-                .id(new TaskId(taskEntity.getId()))
-                .createdAt(taskEntity.getCreatedAt())
-                .title("Updated task title")
-                .description("Update task description")
-                .status(TaskStatus.DONE)
-                .project(new ProjectId(taskEntity.getProject().getId()))
-                .owner(ProjectUser.withId(new ProjectUserId(taskEntity.getOwner().getId())))
-                .assignee(newAssignee)
-                .build();
-        final var updated = taskRepositoryAdapter.update(givenTask);
-        assertMatches(givenTask, updated);
-        final var updateTaskEntity = taskEntityDao.findById(taskEntity.getId()).orElseThrow();
-        assertMatches(updated, updateTaskEntity);
-    }
-
-    private void assertMatches(TaskEntity expected, TaskDetails actual) {
-        assertEquals(expected.getId(), actual.id().value());
-        assertEquals(expected.getCreatedAt(), actual.createdAt());
-        assertEquals(expected.getTitle(), actual.title());
-        assertEquals(expected.getDescription(), actual.description());
-        assertEquals(expected.getStatus(), actual.status().value());
-        assertEquals(expected.getProject().getId(), actual.projectId().value());
-        assertEquals(expected.getOwner().getId(), actual.owner().id().value());
-        assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());
-    }
-
-    private void assertMatches(Task expected, Task actual) {
-        assertEquals(expected.getCreatedAt(), actual.getCreatedAt());
-        assertEquals(expected.getTitle(), actual.getTitle());
-        assertEquals(expected.getDescription(), actual.getDescription());
-        assertEquals(expected.getStatus(), actual.getStatus());
-        assertEquals(expected.getOwner().id(), actual.getOwner().id());
-        assertEquals(expected.getAssignee().id(), actual.getAssignee().id());
-    }
-
-    private void assertMatches(TaskEntity expected, Task actual) {
-        assertMatches(actual, expected);
-    }
-
-    private void assertMatches(Task expected, TaskEntity actual) {
-        assertEquals(expected.getId().value(), actual.getId());
-        assertEquals(expected.getCreatedAt(), actual.getCreatedAt());
-        assertEquals(expected.getTitle(), actual.getTitle());
-        assertEquals(expected.getDescription(), actual.getDescription());
-        assertEquals(expected.getStatus().value(), actual.getStatus());
-        assertEquals(expected.getOwner().id().value(), actual.getOwner().getId());
-        assertEquals(expected.getAssignee().id().value(), actual.getAssignee().getId());
-    }
-
-    private static <T> List<T> slice (List<T> target, int page, int size) {
-        return IntStream.range(page * size, (page * size) + size)
-                .mapToObj(target::get)
-                .toList();
-    }
-
     public static class FindTasksQueryWithSortByTitleBuilder extends FindTasksQuery.Builder {
+
         public FindTasksQuery.Builder sortByTitle(Sort.Direction direction) {
             return this.sortBy("title", direction);
         }

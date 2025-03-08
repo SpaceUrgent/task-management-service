@@ -1,5 +1,6 @@
-package com.task.management.persistence.jpa.mapper;
+package com.task.management.persistence.jpa.iam.mapper;
 
+import com.task.management.domain.common.Email;
 import com.task.management.domain.iam.model.User;
 import com.task.management.domain.iam.model.UserId;
 import com.task.management.persistence.jpa.entity.UserEntity;
@@ -9,7 +10,9 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 public class UserMapper {
-    UserMapper() {
+    public static final UserMapper INSTANCE = new UserMapper();
+
+    private UserMapper() {
     }
 
     public UserEntity toEntity(User user) {
@@ -17,7 +20,8 @@ public class UserMapper {
         return UserEntity.builder()
                 .id(Optional.ofNullable(user.getId()).map(UserId::value).orElse(null))
                 .createdAt(user.getCreatedAt())
-                .email(user.getEmail())
+                .updatedAt(user.getUpdatedAt())
+                .email(user.getEmail().value())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .encryptedPassword(user.getEncryptedPassword())
@@ -29,7 +33,8 @@ public class UserMapper {
         return User.builder()
                 .id(new UserId(userEntity.getId()))
                 .createdAt(userEntity.getCreatedAt())
-                .email(userEntity.getEmail())
+                .updatedAt(userEntity.getUpdatedAt())
+                .email(new Email(userEntity.getEmail()))
                 .firstName(userEntity.getFirstName())
                 .lastName(userEntity.getLastName())
                 .encryptedPassword(userEntity.getEncryptedPassword())

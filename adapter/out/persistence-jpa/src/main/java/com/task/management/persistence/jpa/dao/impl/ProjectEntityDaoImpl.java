@@ -7,7 +7,7 @@ import jakarta.persistence.EntityManager;
 
 import java.util.stream.Stream;
 
-import static java.util.Objects.requireNonNull;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 public class ProjectEntityDaoImpl extends AbstractEntityDao<ProjectEntity, Long> implements ProjectEntityDao {
     public ProjectEntityDaoImpl(EntityManager entityManager) {
@@ -16,7 +16,7 @@ public class ProjectEntityDaoImpl extends AbstractEntityDao<ProjectEntity, Long>
 
     @Override
     public Stream<ProjectEntity> findByMemberId(Long memberId) {
-        requireNonNull(memberId, "Member id is required");
+        parameterRequired(memberId, "Member id");
         return entityManager.createQuery("""
                 from ProjectEntity project\s
                 inner join project.members member\s

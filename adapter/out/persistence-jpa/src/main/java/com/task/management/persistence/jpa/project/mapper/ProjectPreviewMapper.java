@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.mapper;
+package com.task.management.persistence.jpa.project.mapper;
 
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.ProjectPreview;
@@ -7,9 +7,11 @@ import com.task.management.persistence.jpa.entity.ProjectEntity;
 import static java.util.Objects.requireNonNull;
 
 public class ProjectPreviewMapper {
+    public static final ProjectPreviewMapper INSTANCE = new ProjectPreviewMapper(ProjectUserMapper.INSTANCE);
+
     private final ProjectUserMapper projectUserMapper;
 
-    ProjectPreviewMapper(ProjectUserMapper projectUserMapper) {
+    private ProjectPreviewMapper(ProjectUserMapper projectUserMapper) {
         this.projectUserMapper = projectUserMapper;
     }
 

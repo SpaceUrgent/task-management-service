@@ -1,15 +1,16 @@
 package com.task.management.persistence.jpa.dao;
 
+import com.task.management.domain.common.validation.Validation;
 import com.task.management.persistence.jpa.IPage;
 import com.task.management.persistence.jpa.PageImpl;
 import com.task.management.persistence.jpa.entity.JpaEntity;
 import com.task.management.persistence.jpa.query.FindPageQuery;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 import static java.util.Objects.requireNonNull;
 
 public abstract class AbstractEntityDao<T extends JpaEntity<ID>, ID> implements EntityDao<T, ID> {
@@ -53,7 +54,7 @@ public abstract class AbstractEntityDao<T extends JpaEntity<ID>, ID> implements 
 
     @Override
     public T save(T entity) {
-        requireNonNull(entity, "Entity is required");
+        parameterRequired(entity, "Entity");
         if (entity.getId() == null) {
             entityManager.persist(entity);
         } else {

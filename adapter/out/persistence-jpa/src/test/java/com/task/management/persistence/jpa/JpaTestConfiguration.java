@@ -6,11 +6,18 @@ import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.dao.impl.ProjectEntityDaoImpl;
 import com.task.management.persistence.jpa.dao.impl.TaskEntityDaoImpl;
 import com.task.management.persistence.jpa.dao.impl.UserEntityDaoImpl;
+import com.task.management.persistence.jpa.iam.JpaUserRepositoryAdapter;
+import com.task.management.persistence.jpa.project.JpaProjectRepositoryAdapter;
+import com.task.management.persistence.jpa.project.JpaProjectUserRepositoryAdapter;
+import com.task.management.persistence.jpa.project.JpaTaskRepositoryAdapter;
 import jakarta.persistence.EntityManager;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
 
 @EnableAutoConfiguration
 @EntityScan(basePackages = "com.task.management.persistence.jpa.entity")
@@ -60,5 +67,11 @@ public class JpaTestConfiguration {
     @Bean
     public TaskEntityDao taskEntityDao(EntityManager entityManager) {
         return new TaskEntityDaoImpl(entityManager);
+    }
+
+    @Bean
+    @ServiceConnection
+    PostgreSQLContainer<?> postgresContainer() {
+        return new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
     }
 }

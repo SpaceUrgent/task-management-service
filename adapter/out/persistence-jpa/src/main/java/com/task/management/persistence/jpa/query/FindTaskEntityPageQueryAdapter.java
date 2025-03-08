@@ -83,7 +83,7 @@ public class FindTaskEntityPageQueryAdapter implements FindPageQuery<TaskEntity>
 
     private Set<String> statusIn() {
         return Optional.ofNullable(this.query.getStatuses())
-                .map(statuses -> statuses.stream().map(TaskStatus::value).collect(Collectors.toSet()))
+                .map(statuses -> statuses.stream().map(TaskStatus::name).collect(Collectors.toSet()))
                 .orElse(null);
     }
 

@@ -1,10 +1,8 @@
 package com.task.management.persistence.jpa.entity;
 
+import com.task.management.domain.common.validation.Validation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
@@ -17,18 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.task.management.domain.common.validation.Validation.notBlank;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
+
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Data
 @Entity
 @Table(name = "users")
 public class UserEntity extends JpaEntity<Long> {
-
-//    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -52,17 +47,19 @@ public class UserEntity extends JpaEntity<Long> {
     @Builder
     public UserEntity(Long id,
                       Instant createdAt,
+                      Instant updatedAt,
                       String email,
                       String firstName,
                       String lastName,
                       String encryptedPassword,
                       List<ProjectEntity> projects) {
         this.id = id;
-        this.createdAt = createdAt;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.encryptedPassword = encryptedPassword;
+        this.createdAt = parameterRequired(createdAt, "Created at");
+        this.updatedAt = updatedAt;
+        this.email = notBlank(email, "Email");
+        this.firstName = notBlank(firstName, "First name");
+        this.lastName = notBlank(lastName, "Last name");
+        this.encryptedPassword = notBlank(encryptedPassword, "Encrypted password");
         this.projects = Optional.ofNullable(projects).orElse(new ArrayList<>());
     }
 }

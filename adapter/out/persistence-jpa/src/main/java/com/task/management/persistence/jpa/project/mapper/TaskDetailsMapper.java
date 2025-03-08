@@ -1,17 +1,18 @@
-package com.task.management.persistence.jpa.mapper;
+package com.task.management.persistence.jpa.project.mapper;
 
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.TaskDetails;
 import com.task.management.domain.project.model.TaskId;
-import com.task.management.domain.project.model.TaskStatus;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import static java.util.Objects.requireNonNull;
 
 public class TaskDetailsMapper {
+    public static final TaskDetailsMapper INSTANCE = new TaskDetailsMapper(ProjectUserMapper.INSTANCE);
+
     private final ProjectUserMapper projectUserMapper;
 
-    TaskDetailsMapper(ProjectUserMapper projectUserMapper) {
+    private TaskDetailsMapper(ProjectUserMapper projectUserMapper) {
         this.projectUserMapper = projectUserMapper;
     }
 
@@ -22,7 +23,7 @@ public class TaskDetailsMapper {
                 .createdAt(entity.getCreatedAt())
                 .title(entity.getTitle())
                 .description(entity.getDescription())
-                .status(new TaskStatus(entity.getStatus()))
+                .status(entity.getStatus())
                 .projectId(new ProjectId(entity.getProject().getId()))
                 .owner(projectUserMapper.toModel(entity.getOwner()))
                 .assignee(projectUserMapper.toModel(entity.getAssignee()))

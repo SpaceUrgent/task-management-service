@@ -9,7 +9,7 @@ public interface UserEntityDao extends EntityDao<UserEntity, Long> {
 
     Optional<UserEntity> findByEmail(String email);
 
-    Optional<UserEntity> findMember(Long userId, Long projectId);
+    boolean isMember(Long userId, Long projectId);
 
     List<UserEntity> findByProject(Long projectId);
 

@@ -1,11 +1,12 @@
 package com.task.management.persistence.jpa.entity;
 
+import com.task.management.domain.common.validation.Validation;
+import com.task.management.domain.project.model.TaskStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -15,9 +16,9 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.time.Instant;
-import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.task.management.domain.common.validation.Validation.notBlank;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -25,19 +26,15 @@ import static java.util.Objects.requireNonNull;
 @Entity
 @Table(name = "tasks")
 public class TaskEntity extends JpaEntity<Long> {
-//    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 
     @Column(nullable = false)
     private String title;
 
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private TaskStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false, updatable = false)
@@ -58,20 +55,22 @@ public class TaskEntity extends JpaEntity<Long> {
     @Builder
     public TaskEntity(Long id,
                       Instant createdAt,
+                      Instant updatedAt,
                       String title,
                       String description,
-                      String status,
+                      TaskStatus status,
                       UserEntity owner,
                       UserEntity assignee,
                       ProjectEntity project) {
         this.id = id;
-        this.createdAt = requireNonNull(createdAt, "Created at is required");
-        this.title = requireNonNull(title, "Title is required");
-        this.description = requireNonNull(description, "Description is required");
-        this.status = requireNonNull(status, "Status is required");
-        this.owner = requireNonNull(owner, "Owner is required");
-        this.assignee = requireNonNull(assignee, "Assignee is required");
-        this.project = requireNonNull(project, "Project is required");
+        this.createdAt = parameterRequired(createdAt, "Created at");
+        this.updatedAt = updatedAt;
+        this.title = notBlank(title, "Title");
+        this.description = description;
+        this.status = parameterRequired(status, "Status");
+        this.owner = parameterRequired(owner, "Owner");
+        this.assignee = parameterRequired(assignee, "Assignee");
+        this.project = parameterRequired(project, "Project");
     }
 
 }

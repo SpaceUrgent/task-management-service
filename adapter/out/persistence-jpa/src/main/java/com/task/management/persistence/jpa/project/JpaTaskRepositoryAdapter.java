@@ -1,44 +1,44 @@
-package com.task.management.persistence.jpa;
+package com.task.management.persistence.jpa.project;
 
 import com.task.management.domain.common.Page;
+import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.domain.project.model.Task;
 import com.task.management.domain.project.model.TaskDetails;
 import com.task.management.domain.project.model.TaskId;
 import com.task.management.domain.project.model.TaskPreview;
 import com.task.management.domain.project.port.in.query.FindTasksQuery;
-import com.task.management.domain.project.port.out.AddTaskPort;
-import com.task.management.domain.project.port.out.FindProjectTasksPort;
-import com.task.management.domain.project.port.out.FindTaskByIdPort;
-import com.task.management.domain.project.port.out.FindTaskDetailsByIdPort;
-import com.task.management.domain.project.port.out.UpdateTaskPort;
+import com.task.management.domain.project.port.out.TaskRepositoryPort;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.TaskEntity;
-import com.task.management.persistence.jpa.mapper.Mappers;
-import com.task.management.persistence.jpa.mapper.TaskDetailsMapper;
-import com.task.management.persistence.jpa.mapper.TaskMapper;
-import com.task.management.persistence.jpa.mapper.TaskPreviewMapper;
+import com.task.management.persistence.jpa.project.mapper.TaskDetailsMapper;
+import com.task.management.persistence.jpa.project.mapper.TaskMapper;
+import com.task.management.persistence.jpa.project.mapper.TaskPreviewMapper;
 import com.task.management.persistence.jpa.query.FindTaskEntityPageQueryAdapter;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
+@AppComponent
 @RequiredArgsConstructor
-public class JpaTaskRepositoryAdapter implements FindTaskByIdPort,
-                                                 FindTaskDetailsByIdPort,
-                                                 FindProjectTasksPort,
-                                                 AddTaskPort,
-                                                 UpdateTaskPort {
+public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     private final TaskEntityDao taskEntityDao;
     private final ProjectEntityDao projectEntityDao;
     private final UserEntityDao userEntityDao;
-    private final TaskMapper taskMapper = Mappers.taskMapper;
-    private final TaskDetailsMapper taskDetailsMapper = Mappers.taskDetailsMapper;
-    private final TaskPreviewMapper taskPreviewMapper = Mappers.taskPreviewMapper;
+    private final TaskMapper taskMapper = TaskMapper.INSTANCE;
+    private final TaskDetailsMapper taskDetailsMapper = TaskDetailsMapper.INSTANCE;
+    private final TaskPreviewMapper taskPreviewMapper = TaskPreviewMapper.INSTANCE;
+
+    @Override
+    public Task save(Task task) {
+        taskRequired(task);
+        var taskEntity = buildTaskEntity(task);
+        taskEntity = taskEntityDao.save(taskEntity);
+        return taskMapper.toModel(taskEntity);
+    }
 
     @Override
     public Optional<Task> find(final TaskId id) {
@@ -47,7 +47,7 @@ public class JpaTaskRepositoryAdapter implements FindTaskByIdPort,
     }
 
     @Override
-    public Optional<TaskDetails> findTaskDetailsById(final TaskId id) {
+    public Optional<TaskDetails> findTaskDetails(TaskId id) {
         taskIdRequired(id);
         return taskEntityDao.findById(id.value()).map(taskDetailsMapper::toModel);
     }
@@ -65,47 +65,24 @@ public class JpaTaskRepositoryAdapter implements FindTaskByIdPort,
                 .build();
     }
 
-    @Override
-    public Task add(final Task task) {
-        taskRequired(task);
-        final var ownerReference = userEntityDao.getReference(task.getOwner().id().value());
-        final var assigneeReference = userEntityDao.getReference(task.getAssignee().id().value());
+    private TaskEntity buildTaskEntity(Task task) {
+        final var ownerReference = userEntityDao.getReference(task.getOwner().value());
+        final var assigneeReference = userEntityDao.getReference(task.getAssignee().value());
         final var projectReference = projectEntityDao.getReference(task.getProject().value());
-        var taskEntity = TaskEntity.builder()
+        return TaskEntity.builder()
+                .id(Optional.ofNullable(task.getId()).map(TaskId::value).orElse(null))
                 .createdAt(task.getCreatedAt())
+                .updatedAt(task.getUpdatedAt())
                 .title(task.getTitle())
                 .description(task.getDescription())
-                .status(task.getStatus().value())
+                .status(task.getStatus())
                 .owner(ownerReference)
                 .assignee(assigneeReference)
                 .project(projectReference)
                 .build();
-        taskEntity = taskEntityDao.save(taskEntity);
-        return taskMapper.toModel(taskEntity);
     }
 
-    @Override
-    public Task update(final Task task) {
-        taskRequired(task);
-        var taskEntity = getTaskEntity(task.getId());
-        final var ownerReference = userEntityDao.getReference(task.getOwner().id().value());
-        final var assigneeReference = userEntityDao.getReference(task.getAssignee().id().value());
-        taskEntity.setTitle(task.getTitle());
-        taskEntity.setDescription(task.getDescription());
-        taskEntity.setStatus(task.getStatus().value());
-        taskEntity.setOwner(ownerReference);
-        taskEntity.setAssignee(assigneeReference);
-        taskEntity = taskEntityDao.save(taskEntity);
-        return taskMapper.toModel(taskEntity);
-    }
-
-    private TaskEntity getTaskEntity(TaskId id) {
-        final var entityId = id.value();
-        return taskEntityDao.findById(entityId)
-                .orElseThrow(() -> new EntityNotFoundException("Task with id %d not found".formatted(entityId)));
-    }
-
-    private void taskIdRequired(TaskId id) {
+    private static void taskIdRequired(TaskId id) {
         requireNonNull(id, "Task id is required");
     }
 
