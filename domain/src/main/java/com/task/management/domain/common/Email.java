@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 import static com.task.management.domain.common.validation.Validation.notBlank;
 
 public record Email(String value) {
-    public static final Pattern VALID_EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$", Pattern.CASE_INSENSITIVE);
+    public static final String VALID_EMAIL_REGEXP = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    public static final Pattern VALID_EMAIL_PATTERN = Pattern.compile(VALID_EMAIL_REGEXP, Pattern.CASE_INSENSITIVE);
 
     public Email {
         notBlank(value,"Email value");

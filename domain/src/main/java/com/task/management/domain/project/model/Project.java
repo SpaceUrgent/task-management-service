@@ -26,11 +26,13 @@ public class Project {
     @Builder
     public Project(ProjectId id,
                    Instant createdAt,
+                   Instant updatedAt,
                    String title,
                    String description,
                    ProjectUserId ownerId) {
         this.id = id;
         this.createdAt = parameterRequired(createdAt, "Created at");
+        this.updatedAt = updatedAt;
         this.title = notBlank(title, "Title");
         this.description = description;
         this.ownerId = parameterRequired(ownerId, "Owner id");
