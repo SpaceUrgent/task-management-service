@@ -1,11 +1,11 @@
 package com.task.management.persistence.jpa;
 
 import com.task.management.domain.iam.model.User;
-import com.task.management.domain.iam.model.UserCredentials;
+import com.task.management.domain.common.UserCredentials;
 import com.task.management.domain.iam.model.UserId;
 import com.task.management.domain.iam.model.UserProfile;
 import com.task.management.domain.iam.port.out.EmailExistsPort;
-import com.task.management.domain.iam.port.out.FindUserCredentialsPort;
+import com.task.management.domain.common.interfaces.UserCredentialsPort;
 import com.task.management.domain.iam.port.out.FindUserProfileByIdPort;
 import com.task.management.domain.iam.port.out.AddUserPort;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
@@ -24,7 +24,7 @@ import static java.util.Objects.requireNonNull;
 public class JpaUserRepositoryAdapter implements AddUserPort,
                                                  FindUserProfileByIdPort,
                                                  EmailExistsPort,
-                                                 FindUserCredentialsPort {
+        UserCredentialsPort {
     private final UserEntityDao userEntityDao;
     private final UserMapper userMapper = Mappers.userMapper;
     private final UserProfileMapper userProfileMapper = Mappers.userProfileMapper;

@@ -1,5 +1,6 @@
 package com.task.management.domain.project.service;
 
+import com.task.management.domain.common.Email;
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.ProjectUser;
 import com.task.management.domain.project.model.ProjectUserId;
@@ -34,7 +35,7 @@ public final class ProjectTestUtils {
     static ProjectUser randomProjectUser() {
         return ProjectUser.builder()
                 .id(randomProjectUserId())
-                .email("project-user@mail.com")
+                .email(new Email("project-user@mail.com"))
                 .firstName("FName")
                 .lastName("LName")
                 .build();

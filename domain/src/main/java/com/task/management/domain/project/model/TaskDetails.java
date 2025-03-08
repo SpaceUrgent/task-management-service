@@ -4,7 +4,8 @@ import lombok.Builder;
 
 import java.time.Instant;
 
-import static com.task.management.domain.common.Validation.parameterRequired;
+import static com.task.management.domain.common.validation.Validation.notBlank;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 public record TaskDetails(
         TaskId id,
@@ -21,8 +22,7 @@ public record TaskDetails(
         parameterRequired(id, "Id");
         parameterRequired(createdAt, "Created time");
         parameterRequired(projectId, "Project id");
-        parameterRequired(title, "Title");
-        parameterRequired(description, "Description");
+        notBlank(title, "Title");
         parameterRequired(status, "Status");
         parameterRequired(owner, "owner");
         parameterRequired(assignee, "assignee");

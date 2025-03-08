@@ -1,121 +1,136 @@
 package com.task.management.domain.project.service;
 
+import com.task.management.domain.common.Email;
+import com.task.management.domain.common.annotation.AppComponent;
+import com.task.management.domain.common.annotation.UseCase;
 import com.task.management.domain.common.UseCaseException;
-import com.task.management.domain.common.ValidationService;
-import com.task.management.domain.port.in.command.UpdateProjectCommand;
+import com.task.management.domain.common.validation.ValidationService;
+import com.task.management.domain.project.model.ProjectDetails;
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.ProjectPreview;
 import com.task.management.domain.project.model.ProjectUser;
 import com.task.management.domain.project.model.ProjectUserId;
 import com.task.management.domain.project.port.in.AddProjectMemberUseCase;
 import com.task.management.domain.project.port.in.GetAvailableProjectsUseCase;
+import com.task.management.domain.project.port.in.GetProjectDetailsUseCase;
 import com.task.management.domain.project.port.in.GetProjectMembersUseCase;
-import com.task.management.domain.project.port.in.GetProjectUseCase;
 import com.task.management.domain.project.port.in.UpdateProjectUseCase;
 import com.task.management.domain.project.port.in.command.CreateProjectCommand;
 import com.task.management.domain.project.model.Project;
 import com.task.management.domain.project.port.in.CreateProjectUseCase;
-import com.task.management.domain.project.port.out.AddProjectMemberPort;
-import com.task.management.domain.project.port.out.FindProjectByIdPort;
-import com.task.management.domain.project.port.out.FindProjectMembersPort;
-import com.task.management.domain.project.port.out.FindProjectsByMemberPort;
-import com.task.management.domain.project.port.out.AddProjectPort;
-import com.task.management.domain.project.port.out.UpdateProjectPort;
+import com.task.management.domain.project.port.in.command.UpdateProjectCommand;
+import com.task.management.domain.project.port.out.ProjectRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.function.Supplier;
 
-import static com.task.management.domain.common.Validation.emailRequired;
-import static com.task.management.domain.common.Validation.parameterRequired;
+import static com.task.management.domain.common.validation.Validation.emailRequired;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 @Slf4j
+@AppComponent
 @RequiredArgsConstructor
 public class ProjectService implements CreateProjectUseCase,
                                         AddProjectMemberUseCase,
                                         GetAvailableProjectsUseCase,
-                                        GetProjectUseCase,
                                         GetProjectMembersUseCase,
-                                        UpdateProjectUseCase {
+                                        UpdateProjectUseCase,
+                                        GetProjectDetailsUseCase {
     private final ValidationService validationService;
     private final ProjectUserService projectUserService;
-    private final AddProjectPort saveProjectPort;
-    private final UpdateProjectPort updateProjectPort;
-    private final AddProjectMemberPort addProjectMemberPort;
-    private final FindProjectByIdPort findProjectByIdPort;
-    private final FindProjectsByMemberPort findProjectsByMemberPort;
-    private final FindProjectMembersPort findProjectMembersPort;
+    private final ProjectRepositoryPort projectRepositoryPort;
 
+    @UseCase
     @Override
     public List<ProjectPreview> getAvailableProjects(ProjectUserId actorId) {
         parameterRequired(actorId, "Actor id");
-        return findProjectsByMemberPort.findProjectsByMember(actorId);
+        return projectRepositoryPort.findProjectsByMember(actorId);
     }
 
+    @UseCase
     @Override
     public List<ProjectUser> getMembers(ProjectUserId actorId, ProjectId projectId) throws UseCaseException {
         parameterRequired(actorId, "Actor id");
         parameterRequired(projectId, "Project id");
         checkIsMember(actorId, projectId);
-        return findProjectMembersPort.findMembers(projectId);
+        return projectRepositoryPort.findMembers(projectId);
     }
 
+    @UseCase
     @Override
-    public Project getProject(ProjectUserId actorId, ProjectId projectId) throws UseCaseException {
-        parameterRequired(actorId, "Actor id");
-        parameterRequired(projectId, "Project id");
-        checkIsMember(actorId, projectId);
-        return findOrThrow(projectId);
-    }
-
-    @Override
-    public Project createProject(ProjectUserId actorId, CreateProjectCommand command) throws UseCaseException {
+    public void createProject(ProjectUserId actorId, CreateProjectCommand command) throws UseCaseException {
         parameterRequired(actorId, "Actor id");
         validationService.validate(command);
         final var project = Project.builder()
                 .createdAt(Instant.now())
                 .title(command.title())
                 .description(command.description())
-                .owner(projectUserService.getProjectUser(actorId))
+                .ownerId(actorId)
                 .build();
-        return saveProjectPort.add(project);
+        projectRepositoryPort.save(project);
     }
 
+    @UseCase
     @Override
-    public Project updateProject(ProjectUserId actorId, UpdateProjectCommand command) throws UseCaseException {
+    public void updateProject(ProjectUserId actorId, ProjectId projectId, UpdateProjectCommand command) throws UseCaseException {
         parameterRequired(actorId, "Actor id");
+        parameterRequired(projectId, "Project id");
         validationService.validate(command);
-        final var projectId = command.projectId();
         final var project = findOrThrow(projectId);
-        if (!project.isOwner(actorId)) {
+        if (!project.isOwnedBy(actorId)) {
             log.debug("User with id {} is not allowed to update project with id {}", actorId, projectId);
             throw new UseCaseException.IllegalAccessException("Current user is not allowed to update project");
         }
-        project.setTitle(command.title());
-        project.setDescription(command.description());
-        return updateProjectPort.update(project);
+        project.updateTitle(command.title());
+        project.updateDescription(command.description());
+        projectRepositoryPort.save(project);
     }
 
+    @UseCase
     @Override
-    public void addMember(ProjectUserId actorId, ProjectId projectId, String email) throws UseCaseException {
+    public void addMember(ProjectUserId actorId, ProjectId projectId, Email email) throws UseCaseException {
         parameterRequired(actorId, "Actor id");
         parameterRequired(projectId, "Project id");
         emailRequired(email);
         checkIsMember(actorId, projectId);
         final var memberId = projectUserService.getProjectUser(email).id();
-        addProjectMemberPort.addMember(projectId, memberId);
+        projectRepositoryPort.addMember(projectId, memberId);
     }
 
-    private void checkIsMember(ProjectUserId userId, ProjectId projectId) throws UseCaseException {
-        if (!projectUserService.isMember(userId, projectId)) {
+    @UseCase
+    @Override
+    public ProjectDetails getProjectDetails(ProjectUserId actorId, ProjectId projectId) throws UseCaseException {
+        parameterRequired(actorId, "Actor id");
+        parameterRequired(projectId, "Project id");
+        checkIsMember(actorId, projectId);
+        return findProjectDetailsOrThrow(projectId);
+    }
+
+    public void checkIsMember(ProjectUserId userId, ProjectId projectId) throws UseCaseException {
+        if (!this.isMember(userId, projectId)) {
             log.debug("User with id {} is not a member of project with id {}", userId, projectId);
             throw new UseCaseException.IllegalAccessException("Current does not have access to project");
         }
     }
 
+    public boolean isMember(ProjectUserId userId, ProjectId projectId) {
+        return projectRepositoryPort.isMember(userId, projectId);
+    }
+
+    private ProjectDetails findProjectDetailsOrThrow(ProjectId projectId) throws UseCaseException.EntityNotFoundException {
+        return projectRepositoryPort.findProjectDetails(projectId)
+                .orElseThrow(raiseProjectNotFound(projectId));
+    }
+
     private Project findOrThrow(ProjectId projectId) throws UseCaseException {
-        return findProjectByIdPort.find(projectId)
-                .orElseThrow(() -> new UseCaseException.EntityNotFoundException("Project with id %d not found".formatted(projectId.value())));
+        return projectRepositoryPort.find(projectId)
+                .orElseThrow(raiseProjectNotFound(projectId));
+    }
+
+    private static Supplier<UseCaseException.EntityNotFoundException> raiseProjectNotFound(ProjectId projectId) {
+        return () -> new UseCaseException.EntityNotFoundException("Project with id %d not found".formatted(projectId.value()));
     }
 }

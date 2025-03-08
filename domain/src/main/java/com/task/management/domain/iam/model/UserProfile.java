@@ -1,12 +1,15 @@
 package com.task.management.domain.iam.model;
 
+import com.task.management.domain.common.Email;
 import lombok.Builder;
 
-import static com.task.management.domain.common.Validation.parameterRequired;
+import static com.task.management.domain.common.validation.Validation.emailRequired;
+import static com.task.management.domain.common.validation.Validation.notBlank;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 public record UserProfile(
         UserId id,
-        String email,
+        Email email,
         String firstName,
         String lastName
 ) {
@@ -14,8 +17,8 @@ public record UserProfile(
     @Builder
     public UserProfile {
         parameterRequired(id, "Id");
-        parameterRequired(email, "Email");
-        parameterRequired(firstName, "First name");
-        parameterRequired(lastName, "Last name");
+        emailRequired(email);
+        notBlank(firstName, "First name");
+        notBlank(lastName, "Last name");
     }
 }

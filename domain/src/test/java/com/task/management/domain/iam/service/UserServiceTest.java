@@ -1,16 +1,16 @@
 package com.task.management.domain.iam.service;
 
+import com.task.management.domain.common.Email;
 import com.task.management.domain.common.UseCaseException;
-import com.task.management.domain.common.ValidationService;
+import com.task.management.domain.common.validation.ValidationService;
 import com.task.management.domain.iam.exception.EmailExistsException;
 import com.task.management.domain.iam.model.User;
 import com.task.management.domain.iam.model.UserId;
 import com.task.management.domain.iam.model.UserProfile;
 import com.task.management.domain.iam.port.in.command.RegisterUserCommand;
-import com.task.management.domain.iam.port.out.EmailExistsPort;
 import com.task.management.domain.iam.port.out.EncryptPasswordPort;
-import com.task.management.domain.iam.port.out.FindUserProfileByIdPort;
-import com.task.management.domain.iam.port.out.AddUserPort;
+import com.task.management.domain.common.interfaces.UserCredentialsPort;
+import com.task.management.domain.iam.port.out.UserRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -40,11 +40,9 @@ class UserServiceTest {
     @Mock
     private EncryptPasswordPort encryptPasswordPort;
     @Mock
-    private EmailExistsPort emailExistsPort;
+    private UserRepositoryPort userRepositoryPort;
     @Mock
-    private AddUserPort addUserPort;
-    @Mock
-    private FindUserProfileByIdPort findUserByIdPort;
+    private UserCredentialsPort userCredentialsPort;
     @InjectMocks
     private UserService userService;
 
@@ -52,12 +50,12 @@ class UserServiceTest {
     void register_shouldSaveNewUser_whenAllConditionsMet() throws EmailExistsException {
         final var encryptedPassword = "encryptedPassword";
         final var givenCommand = registerUserCommand();
-        doReturn(false).when(emailExistsPort).emailExists(eq(givenCommand.email()));
+        doReturn(false).when(userRepositoryPort).emailExists(eq(givenCommand.email()));
         doReturn(encryptedPassword).when(encryptPasswordPort).encrypt(eq(givenCommand.password()));
         final var userCaptor = ArgumentCaptor.forClass(User.class);
-        doAnswer(invocation -> invocation.getArgument(0)).when(addUserPort).add(userCaptor.capture());
+        doAnswer(invocation -> invocation.getArgument(0)).when(userRepositoryPort).save(userCaptor.capture());
         userService.register(givenCommand);
-        verify(addUserPort).add(any());
+        verify(userRepositoryPort).save(any());
         final var added = userCaptor.getValue();
         assertNotNull(added.getCreatedAt());
         assertEquals(givenCommand.email(), added.getEmail());
@@ -69,28 +67,28 @@ class UserServiceTest {
     @Test
     void register_shouldThrowEmailExistsException_whenEmailExists() {
         final var givenCommand = registerUserCommand();
-        doReturn(true).when(emailExistsPort).emailExists(eq(givenCommand.email()));
+        doReturn(true).when(userRepositoryPort).emailExists(eq(givenCommand.email()));
         assertThrows(EmailExistsException.class, () -> userService.register(givenCommand));
-        verifyNoMoreInteractions(addUserPort);
+        verifyNoMoreInteractions(userRepositoryPort);
     }
 
     @Test
     void getUserProfile_shouldReturnUserProfile_whenAllConditionsMet() throws UseCaseException {
         final var expectedUserProfile = UserProfile.builder()
                 .id(randomUserId())
-                .email("user@mail.com")
+                .email(new Email("user@mail.com"))
                 .firstName("FName")
                 .lastName("LName")
                 .build();
         final var givenActorId = expectedUserProfile.id();
-        doReturn(Optional.of(expectedUserProfile)).when(findUserByIdPort).find(eq(givenActorId));
+        doReturn(Optional.of(expectedUserProfile)).when(userRepositoryPort).findUserProfile(eq(givenActorId));
         assertEquals(expectedUserProfile, userService.getUserProfile(givenActorId));
     }
 
     @Test
     void getUserProfile_shouldThrowEntityNotFoundException_whenUserDoesNotExist() {
         final var givenActorId = randomUserId();
-        doReturn(Optional.empty()).when(findUserByIdPort).find(eq(givenActorId));
+        doReturn(Optional.empty()).when(userRepositoryPort).findUserProfile(eq(givenActorId));
         assertThrows(UseCaseException.EntityNotFoundException.class, () -> userService.getUserProfile(givenActorId));
     }
 
@@ -100,7 +98,7 @@ class UserServiceTest {
 
     private static RegisterUserCommand registerUserCommand() {
         return RegisterUserCommand.builder()
-                .email("new-user@mail.com")
+                .email(new Email("new-user@mail.com"))
                 .firstName("FName")
                 .lastName("LName")
                 .password("password123456".toCharArray())

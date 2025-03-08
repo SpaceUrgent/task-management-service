@@ -1,4 +1,4 @@
-package com.task.management.domain.common;
+package com.task.management.domain.common.validation;
 
 import jakarta.validation.ConstraintViolation;
 import lombok.Getter;

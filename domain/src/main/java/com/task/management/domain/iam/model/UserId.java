@@ -1,9 +1,9 @@
 package com.task.management.domain.iam.model;
 
-import static java.util.Objects.requireNonNull;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 public record UserId(Long value) {
     public UserId {
-        requireNonNull(value, "User id value is required");
+        parameterRequired(value, "User id value");
     }
 }

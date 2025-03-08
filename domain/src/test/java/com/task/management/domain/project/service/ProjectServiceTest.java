@@ -1,20 +1,16 @@
 package com.task.management.domain.project.service;
 
+import com.task.management.domain.common.Email;
 import com.task.management.domain.common.UseCaseException;
-import com.task.management.domain.common.ValidationService;
-import com.task.management.domain.port.in.command.UpdateProjectCommand;
+import com.task.management.domain.common.validation.ValidationService;
 import com.task.management.domain.project.model.Project;
 import com.task.management.domain.project.model.ProjectPreview;
-import com.task.management.domain.project.model.ProjectUser;
-import com.task.management.domain.project.port.out.AddProjectMemberPort;
-import com.task.management.domain.project.port.out.FindProjectByIdPort;
-import com.task.management.domain.project.port.out.FindProjectMembersPort;
-import com.task.management.domain.project.port.out.FindProjectsByMemberPort;
-import com.task.management.domain.project.port.out.AddProjectPort;
+import com.task.management.domain.project.port.in.command.UpdateProjectCommand;
 import com.task.management.domain.project.port.in.command.CreateProjectCommand;
-import com.task.management.domain.project.port.out.UpdateProjectPort;
+import com.task.management.domain.project.port.out.ProjectRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static com.task.management.domain.project.service.ProjectTestUtils.getProjectUserAnswer;
 import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectId;
 import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectUser;
 import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectUserId;
@@ -37,9 +32,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -50,17 +44,7 @@ class ProjectServiceTest {
     @Mock
     private ProjectUserService projectUserService;
     @Mock
-    private AddProjectPort addProjectPort;
-    @Mock
-    private UpdateProjectPort updateProjectPort;
-    @Mock
-    private FindProjectByIdPort findProjectByIdPort;
-    @Mock
-    private FindProjectMembersPort findProjectMembersPort;
-    @Mock
-    private AddProjectMemberPort addProjectMemberPort;
-    @Mock
-    private FindProjectsByMemberPort findProjectsByMemberPort;
+    private ProjectRepositoryPort projectRepositoryPort;
     @InjectMocks
     private ProjectService projectService;
 
@@ -68,9 +52,10 @@ class ProjectServiceTest {
     void createProject_shouldReturnNewProject_whenAllConditionsMet() throws Exception {
         final var command = createProjectCommand();
         final var givenActorId = randomProjectUserId();
-        doAnswer(getProjectUserAnswer()).when(projectUserService).getProjectUser(eq(givenActorId));
-        doAnswer(self(Project.class)).when(addProjectPort).add(any());
-        final var created = projectService.createProject(givenActorId, command);
+        final var projectCaptor = ArgumentCaptor.forClass(Project.class);
+        doAnswer(self(Project.class)).when(projectRepositoryPort).save(projectCaptor.capture());
+        projectService.createProject(givenActorId, command);
+        final var created = projectCaptor.getValue();
         assertNotNull(created.getCreatedAt());
         assertEquals(command.title(), created.getTitle());
         assertEquals(command.description(), created.getDescription());
@@ -80,7 +65,7 @@ class ProjectServiceTest {
     void getAvailableProjects_shouldReturnProjectList() {
         final var expectedProjects = randomProjectPreviews();
         final var givenActorId = randomProjectUserId();
-        doReturn(expectedProjects).when(findProjectsByMemberPort).findProjectsByMember(eq(givenActorId));
+        doReturn(expectedProjects).when(projectRepositoryPort).findProjectsByMember(eq(givenActorId));
         assertEquals(expectedProjects, projectService.getAvailableProjects(givenActorId));
     }
 
@@ -89,8 +74,8 @@ class ProjectServiceTest {
         final var expected = randomProjectUsers();
         final var givenProjectId = randomProjectId();
         final var givenActorId = randomProjectUserId();
-        doReturn(true).when(projectUserService).isMember(eq(givenActorId), eq(givenProjectId));
-        doReturn(expected).when(findProjectMembersPort).findMembers(eq(givenProjectId));
+        doReturn(true).when(projectRepositoryPort).isMember(eq(givenActorId), eq(givenProjectId));
+        doReturn(expected).when(projectRepositoryPort).findMembers(eq(givenProjectId));
         assertEquals(expected, projectService.getMembers(givenActorId, givenProjectId));
     }
 
@@ -98,7 +83,7 @@ class ProjectServiceTest {
     void getMembers_shouldThrowIllegalAccessException_whenCurrentUserIsNotProjectMember() {
         final var givenProjectId = randomProjectId();
         final var givenActorId = randomProjectUserId();
-        doReturn(false).when(projectUserService).isMember(eq(givenActorId), eq(givenProjectId));
+        doReturn(false).when(projectRepositoryPort).isMember(eq(givenActorId), eq(givenProjectId));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
                 () -> projectService.getMembers(givenActorId, givenProjectId)
@@ -106,79 +91,44 @@ class ProjectServiceTest {
     }
 
     @Test
-    void getProject_shouldReturnProject_whenAllConditionsMet() throws UseCaseException {
-        final var expectedProject = randomProject();
-        final var givenActorId = expectedProject.getOwner().id();
-        final var givenProjectId = expectedProject.getId();
-        doReturn(true).when(projectUserService).isMember(eq(givenActorId), eq(givenProjectId));
-        doReturn(Optional.of(expectedProject)).when(findProjectByIdPort).find(eq(givenProjectId));
-        assertEquals(expectedProject, projectService.getProject(givenActorId, givenProjectId));
-    }
-
-    @Test
-    void getProject_shouldThrowIllegalAccessException_whenUserIsNotProjectMember() {
-        final var givenActorId = randomProjectUserId();
-        final var givenProjectId = randomProjectId();
-        doReturn(false).when(projectUserService).isMember(eq(givenActorId), eq(givenProjectId));
-        assertThrows(
-                UseCaseException.IllegalAccessException.class,
-                () -> projectService.getProject(givenActorId, givenProjectId)
-        );
-    }
-
-    @Test
-    void getProject_shouldThrowEntityNotFoundException_whenUserIsNotProjectMember() {
-        final var givenActorId = randomProjectUserId();
-        final var givenProjectId = randomProjectId();
-        doReturn(true).when(projectUserService).isMember(eq(givenActorId), eq(givenProjectId));
-        doReturn(Optional.empty()).when(findProjectByIdPort).find(eq(givenProjectId));
-        assertThrows(
-                UseCaseException.EntityNotFoundException.class,
-                () -> projectService.getProject(givenActorId, givenProjectId)
-        );
-    }
-
-    @Test
     void updateProject_shouldReturnUpdated_whenAllConditionsMet() throws UseCaseException {
         var project = randomProject();
-        final var givenCommand = updateProjectCommand(project);
-        final var expectedProject = Project.builder()
-                .id(project.getId())
-                .createdAt(project.getCreatedAt())
-                .title(givenCommand.title())
-                .description(givenCommand.description())
-                .owner(project.getOwner())
-                .build();
-        final var givenActorId = project.getOwner().id();
-        doReturn(Optional.of(project)).when(findProjectByIdPort).find(eq(project.getId()));
-        doAnswer(self(Project.class)).when(updateProjectPort).update(any());
-        assertEquals(expectedProject, projectService.updateProject(givenActorId, givenCommand));
+        final var givenCommand = updateProjectCommand();
+        final var givenActorId = project.getOwnerId();
+        final var projectCaptor = ArgumentCaptor.forClass(Project.class);
+        doReturn(Optional.of(project)).when(projectRepositoryPort).find(eq(project.getId()));
+        doAnswer(self(Project.class)).when(projectRepositoryPort).save(projectCaptor.capture());
+        projectService.updateProject(givenActorId, project.getId(), givenCommand);
+        final var saved = projectCaptor.getValue();
+        assertNotNull(saved.getUpdatedAt());
+        assertEquals(givenCommand.title(), saved.getTitle());
+        assertEquals(givenCommand.description(), saved.getDescription());
     }
 
     @Test
     void updateProject_shouldThrowEntityNotFoundException_whenAllConditionsMet() {
         var project = randomProject();
-        final var givenCommand = updateProjectCommand(project);
-        final var givenActorId = project.getOwner().id();
-        doReturn(Optional.empty()).when(findProjectByIdPort).find(eq(project.getId()));
+        final var givenCommand = updateProjectCommand();
+        final var givenActorId = project.getOwnerId();
+        doReturn(Optional.empty()).when(projectRepositoryPort).find(eq(project.getId()));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
-                () -> projectService.updateProject(givenActorId, givenCommand)
+                () -> projectService.updateProject(givenActorId, project.getId(), givenCommand)
         );
-        verifyNoInteractions(updateProjectPort);
+        verify(projectRepositoryPort, times(0)).save(any());
     }
 
     @Test
     void updateProject_shouldThrowIllegalAccessException_whenAllConditionsMet() {
         var project = randomProject();
-        final var givenCommand = updateProjectCommand(project);
+        final var givenCommand = updateProjectCommand();
         final var givenActorId = randomProjectUserId();
-        doReturn(Optional.of(project)).when(findProjectByIdPort).find(eq(project.getId()));
+        doReturn(Optional.of(project)).when(projectRepositoryPort).find(eq(project.getId()));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
-                () -> projectService.updateProject(givenActorId, givenCommand)
+                () -> projectService.updateProject(givenActorId, project.getId(), givenCommand)
         );
-        verifyNoInteractions(updateProjectPort);
+        verify(projectRepositoryPort, times(0)).save(any());
     }
 
     @Test
@@ -186,29 +136,29 @@ class ProjectServiceTest {
         final var member = randomProjectUser();
         final var givenActorId = randomProjectUserId();
         final var givenProjectId = randomProjectId();
-        final var givenEmail = "username@domain.com";
-        doReturn(true).when(projectUserService).isMember(eq(givenActorId), eq(givenProjectId));
+        final var givenEmail = new Email("username@domain.com");
+        doReturn(true).when(projectRepositoryPort).isMember(eq(givenActorId), eq(givenProjectId));
         doReturn(member).when(projectUserService).getProjectUser(eq(givenEmail));
         projectService.addMember(givenActorId, givenProjectId, givenEmail);
-        verify(addProjectMemberPort).addMember(eq(givenProjectId), eq(member.id()));
+        verify(projectRepositoryPort).addMember(eq(givenProjectId), eq(member.id()));
     }
 
     @Test
     void addMember_shouldThrowIllegalAccessException_whenCurrentUserIsNotProjectMember() {
         final var givenActorId = randomProjectUserId();
         final var givenProjectId = randomProjectId();
-        final var givenEmail = "username@domain.com";
-        doReturn(false).when(projectUserService).isMember(eq(givenActorId), eq(givenProjectId));
+        final var givenEmail = new Email ("username@domain.com");
+        doReturn(false).when(projectRepositoryPort).isMember(eq(givenActorId), eq(givenProjectId));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
                 () -> projectService.addMember(givenActorId, givenProjectId, givenEmail)
         );
-        verifyNoMoreInteractions(addProjectMemberPort);
+        verify(projectRepositoryPort, times(0)).addMember(any(), any());
     }
 
-    private List<Project> randomProjectPreviews() {
+    private List<ProjectPreview> randomProjectPreviews() {
         return IntStream.range(0, 10)
-                .mapToObj(value -> randomProject())
+                .mapToObj(value -> rendomProjectPreview())
                 .toList();
     }
 
@@ -225,13 +175,12 @@ class ProjectServiceTest {
 
     private static Project randomProject() {
         final var projectId = randomProjectId();
-        final var owner = ProjectUser.withId(randomProjectUserId());
         return Project.builder()
                 .id(projectId)
                 .createdAt(Instant.now())
                 .title("Title %d".formatted(projectId.value()))
                 .description("Description %d".formatted(projectId.value()))
-                .owner(owner)
+                .ownerId(randomProjectUserId())
                 .build();
     }
 
@@ -242,9 +191,8 @@ class ProjectServiceTest {
                 .build();
     }
 
-    private static UpdateProjectCommand updateProjectCommand(Project project) {
+    private static UpdateProjectCommand updateProjectCommand() {
         return UpdateProjectCommand.builder()
-                .projectId(project.getId())
                 .title("Update title")
                 .description("Updated description")
                 .build();

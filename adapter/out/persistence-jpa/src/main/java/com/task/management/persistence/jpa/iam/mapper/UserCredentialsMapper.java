@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.mapper;
 
-import com.task.management.domain.iam.model.UserCredentials;
+import com.task.management.domain.common.UserCredentials;
 import com.task.management.domain.iam.model.UserId;
 import com.task.management.persistence.jpa.entity.UserEntity;
 

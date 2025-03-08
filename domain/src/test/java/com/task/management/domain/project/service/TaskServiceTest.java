@@ -2,8 +2,7 @@ package com.task.management.domain.project.service;
 
 import com.task.management.domain.common.Page;
 import com.task.management.domain.common.UseCaseException;
-import com.task.management.domain.common.ValidationService;
-import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.common.validation.ValidationService;
 import com.task.management.domain.project.model.Task;
 import com.task.management.domain.project.model.TaskDetails;
 import com.task.management.domain.project.model.TaskPreview;
@@ -11,11 +10,7 @@ import com.task.management.domain.project.model.TaskStatus;
 import com.task.management.domain.project.port.in.command.CreateTaskCommand;
 import com.task.management.domain.project.port.in.command.UpdateTaskCommand;
 import com.task.management.domain.project.port.in.query.FindTasksQuery;
-import com.task.management.domain.project.port.out.FindProjectTasksPort;
-import com.task.management.domain.project.port.out.FindTaskByIdPort;
-import com.task.management.domain.project.port.out.FindTaskDetailsByIdPort;
-import com.task.management.domain.project.port.out.AddTaskPort;
-import com.task.management.domain.project.port.out.UpdateTaskPort;
+import com.task.management.domain.project.port.out.TaskRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -41,7 +36,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -52,17 +48,9 @@ class TaskServiceTest {
     @Mock
     private ValidationService validationService;
     @Mock
-    private ProjectUserService projectUserService;
+    private ProjectService projectService;
     @Mock
-    private AddTaskPort addTaskPort;
-    @Mock
-    private UpdateTaskPort updateTaskPort;
-    @Mock
-    private FindTaskByIdPort findTaskByIdPort;
-    @Mock
-    private FindTaskDetailsByIdPort findTaskDetailsByIdPort;
-    @Mock
-    private FindProjectTasksPort findProjectTasksPort;
+    private TaskRepositoryPort taskRepositoryPort;
     @InjectMocks
     private TaskService taskService;
 
@@ -71,87 +59,75 @@ class TaskServiceTest {
         final var owner = randomProjectUser();
         final var givenActorId = owner.id();
         final var assignee = randomProjectUser();
+        final var givenProjectId = randomProjectId();
         final var givenCommand = CreateTaskCommand.builder()
-                .projectId(randomProjectId())
                 .title("New task title")
                 .description("New task description")
                 .assigneeId(assignee.id())
                 .build();
-        doReturn(Optional.of(owner))
-                .when(projectUserService)
-                .findProjectMember(eq(givenActorId), eq(givenCommand.projectId()));
-        doReturn(Optional.of(assignee))
-                .when(projectUserService)
-                .findProjectMember(eq(givenCommand.assigneeId()), eq(givenCommand.projectId()));
-        doAnswer(self(Task.class))
-                .when(addTaskPort)
-                .add(any());
-        final var created = taskService.createTask(givenActorId, givenCommand);
+        final var taskCaptor = ArgumentCaptor.forClass(Task.class);
+        doReturn(true).when(projectService).isMember(eq(givenCommand.assigneeId()), eq(givenProjectId));
+        doAnswer(self(Task.class)).when(taskRepositoryPort).save(taskCaptor.capture());
+        taskService.createTask(givenActorId, givenProjectId, givenCommand);
+        final var created = taskCaptor.getValue();
         assertNotNull(created.getCreatedAt());
         assertEquals(givenCommand.title(), created.getTitle());
         assertEquals(givenCommand.description(), created.getDescription());
-        assertEquals(givenActorId, created.getOwner().id());
-        assertEquals(givenCommand.assigneeId(), created.getAssignee().id());
+        assertEquals(givenActorId, created.getOwner());
+        assertEquals(givenCommand.assigneeId(), created.getAssignee());
     }
 
     @Test
-    void createTask_shouldThrowIllegalAccessException_whenOwnerIsNot() {
+    void createTask_shouldThrowIllegalAccessException_whenOwnerIsNotProjectMember() {
         final var assignee = randomProjectUser();
         final var givenActorId = randomProjectUserId();
+        final var givenProjectId = randomProjectId();
         final var givenCommand = CreateTaskCommand.builder()
-                .projectId(randomProjectId())
                 .title("New task title")
                 .description("New task description")
                 .assigneeId(assignee.id())
                 .build();
-        doReturn(Optional.empty())
-                .when(projectUserService)
-                .findProjectMember(eq(givenActorId), eq(givenCommand.projectId()));
-        doReturn(Optional.of(assignee))
-                .when(projectUserService)
-                .findProjectMember(eq(givenCommand.assigneeId()), eq(givenCommand.projectId()));
+        doReturn(false)
+                .when(projectService)
+                .isMember(eq(givenActorId), eq(givenProjectId));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
-                () -> taskService.createTask(givenActorId, givenCommand)
+                () -> taskService.createTask(givenActorId, givenProjectId, givenCommand)
         );
-        verifyNoMoreInteractions(addTaskPort);
+        verifyNoMoreInteractions(taskRepositoryPort);
     }
 
     @Test
-    void createTask_shouldThrowIllegalAccessException_whenAllConditionsMet() {
+    void createTask_shouldThrowIllegalAccessException_whenAssigneeIsNotProjectMember() {
         final var owner = randomProjectUser();
         final var givenActorId = owner.id();
+        final var givenProjectId = randomProjectId();
         final var givenCommand = CreateTaskCommand.builder()
-                .projectId(randomProjectId())
                 .title("New task title")
                 .description("New task description")
                 .assigneeId(randomProjectUserId())
                 .build();
-        doReturn(Optional.of(owner))
-                .when(projectUserService)
-                .findProjectMember(eq(givenActorId), eq(givenCommand.projectId()));
-        doReturn(Optional.empty())
-                .when(projectUserService)
-                .findProjectMember(eq(givenCommand.assigneeId()), eq(givenCommand.projectId()));
+        doReturn(false).when(projectService).isMember(eq(givenCommand.assigneeId()), eq(givenProjectId));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
-                () -> taskService.createTask(givenActorId, givenCommand)
+                () -> taskService.createTask(givenActorId, givenProjectId, givenCommand)
         );
-        verifyNoMoreInteractions(addTaskPort);
+        verifyNoMoreInteractions(taskRepositoryPort);
     }
 
     @Test
     void updateTask_shouldReturnUpdatedTask_whenAllConditionsMet() throws UseCaseException {
         final var task = randomTask();
-        final var givenActorId = task.getOwner().id();
+        final var givenActorId = task.getOwner();
         final var givenCommand = UpdateTaskCommand.builder()
-                .taskId(task.getId())
                 .title("Updated title")
                 .description("Updated description")
                 .build();
-        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenCommand.taskId()));
-        doAnswer(self(Task.class)).when(updateTaskPort).update(any());
-        final var updated = taskService.updateTask(givenActorId, givenCommand);
+        final var taskCaptor = ArgumentCaptor.forClass(Task.class);
+        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(task.getId()));
+        doAnswer(self(Task.class)).when(taskRepositoryPort).save(taskCaptor.capture());
+        taskService.updateTask(givenActorId, task.getId(), givenCommand);
+        final var updated = taskCaptor.getValue();
         assertEquals(task.getProject(), updated.getProject());
         assertEquals(givenCommand.title(), updated.getTitle());
         assertEquals(givenCommand.description(), updated.getDescription());
@@ -162,17 +138,17 @@ class TaskServiceTest {
 
     @Test
     void updateTask_shouldThrowEntityNotFoundException_whenTaskDoesNotExist() {
+        final var givenTaskId = randomTaskId();
         final var givenCommand = UpdateTaskCommand.builder()
-                .taskId(randomTaskId())
                 .title("Updated title")
                 .description("Updated description")
                 .build();
-        doReturn(Optional.empty()).when(findTaskByIdPort).find(eq(givenCommand.taskId()));
+        doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
-                () -> taskService.updateTask(randomProjectUserId(), givenCommand)
+                () -> taskService.updateTask(randomProjectUserId(), givenTaskId, givenCommand)
         );
-        verifyNoMoreInteractions(updateTaskPort);
+        verify(taskRepositoryPort, times(0)).save(any());
     }
 
     @Test
@@ -180,27 +156,26 @@ class TaskServiceTest {
         final var task = randomTask();
         final var givenActorId = randomProjectUserId();
         final var givenCommand = UpdateTaskCommand.builder()
-                .taskId(task.getId())
                 .title("Updated title")
                 .description("Updated description")
                 .build();
-        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenCommand.taskId()));
+        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(task.getId()));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
-                () -> taskService.updateTask(givenActorId, givenCommand)
+                () -> taskService.updateTask(givenActorId, task.getId(), givenCommand)
         );
-        verifyNoMoreInteractions(updateTaskPort);
+        verify(taskRepositoryPort, times(0)).save(any());
     }
 
     @Test
     void updateStatus_shouldSaveUpdatedTask_whenAllConditionsMet() throws UseCaseException {
         final var task = randomTask();
-        final var givenActorId = task.getAssignee().id();
+        final var givenActorId = task.getAssignee();
         final var givenTaskId = task.getId();
         final var givenTaskStatus = TaskStatus.DONE;
         final var taskCaptor = ArgumentCaptor.forClass(Task.class);
-        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenTaskId));
-        doAnswer(self(Task.class)).when(updateTaskPort).update(taskCaptor.capture());
+        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
+        doAnswer(self(Task.class)).when(taskRepositoryPort).save(taskCaptor.capture());
         taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus);
         final var saved = taskCaptor.getValue();
         assertEquals(task.getId(), saved.getId());
@@ -212,12 +187,12 @@ class TaskServiceTest {
         final var givenActorId = randomProjectUserId();
         final var givenTaskId = randomTaskId();
         final var givenTaskStatus = TaskStatus.DONE;
-        doReturn(Optional.empty()).when(findTaskByIdPort).find(eq(givenTaskId));
+        doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
                 () -> taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus)
         );
-        verifyNoInteractions(updateTaskPort);
+        verify(taskRepositoryPort, times(0)).save(any());
     }
 
     @Test
@@ -226,56 +201,57 @@ class TaskServiceTest {
         final var givenActorId = randomProjectUserId();
         final var givenTaskId = randomTaskId();
         final var givenTaskStatus = TaskStatus.DONE;
-        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenTaskId));
+        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
                 () -> taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus)
         );
-        verifyNoInteractions(updateTaskPort);
+        verify(taskRepositoryPort, times(0)).save(any());
     }
 
     @Test
     void assignTask_shouldSaveUpdatedTask_whenAllConditionsMet() throws UseCaseException {
         final var task = randomTask();
         final var assignee = randomProjectUser();
-        final var givenActorId = task.getAssignee().id();
+        final var givenActorId = task.getAssignee();
         final var givenTaskId = task.getId();
         final var givenAssigneeId = assignee.id();
-        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenTaskId));
-        doReturn(Optional.of(assignee)).when(projectUserService).findProjectMember(eq(givenAssigneeId), eq(task.getProject()));
+        doReturn(true).when(projectService).isMember(eq(givenAssigneeId), eq(task.getProject()));
+        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
         final var taskCaptor = ArgumentCaptor.forClass(Task.class);
-        doAnswer(self(Task.class)).when(updateTaskPort).update(taskCaptor.capture());
+        doAnswer(self(Task.class)).when(taskRepositoryPort).save(taskCaptor.capture());
         taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId);
         final var saved = taskCaptor.getValue();
         assertEquals(task.getId(), saved.getId());
-        assertEquals(givenAssigneeId, saved.getAssignee().id());
+        assertEquals(givenAssigneeId, saved.getAssignee());
     }
+
 
     @Test
     void assignTask_shouldThrowEntityNotFoundException_whenTaskNotFound() {
         final var givenActorId = randomProjectUserId();
         final var givenTaskId = randomTaskId();
         final var givenAssigneeId = randomProjectUserId();
-        doReturn(Optional.empty()).when(findTaskByIdPort).find(eq(givenTaskId));
+        doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
                 () -> taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId)
         );
-        verifyNoInteractions(updateTaskPort);
+        verify(taskRepositoryPort, times(0)).save(any());
     }
 
     @Test
-    void assignTask_shouldThrowIllegalAccessException_whenActorDoesNotHaveAccess() throws UseCaseException {
+    void assignTask_shouldThrowIllegalAccessException_whenActorDoesNotHaveAccess() {
         final var task = randomTask();
         final var givenActorId = randomProjectUserId();
         final var givenTaskId = task.getId();
         final var givenAssigneeId = randomProjectUserId();
-        doReturn(Optional.of(task)).when(findTaskByIdPort).find(eq(givenTaskId));
+        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
                 () -> taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId)
         );
-        verifyNoInteractions(updateTaskPort);
+        verify(taskRepositoryPort, times(0)).save(any());
     }
 
     @Test
@@ -283,8 +259,7 @@ class TaskServiceTest {
         final var expected = randomTaskDetails();
         final var givenActorId = randomProjectUserId();
         final var givenTaskId = expected.id();
-        doReturn(Optional.of(expected)).when(findTaskDetailsByIdPort).findTaskDetailsById(eq(givenTaskId));
-        doReturn(true).when(projectUserService).isMember(eq(givenActorId), eq(expected.projectId()));
+        doReturn(Optional.of(expected)).when(taskRepositoryPort).findTaskDetails(eq(givenTaskId));
         assertEquals(expected, taskService.getTaskDetails(givenActorId, givenTaskId));
     }
 
@@ -292,22 +267,9 @@ class TaskServiceTest {
     void getTaskDetails_shouldThrowEntityNotFoundException_whenTaskNotFound() {
         final var givenActorId = randomProjectUserId();
         final var givenTaskId = randomTaskId();
-        doReturn(Optional.empty()).when(findTaskDetailsByIdPort).findTaskDetailsById(eq(givenTaskId));
+        doReturn(Optional.empty()).when(taskRepositoryPort).findTaskDetails(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
-                () -> taskService.getTaskDetails(givenActorId, givenTaskId)
-        );
-    }
-
-    @Test
-    void getTaskDetails_shouldThrowIllegalAccessException_whenActorIsNotProjectMember() throws UseCaseException {
-        final var expected = randomTaskDetails();
-        final var givenActorId = randomProjectUserId();
-        final var givenTaskId = expected.id();
-        doReturn(Optional.of(expected)).when(findTaskDetailsByIdPort).findTaskDetailsById(eq(givenTaskId));
-        doReturn(false).when(projectUserService).isMember(eq(givenActorId), eq(expected.projectId()));
-        assertThrows(
-                UseCaseException.IllegalAccessException.class,
                 () -> taskService.getTaskDetails(givenActorId, givenTaskId)
         );
     }
@@ -325,26 +287,10 @@ class TaskServiceTest {
                 .pageSize(givenQuery.getPageSize())
                 .total(100)
                 .totalPages(5)
-                .content(randomTaskPreviews(givenQuery.getPageSize(), givenQuery.getProjectId()))
+                .content(randomTaskPreviews(givenQuery.getPageSize()))
                 .build();
-        doReturn(true).when(projectUserService).isMember(eq(givenActorId), eq(givenQuery.getProjectId()));
-        doReturn(expected).when(findProjectTasksPort).findProjectTasks(eq(givenQuery));
+        doReturn(expected).when(taskRepositoryPort).findProjectTasks(eq(givenQuery));
         assertEquals(expected, taskService.findTasks(givenActorId, givenQuery));
-    }
-
-    @Test
-    void findTasks_shouldThrowIllegalAccessException_whenActorIsNotProjectMember() throws UseCaseException {
-        final var givenQuery = FindTasksQuery.builder()
-                .pageNumber(1)
-                .pageSize(20)
-                .projectId(randomProjectId())
-                .build();
-        final var givenActorId = randomProjectUserId();
-        doReturn(false).when(projectUserService).isMember(eq(givenActorId), eq(givenQuery.getProjectId()));
-        assertThrows(
-                UseCaseException.IllegalAccessException.class,
-                () -> taskService.findTasks(givenActorId, givenQuery)
-        );
     }
 
     private static Task randomTask() {
@@ -355,8 +301,8 @@ class TaskServiceTest {
                 .status(TaskStatus.IN_PROGRESS)
                 .title("Title")
                 .description("Description")
-                .owner(randomProjectUser())
-                .assignee(randomProjectUser())
+                .owner(randomProjectUserId())
+                .assignee(randomProjectUserId())
                 .build();
     }
 
@@ -373,13 +319,13 @@ class TaskServiceTest {
                 .build();
     }
 
-    private static List<TaskPreview> randomTaskPreviews(int total, ProjectId projectId) {
+    private static List<TaskPreview> randomTaskPreviews(int total) {
          return IntStream.range(0, total)
-                 .mapToObj(value -> randomTaskPreview(projectId))
+                 .mapToObj(value -> randomTaskPreview())
                  .toList();
     }
 
-    private static TaskPreview randomTaskPreview(ProjectId projectId) {
+    private static TaskPreview randomTaskPreview() {
         return TaskPreview.builder()
                 .id(randomTaskId())
                 .createdAt(Instant.now())

@@ -1,9 +1,9 @@
 package com.task.management.domain.project.model;
 
-import java.util.Objects;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 public record TaskId(Long value) {
     public TaskId {
-        Objects.requireNonNull(value, "Id value is required");
+        parameterRequired(value, "Id value");
     }
 }

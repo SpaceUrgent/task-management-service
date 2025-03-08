@@ -1,12 +1,13 @@
 package com.task.management.domain.project.model;
 
+import com.task.management.domain.common.Email;
 import lombok.Builder;
 
-import static com.task.management.domain.common.Validation.parameterRequired;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 public record ProjectUser(
         ProjectUserId id,
-        String email,
+        Email email,
         String firstName,
         String lastName
 ) {

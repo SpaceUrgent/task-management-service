@@ -1,15 +1,14 @@
 package com.task.management.domain.iam.port.in.command;
 
-import jakarta.validation.constraints.Email;
+import com.task.management.domain.common.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 public record RegisterUserCommand(
-        @NotBlank(message = "Email is required")
-        @Email(message = "Invalid email format")
-        String email,
+        @NotNull(message = "Email is required")
+        Email email,
         @NotBlank(message = "First name is required")
         String firstName,
         @NotBlank(message = "Last name is required")
@@ -20,5 +19,14 @@ public record RegisterUserCommand(
 ) {
         @Builder
         public RegisterUserCommand {
+        }
+
+        @Override
+        public String toString() {
+                return "RegisterUserCommand{" +
+                        "email=" + email +
+                        ", firstName='" + firstName + '\'' +
+                        ", lastName='" + lastName + '\'' +
+                        '}';
         }
 }

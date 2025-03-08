@@ -11,7 +11,7 @@ import lombok.ToString;
 
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -33,7 +33,7 @@ public class FindTasksQuery extends PagedQuery {
     }
 
     private static ProjectId projectIdRequired(ProjectId projectId) {
-        return requireNonNull(projectId, "Project id is required");
+        return parameterRequired(projectId, "Project id");
     }
 
     public static class Builder extends PagedQuery.PagedQueryBuilder<Builder, FindTasksQuery> {
