@@ -1,5 +1,6 @@
 package com.task.management.persistence.jpa.dao.impl;
 
+import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.persistence.jpa.dao.AbstractEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.UserEntity;
@@ -10,6 +11,7 @@ import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
+@AppComponent
 public class UserEntityDaoImpl extends AbstractEntityDao<UserEntity, Long> implements UserEntityDao {
     public UserEntityDaoImpl(EntityManager entityManager) {
         super(entityManager);

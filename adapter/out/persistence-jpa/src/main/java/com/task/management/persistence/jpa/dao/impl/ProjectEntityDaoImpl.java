@@ -1,5 +1,6 @@
 package com.task.management.persistence.jpa.dao.impl;
 
+import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.persistence.jpa.dao.AbstractEntityDao;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
@@ -9,6 +10,7 @@ import java.util.stream.Stream;
 
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
+@AppComponent
 public class ProjectEntityDaoImpl extends AbstractEntityDao<ProjectEntity, Long> implements ProjectEntityDao {
     public ProjectEntityDaoImpl(EntityManager entityManager) {
         super(entityManager);
