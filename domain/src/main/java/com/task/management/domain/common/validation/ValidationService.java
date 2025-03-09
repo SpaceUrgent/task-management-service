@@ -1,10 +1,12 @@
 package com.task.management.domain.common.validation;
 
+import com.task.management.domain.common.annotation.AppComponent;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
+@AppComponent
 public class ValidationService {
     private final Validator validator;
 
