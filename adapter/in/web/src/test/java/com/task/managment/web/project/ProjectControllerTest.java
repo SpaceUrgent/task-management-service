@@ -67,7 +67,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ComponentScan(basePackages = "com.task.managment.web.project.mapper")
-@WebTest(controllerClass = ProjectController.class)
+@WebTest(testClasses = ProjectController.class)
 class ProjectControllerTest {
 
     @Autowired

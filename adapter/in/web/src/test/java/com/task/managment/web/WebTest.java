@@ -29,5 +29,5 @@ import java.lang.annotation.Target;
 public @interface WebTest {
 
         @AliasFor(annotation = Import.class, attribute = "value")
-        Class<?> controllerClass();
+        Class<?>[] testClasses() default {};
 }

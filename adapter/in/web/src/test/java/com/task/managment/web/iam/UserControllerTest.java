@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ComponentScan(basePackageClasses = {UserController.class})
-@WebTest(controllerClass = UserController.class)
+@WebTest(testClasses = UserController.class)
 class UserControllerTest {
 
     @Autowired
