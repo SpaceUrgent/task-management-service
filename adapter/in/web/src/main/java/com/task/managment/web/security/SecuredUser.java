@@ -1,6 +1,6 @@
 package com.task.managment.web.security;
 
-import com.task.management.domain.iam.model.UserCredentials;
+import com.task.management.domain.common.UserCredentials;
 import com.task.management.domain.iam.model.UserId;
 import com.task.management.domain.project.model.ProjectUserId;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,12 +18,8 @@ public class SecuredUser implements UserDetails {
         this.credentials = requireNonNull(credentials);
     }
 
-    public UserId getId() {
-        return credentials.id();
-    }
-
-    public ProjectUserId getProjectUserId() {
-        return new ProjectUserId(credentials.id().value());
+    public Long getId() {
+        return credentials.id().value();
     }
 
     @Override
@@ -38,6 +34,6 @@ public class SecuredUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return credentials.email();
+        return credentials.email().value();
     }
 }

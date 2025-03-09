@@ -1,6 +1,7 @@
 package com.task.managment.web;
 
-import com.task.management.domain.iam.model.UserCredentials;
+import com.task.management.domain.common.Email;
+import com.task.management.domain.common.UserCredentials;
 import com.task.management.domain.iam.model.UserId;
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.ProjectUser;
@@ -23,7 +24,7 @@ public final class TestUtils {
     public final static String PASSWORD = "password123";
     public final static String ENCRYPTED_PASSWORD = "encryptedPassword";
 
-    public final static UserCredentials DEFAULT_CREDENTIALS = new UserCredentials(DEFAULT_USER_ID, EMAIL, ENCRYPTED_PASSWORD);
+    public final static UserCredentials DEFAULT_CREDENTIALS = new UserCredentials(DEFAULT_USER_ID, new Email(EMAIL), ENCRYPTED_PASSWORD);
 
     public final static ProjectUserId PROJECT_USER_ID = new ProjectUserId(DEFAULT_USER_ID_VALUE);
 
@@ -37,7 +38,7 @@ public final class TestUtils {
         final var idValue = randomLong();
         return ProjectUser.builder()
                 .id(new ProjectUserId(idValue))
-                .email("user-%d".formatted(idValue))
+                .email(new Email("user-%d@mail.com".formatted(idValue)))
                 .firstName("FName-%d".formatted(idValue))
                 .lastName("LName-%d".formatted(idValue))
                 .build();
