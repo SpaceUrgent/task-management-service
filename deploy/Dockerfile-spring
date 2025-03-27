@@ -1,0 +1,28 @@
+FROM maven:3.9.6-eclipse-temurin-21 AS DEPENDENCIES
+
+WORKDIR /app
+
+COPY adapter/in/web/pom.xml adapter/in/web/pom.xml
+COPY adapter/out/persistence-jpa/pom.xml adapter/out/persistence-jpa/pom.xml
+COPY adapter/out/password-encryption/pom.xml adapter/out/password-encryption/pom.xml
+COPY application/spring-application/pom.xml application/spring-application/pom.xml
+COPY domain/pom.xml domain/pom.xml
+COPY pom.xml .
+
+RUN mvn -B -e org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline -DexcludeArtifactIds=domain,adapter/out/persistence-jpa,adapter/in/web,adapter/out/password-encryption,application/spring-application
+
+FROM maven:3.9.6-eclipse-temurin-21 AS BUILDER
+
+WORKDIR /app
+COPY --from=DEPENDENCIES /root/.m2 /root/.m2
+COPY --from=DEPENDENCIES /app /app
+COPY . .
+
+RUN mvn -B -e clean install -DskipTests
+
+FROM openjdk:21-slim
+WORKDIR /app
+COPY --from=BUILDER /app/application/spring-application/target/*.jar /app.jar
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/app.jar"]

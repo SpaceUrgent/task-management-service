@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  task-manager-application:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile-spring
+    container_name: task-manager-application
+    image: task-manager-application:latest
+    ports:
+      - "9090:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:postgresql://postgres:5432/task_management
+      DB_USERNAME: admin
+      DB_PASSWORD: dummy-password
+    networks:
+      - app-network
+    depends_on:
+      postgres:
+        condition: service_started
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: task_management
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: dummy-password
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
