@@ -49,7 +49,7 @@ interface RegisterRequest {
     password: string;
 }
 
-export class RegisterError extends Error {
+class RegisterError extends Error {
 
     constructor(message: string) {
         super(message);
