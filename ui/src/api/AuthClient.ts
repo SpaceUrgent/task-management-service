@@ -1,6 +1,6 @@
 import axios, {AxiosResponse} from "axios";
 
-const BASE_URL = "http://localhost:9090/api";
+const BASE_URL = "http://localhost:8080/api";
 
 export class AuthClient {
     private static instance: AuthClient;
@@ -19,8 +19,17 @@ export class AuthClient {
 
     async registerUser(request: RegisterRequest): Promise<void> {
         let response: AxiosResponse<any, any>;
+
+
         try {
-            response = await axios.post(`${this.baseUrl}/users/register`, request);
+            const urlEncodedRequest = this.toUrlEncodedRequest(request);
+            response = await axios.post(
+                `${this.baseUrl}/users/register`,
+                urlEncodedRequest,
+                {
+                    headers : { "Content-Type": "application/x-www-form-urlencoded" },
+                }
+            );
             console.log(response);
         } catch (error) {
             this.raiseRegisterFailed();
@@ -37,6 +46,14 @@ export class AuthClient {
         this.raiseRegisterFailed();
     }
 
+    private toUrlEncodedRequest(request: Object): string {
+        const urlEncodedParams =  new URLSearchParams();
+        for (const key in request) {
+            urlEncodedParams.append(key, request[key]);
+        }
+        return urlEncodedParams.toString();
+    }
+
     private raiseRegisterFailed() {
         throw new RegisterError('Failed to register. Please try again later');
     }
@@ -49,7 +66,7 @@ interface RegisterRequest {
     password: string;
 }
 
-class RegisterError extends Error {
+export class RegisterError extends Error {
 
     constructor(message: string) {
         super(message);

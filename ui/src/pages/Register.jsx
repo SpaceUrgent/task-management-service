@@ -5,7 +5,7 @@ import {AuthClient, RegisterError} from "../api/AuthClient.ts";
 
 
 const Register = () =>  {
-    const VALID_EMAIL_REGEX = /^[a-z0-9]+@[a-z0-9]+\.[a-z0-9]+$/;
+    const VALID_EMAIL_REGEX = /^[a-z0-9-_]+@[a-z0-9]+\.[a-z0-9]+$/;
     const VALID_NAME_REGEX = /^[A-Za-z'-]{2,49}$/;
 
     const [email, setEmail] = useState('');
@@ -63,6 +63,7 @@ const Register = () =>  {
                 password: password,
             });
         } catch (error) {
+            console.error(error);
             setSubmitError(error instanceof RegisterError ? error.message : AppConstants.DEFAULT_REGISTER_ERROR_MESSAGE);
         }
     }
