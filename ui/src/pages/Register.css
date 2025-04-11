@@ -1,0 +1,9 @@
+.label {
+    padding-left: 5px !important;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.span-warning {
+    font-size: 12px;
+}
