@@ -12,6 +12,6 @@ public abstract class BaseController {
 
     protected SecuredUser actor() {
         final var authentication = SecurityContextHolder.getContext().getAuthentication();
-        return ((SecuredUser) authentication.getPrincipal());
+        return (SecuredUser) authentication.getDetails();
     }
 }

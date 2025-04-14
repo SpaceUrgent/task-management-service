@@ -21,17 +21,19 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         final var username = authentication.getName();
         final var password = authentication.getCredentials().toString();
-        final var userDetails = userDetailsService.loadUserByUsername(username);
+        final var securedUser = (SecuredUser) userDetailsService.loadUserByUsername(username);
 
-        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+        if (!passwordEncoder.matches(password, securedUser.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
 
-        return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(securedUser.getUsername(), securedUser.getPassword(), securedUser.getAuthorities());
+        token.setDetails(securedUser);
+        return token;
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

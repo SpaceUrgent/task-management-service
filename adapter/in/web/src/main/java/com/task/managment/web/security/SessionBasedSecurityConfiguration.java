@@ -1,11 +1,12 @@
 package com.task.managment.web.security;
 
+import com.task.managment.web.WebProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,8 +28,10 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableConfigurationProperties(WebProperties.class)
 public class SessionBasedSecurityConfiguration {
 
+    private final WebProperties webProperties;
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
@@ -51,42 +54,9 @@ public class SessionBasedSecurityConfiguration {
                     logout.addLogoutHandler(
                             new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(ClearSiteDataHeaderWriter.Directive.COOKIES))
                     );
-
                     logout.deleteCookies("JSESSIONID");
-//                    logout.logoutSuccessHandler()
                 })
                 .authenticationProvider(authenticationProvider);
-
-
-//                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .sessionManagement(configurer -> configurer
-//                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-//                .authorizeHttpRequests(registry -> registry
-//                        .requestMatchers("/api/users/register").permitAll()
-//                        .requestMatchers("/api/auth/login").permitAll()
-//                        .anyRequest().authenticated())
-//                .exceptionHandling(configurer -> configurer
-//                        .authenticationEntryPoint((request, response, authException) -> {
-//                            response.setStatus(401);
-//                        }))
-//                .formLogin(configurer -> configurer
-//                        .loginProcessingUrl("/api/auth/login").permitAll()
-//                        .usernameParameter("email")
-//                        .passwordParameter("password")
-//                        .failureHandler(((request, response, exception) -> {
-//                            response.setStatus(401);
-//                        }))
-//                        .successHandler(((request, response, authentication) -> {
-//                            response.setStatus(200);
-//                        })))
-//                .logout(configurer -> configurer
-//                        .logoutUrl("/api/auth/logout")
-//                        .logoutSuccessHandler(((request, response, authentication) -> {
-//                            response.setStatus(200);
-//                        }))
-//                        .invalidateHttpSession(true)
-//                        .deleteCookies("JSESSIONID"));
         return http.build();
     }
 
@@ -107,9 +77,9 @@ public class SessionBasedSecurityConfiguration {
 
     public CorsConfigurationSource corsConfigurationSource() {
         final var corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+        corsConfiguration.setAllowedOrigins(webProperties.getAllowedOrigins());
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        corsConfiguration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+        corsConfiguration.setAllowedHeaders(List.of("Content-Type"));
         corsConfiguration.setAllowCredentials(true);
         final var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);

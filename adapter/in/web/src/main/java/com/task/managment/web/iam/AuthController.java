@@ -24,14 +24,11 @@ public class AuthController {
     public void login(LoginRequest loginRequest,
                       HttpServletRequest servletRequest,
                       HttpServletResponse servletResponse) {
-        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
-                .unauthenticated(
-                        loginRequest.getEmail(), loginRequest.getPassword()
-                );
+        var token = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.getEmail(), loginRequest.getPassword());
         var authentication = authenticationManager.authenticate(token);
         var context = securityContextHolderStrategy.createEmptyContext();
 
-        context.setAuthentication(authentication); //set context application from authentication
+        context.setAuthentication(authentication);
         securityContextHolderStrategy.setContext(context);
 
         securityContextRepository.saveContext(context, servletRequest, servletResponse);
