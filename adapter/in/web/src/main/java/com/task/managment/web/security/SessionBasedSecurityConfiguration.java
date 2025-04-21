@@ -78,7 +78,7 @@ public class SessionBasedSecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         final var corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(webProperties.getAllowedOrigins());
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("Content-Type"));
         corsConfiguration.setAllowCredentials(true);
         final var source = new UrlBasedCorsConfigurationSource();
