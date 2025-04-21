@@ -111,7 +111,7 @@ public class ProjectController extends BaseController {
         updateProjectUseCase.updateProject(actorId(), new ProjectId(projectId), command);
     }
 
-    @PostMapping("/{projectId}/members/{memberId}")
+    @PostMapping("/{projectId}/members")
     public void addProjectMember(@PathVariable Long projectId,
                                  @RequestBody @Valid @NotNull AddProjectMemberRequest request) throws UseCaseException {
         addProjectMemberUseCase.addMember(
