@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.sql.Clob;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

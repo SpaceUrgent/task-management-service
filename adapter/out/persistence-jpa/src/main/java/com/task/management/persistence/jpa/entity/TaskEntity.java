@@ -1,6 +1,5 @@
 package com.task.management.persistence.jpa.entity;
 
-import com.task.management.domain.common.validation.Validation;
 import com.task.management.domain.project.model.TaskStatus;
 import jakarta.persistence.*;
 import lombok.Builder;
