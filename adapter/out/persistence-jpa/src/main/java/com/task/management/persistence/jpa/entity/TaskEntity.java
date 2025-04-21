@@ -2,14 +2,7 @@ package com.task.management.persistence.jpa.entity;
 
 import com.task.management.domain.common.validation.Validation;
 import com.task.management.domain.project.model.TaskStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,6 +23,9 @@ public class TaskEntity extends JpaEntity<Long> {
     @Column(nullable = false)
     private String title;
 
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(columnDefinition = "text")
     private String description;
 
     @Enumerated(EnumType.STRING)
