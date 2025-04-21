@@ -5,12 +5,16 @@ import TaskPreviewTable from "./TaskPreviewTable";
 import {useProjectContext} from "../contexts/ProjectContext";
 import PaginationPanel from "./PaginationPanel";
 import Selector from "../../common/components/selectors/Selector";
+import LoadingSpinner from "../../common/components/LoadingSpinner";
+import Alert from "../../common/components/Alert";
 
 export default function ProjectTasks() {
     const { project, members } = useProjectContext();
 
     const projectClient = ProjectClient.getInstance();
 
+    const [ isLoading , setIsLoading ] = useState(false);
+    const [ isError , setIsError ] = useState(false);
     const [pageSize, setPageSize] = useState(25);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState("createdAt:DESC");
@@ -21,6 +25,7 @@ export default function ProjectTasks() {
     const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
 
     const fetchTaskPage = async () => {
+        setIsLoading(true);
         try {
             const options = {
                 size: pageSize,
@@ -31,7 +36,11 @@ export default function ProjectTasks() {
             }
             const data = await projectClient.getTaskPreviews(project?.id, options);
             setTasksPage(data);
+            setIsError(false);
         } catch (error) {
+            setIsError(true);
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -48,6 +57,19 @@ export default function ProjectTasks() {
         fetchTaskPage();
     }, [pageSize, currentPage, sortBy, chosenAssigneeId, chosenStatus]);
 
+    const handleSubmitCreateTask = () => {
+        setShowCreateTaskModal(false);
+        fetchTaskPage();
+    }
+
+    if (isLoading) {
+        return <LoadingSpinner/>
+    }
+
+    if (isError) {
+        return <Alert error="Failed to receive tasks"/>
+    }
+
     return(
         <div className="d-flex flex-column h-100 container py-3">
             {showCreateTaskModal &&
@@ -55,6 +77,7 @@ export default function ProjectTasks() {
                     projectId={project.id}
                     members={members}
                     onClose={() => setShowCreateTaskModal(false)}
+                    onSubmit={handleSubmitCreateTask}
                 />
             }
             <div className="row g-2 align-items-center mb-3">

@@ -3,7 +3,7 @@ import ValidatedInput from "../../../common/components/ValidatedInput";
 import TextArea from "../../../common/components/TextArea";
 import {ProjectClient} from "../../api/ProjectClient.ts";
 
-export default function CreateTaskModal({projectId, members = [], onClose}) {
+export default function CreateTaskModal({projectId, members = [], onClose, onSubmit}) {
     const projectClient = ProjectClient.getInstance();
 
     const [title, setTitle] = useState("");
@@ -46,7 +46,7 @@ export default function CreateTaskModal({projectId, members = [], onClose}) {
                 assigneeId: assigneeId,
             }
             await projectClient.createTask(projectId, request);
-            onClose();
+            onSubmit();
         } catch (error) {
             setSubmitError(error.message ? error.message : "Failed to create task");
         }
