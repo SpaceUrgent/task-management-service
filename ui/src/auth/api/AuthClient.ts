@@ -37,6 +37,25 @@ export class AuthClient {
         this.validateRegisterResponse(response);
     }
 
+    async login(request: LoginRequest): Promise<void> {
+        let response: AxiosResponse<any, any>;
+
+        try {
+            const urlEncodedRequest = this.toUrlEncodedRequest(request);
+            response = await axios.post(
+                `${this.baseUrl}/auth/login`,
+                urlEncodedRequest,
+                {
+                    withCredentials: true,
+                    headers : { "Content-Type": "application/x-www-form-urlencoded" }
+                }
+            )
+        } catch (error) {
+            this.raiseLoginFailed();
+        }
+        this.validateLoginResponse(response)
+    }
+
     private validateRegisterResponse(response: AxiosResponse<any, any>) {
         const status = response.status;
         if (status === 201) return;
@@ -44,6 +63,15 @@ export class AuthClient {
             throw new RegisterError(response.data.message);
         }
         this.raiseRegisterFailed();
+    }
+
+    private validateLoginResponse(response: AxiosResponse<any, any>) {
+        const status = response.status;
+        if (status === 200) return;
+        if (response.status === 401) {
+            throw new LoginError('Email or password is incorrect');
+        }
+        this.raiseLoginFailed();
     }
 
     private toUrlEncodedRequest(request: Object): string {
@@ -57,6 +85,10 @@ export class AuthClient {
     private raiseRegisterFailed() {
         throw new RegisterError('Failed to register. Please try again later');
     }
+
+    private raiseLoginFailed() {
+        throw new LoginError('Failed to login. Please try again later');
+    }
 }
 
 interface RegisterRequest {
@@ -66,7 +98,19 @@ interface RegisterRequest {
     password: string;
 }
 
+interface LoginRequest {
+    email: string;
+    password: string;
+}
+
 export class RegisterError extends Error {
+
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+export class LoginError extends Error {
 
     constructor(message: string) {
         super(message);

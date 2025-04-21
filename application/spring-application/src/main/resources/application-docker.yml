@@ -6,3 +6,19 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+web:
+  allowed-origins: ${ALLOWED_ORIGINS}
+
+server:
+  servlet:
+    session:
+      timeout: 1m
+      tracking-modes: cookie
+      http-only: true
+      secure: false
+      name: JSESSIONID
+      domain: localhost
+      path: /
+      max-age: 600
+      same-site: strict

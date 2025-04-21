@@ -1,6 +1,7 @@
 package com.task.managment.web.security;
 
 import com.task.management.domain.common.Email;
+import com.task.management.domain.common.annotation.UseCase;
 import com.task.management.domain.common.interfaces.UserCredentialsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,7 @@ import static java.util.Objects.requireNonNull;
 public class UserDetailServiceImpl implements UserDetailsService {
     private final UserCredentialsPort findUserCredentialsPort;
 
+    @UseCase
     @Override
     public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
         requireNonNull(email, "Email is required");
