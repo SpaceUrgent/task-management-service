@@ -45,7 +45,7 @@ export default function CreateTaskModal({projectId, members = [], onClose}) {
                 description: description,
                 assigneeId: assigneeId,
             }
-            await projectClient.createTask(projectId, request)
+            await projectClient.createTask(projectId, request);
             onClose();
         } catch (error) {
             setSubmitError(error.message ? error.message : "Failed to create task");

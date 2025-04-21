@@ -1,9 +1,11 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import ValidatedInput from "../../../common/components/ValidatedInput";
 import AppConstants from "../../../AppConstants.ts";
 import {ProjectClient} from "../../api/ProjectClient.ts";
+import {ProjectContext} from "../../contexts/ProjectContext";
 
-export default function AddMemberModal({onClose, projectId }) {
+export default function AddMemberModal({ onClose }) {
+    const { project } = useContext(ProjectContext);
     const projectClient = ProjectClient.getInstance();
 
     const [email, setEmail] = useState("");
@@ -22,7 +24,7 @@ export default function AddMemberModal({onClose, projectId }) {
             return;
         }
         try {
-            await projectClient.addProjectMember(projectId, email);
+            await projectClient.addProjectMember(project.id, email);
             console.log('successfully added!');
             setTimeout(() => {
 

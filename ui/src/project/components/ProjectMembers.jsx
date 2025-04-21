@@ -3,7 +3,7 @@ import AddMemberModal from "./modal/AddMemberModal";
 import {useProjectContext} from "../contexts/ProjectContext";
 
 export default function ProjectMembers() {
-    const { project, members, refreshData} = useProjectContext();
+    const { members, refreshData} = useProjectContext();
 
     const [addMemberModalIsOpen, setAddMemberModalIsOpen] = useState(false);
 
@@ -16,7 +16,7 @@ export default function ProjectMembers() {
         <div className="container p-3">
             {addMemberModalIsOpen &&
                 <AddMemberModal
-                    projectId={projectId}
+                    onAddMember={handleAddMember}
                     onClose={() => setAddMemberModalIsOpen(false)}
                 />
             }
@@ -27,7 +27,6 @@ export default function ProjectMembers() {
                 </button>
             </div>
 
-            {/* Members List */}
             {members.length === 0 ? (
                 <p className="text-muted">No members added yet.</p>
             ) : (

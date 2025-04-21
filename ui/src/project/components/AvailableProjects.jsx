@@ -2,8 +2,10 @@ import React, { useEffect, useState} from "react";
 import CreateProjectModal from "./modal/CreateProjectModal";
 import {ProjectClient} from "../api/ProjectClient.ts";
 import ProjectPreview from "./ProjectPreview";
+import LoadingSpinner from "../../common/components/LoadingSpinner";
+import Alert from "../../common/components/Alert";
 
-const Projects = () => {
+export default function AvailableProjects() {
     const projectClient = ProjectClient.getInstance();
 
     const [projects, setProjects] = useState([]);
@@ -31,29 +33,30 @@ const Projects = () => {
 
     if (loading) {
         return (
-            <div className="d-flex justify-content-center align-items-center vh-100">
-                <div className="spinner-border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </div>
-            </div>
+            <LoadingSpinner/>
         );
     }
     if (error) {
         return (
-            <div className="alert alert-danger" role="alert">
-                {error}
-            </div>
+            <Alert error={error}/>
         );
     }
 
     return (
         <section className="container-fluid">
                 {createNewModalIsOpen &&
-                    <CreateProjectModal onClose={() => setCreateNewModalIsOpen(false)} onSubmit={() => fetchProjects()}/>
+                    <CreateProjectModal
+                        onClose={() => setCreateNewModalIsOpen(false)}
+                        onSubmit={() => fetchProjects()}
+                    />
                 }
             <div className="d-flex justify-content-between align-items-center m-3">
                 <h2>Available Projects</h2>
-                <button className="btn btn-primary" onClick={() => setCreateNewModalIsOpen(true)}>Create New</button>
+                <button className="btn btn-primary"
+                        onClick={() => setCreateNewModalIsOpen(true)}
+                >
+                    Create New
+                </button>
             </div>
             <hr/>
 
@@ -68,6 +71,4 @@ const Projects = () => {
             )}
         </section>
     );
-}
-
-export default Projects;
+};

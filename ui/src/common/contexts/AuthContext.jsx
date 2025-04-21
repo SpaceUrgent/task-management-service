@@ -1,5 +1,5 @@
 import {createContext, useContext, useEffect, useState} from "react";
-import {ProjectClient} from "../../projectmanagement/api/ProjectClient.ts";
+import {ProjectClient} from "../../project/api/ProjectClient.ts";
 
 const AuthContext = createContext(null);
 
