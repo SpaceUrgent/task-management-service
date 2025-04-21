@@ -1,0 +1,73 @@
+import React, { useEffect, useState} from "react";
+import CreateProjectModal from "./modal/CreateProjectModal";
+import {ProjectClient} from "../api/ProjectClient.ts";
+import ProjectPreview from "./ProjectPreview";
+
+const Projects = () => {
+    const projectClient = ProjectClient.getInstance();
+
+    const [projects, setProjects] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [createNewModalIsOpen, setCreateNewModalIsOpen] = useState(false);
+
+    useEffect(() => {
+        fetchProjects();
+    }, []);
+
+    const fetchProjects = async () => {
+        try {
+            setLoading(true);
+            const data = await projectClient.getAvailableProjects();
+            console.log(data);
+            setProjects(data);
+        } catch (error) {
+            console.log(error);
+            setError('Failed to load projects.')
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center vh-100">
+                <div className="spinner-border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
+    if (error) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                {error}
+            </div>
+        );
+    }
+
+    return (
+        <section className="container-fluid">
+                {createNewModalIsOpen &&
+                    <CreateProjectModal onClose={() => setCreateNewModalIsOpen(false)} onSubmit={() => fetchProjects()}/>
+                }
+            <div className="d-flex justify-content-between align-items-center m-3">
+                <h2>Available Projects</h2>
+                <button className="btn btn-primary" onClick={() => setCreateNewModalIsOpen(true)}>Create New</button>
+            </div>
+            <hr/>
+
+            {projects.length === 0 ? (
+                <p>No projects available.</p>
+            ) : (
+                <ul className="row row-cols-2 p-0">
+                    {projects.map((projectPreview) => (
+                        <ProjectPreview projectPreview={projectPreview}/>
+                    ))}
+                </ul>
+            )}
+        </section>
+    );
+}
+
+export default Projects;
