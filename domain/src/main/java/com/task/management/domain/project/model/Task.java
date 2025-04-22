@@ -10,6 +10,8 @@ import java.util.Objects;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Getter
 @ToString
@@ -20,6 +22,7 @@ public class Task {
     @EqualsAndHashCode.Exclude
     private Instant updatedAt;
     private final ProjectId project;
+    private final TaskNumber number;
     private String title;
     private String description;
     private TaskStatus status;
@@ -31,6 +34,7 @@ public class Task {
                 Instant createdAt,
                 Instant updatedAt,
                 ProjectId project,
+                TaskNumber number,
                 String title,
                 String description,
                 TaskStatus status,
@@ -40,11 +44,13 @@ public class Task {
         this.createdAt = parameterRequired(createdAt, "Created time");
         this.updatedAt = updatedAt;
         this.project = parameterRequired(project, "Project id");
+        this.number = number;
         this.title = notBlank(title, "Title");
         this.description = description;
         this.status = parameterRequired(status, "Status");
         this.owner = parameterRequired(owner, "Owner");
         this.assignee = parameterRequired(assignee, "Assignee");
+        this.validateSelf();
     }
 
     public void updateTitle(String title) {
@@ -77,5 +83,11 @@ public class Task {
 
     private void recordUpdateTime() {
         this.updatedAt = Instant.now();
+    }
+
+    private void validateSelf() {
+        if (nonNull(this.id) && isNull(this.number)) {
+            throw new IllegalStateException("Existing task must contain number");
+        }
     }
 }

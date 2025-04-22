@@ -26,11 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectId;
-import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectUser;
-import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectUserId;
-import static com.task.management.domain.project.service.ProjectTestUtils.randomTaskId;
-import static com.task.management.domain.project.service.ProjectTestUtils.self;
+import static com.task.management.domain.project.service.ProjectTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -296,6 +292,7 @@ class TaskServiceTest {
     private static Task randomTask() {
         return Task.builder()
                 .id(randomTaskId())
+                .number(randomTaskNumber())
                 .createdAt(Instant.now())
                 .project(randomProjectId())
                 .status(TaskStatus.IN_PROGRESS)
@@ -309,6 +306,7 @@ class TaskServiceTest {
     private static TaskDetails randomTaskDetails() {
         return TaskDetails.builder()
                 .id(randomTaskId())
+                .number(randomTaskNumber())
                 .createdAt(Instant.now())
                 .projectId(randomProjectId())
                 .status(TaskStatus.IN_PROGRESS)
@@ -328,6 +326,7 @@ class TaskServiceTest {
     private static TaskPreview randomTaskPreview() {
         return TaskPreview.builder()
                 .id(randomTaskId())
+                .number(randomTaskNumber())
                 .createdAt(Instant.now())
                 .title("Title")
                 .status(TaskStatus.IN_PROGRESS)

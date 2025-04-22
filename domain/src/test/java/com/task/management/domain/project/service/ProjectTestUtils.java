@@ -1,10 +1,7 @@
 package com.task.management.domain.project.service;
 
 import com.task.management.domain.common.Email;
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.ProjectUser;
-import com.task.management.domain.project.model.ProjectUserId;
-import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.*;
 import org.mockito.stubbing.Answer;
 
 import java.util.List;
@@ -47,6 +44,10 @@ public final class ProjectTestUtils {
 
     static TaskId randomTaskId() {
         return new TaskId(randomLong());
+    }
+
+    static TaskNumber randomTaskNumber() {
+        return new TaskNumber(randomLong());
     }
 
     static ProjectUserId randomProjectUserId() {

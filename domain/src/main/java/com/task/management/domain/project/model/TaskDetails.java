@@ -9,6 +9,7 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 
 public record TaskDetails(
         TaskId id,
+        TaskNumber number,
         Instant createdAt,
         ProjectId projectId,
         String title,
@@ -20,6 +21,7 @@ public record TaskDetails(
     @Builder
     public TaskDetails {
         parameterRequired(id, "Id");
+        parameterRequired(number, "Number");
         parameterRequired(createdAt, "Created time");
         parameterRequired(projectId, "Project id");
         notBlank(title, "Title");
