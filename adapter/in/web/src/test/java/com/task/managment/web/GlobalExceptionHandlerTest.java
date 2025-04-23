@@ -77,7 +77,7 @@ class GlobalExceptionHandlerTest {
     void shouldReturnNotFound_whenEntityNotFoundExceptionThrown() throws Exception {
         final var uriPath = "/test/entity-not-found";
         mockMvc.perform(get(uriPath))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.reason").value(ErrorResponse.REASON_ENTITY_NOT_FOUND))
                 .andExpect(jsonPath("$.message").value(TestController.ENTITY_NOT_FOUND_EXCEPTION.getMessage()))

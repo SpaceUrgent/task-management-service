@@ -5,6 +5,7 @@ import com.task.management.domain.common.UseCaseException.EntityNotFoundExceptio
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.method.ParameterValidationResult;
@@ -60,7 +61,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(EntityNotFoundException.class)
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException exception,
                                                        HttpServletRequest request) {

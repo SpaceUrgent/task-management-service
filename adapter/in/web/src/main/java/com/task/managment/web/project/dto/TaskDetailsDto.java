@@ -15,6 +15,7 @@ public class TaskDetailsDto {
     private Instant createdAt;
     private Instant updatedAt;
     private Long projectId;
+    private Long number;
     private String title;
     private String description;
     private TaskStatus status;
@@ -24,7 +25,9 @@ public class TaskDetailsDto {
     @Builder
     public TaskDetailsDto(Long id,
                           Instant createdAt,
+                          Instant updatedAt,
                           Long projectId,
+                          Long number,
                           String title,
                           String description,
                           TaskStatus status,
@@ -32,7 +35,9 @@ public class TaskDetailsDto {
                           ProjectUserDto assignee) {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");
+        this.updatedAt = updatedAt;
         this.projectId = parameterRequired(projectId, "Project id");
+        this.number = parameterRequired(number, "Number");
         this.title = notBlank(title, "Title");
         this.description = description;
         this.status = parameterRequired(status, "Status");

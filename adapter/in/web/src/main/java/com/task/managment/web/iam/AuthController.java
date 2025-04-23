@@ -1,12 +1,15 @@
 package com.task.managment.web.iam;
 
+import com.task.managment.web.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -32,6 +35,17 @@ public class AuthController {
         securityContextHolderStrategy.setContext(context);
 
         securityContextRepository.saveContext(context, servletRequest, servletResponse);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(AuthenticationException.class)
+    public final ErrorResponse handleAuthenticationException(AuthenticationException exception,
+                                                             HttpServletRequest request) {
+        return ErrorResponse.builder()
+                .reason(ErrorResponse.REASON_BAD_REQUEST)
+                .message(ErrorResponse.MESSAGE_INVALID_REQUEST)
+                .request(request)
+                .build();
     }
 
     @Data

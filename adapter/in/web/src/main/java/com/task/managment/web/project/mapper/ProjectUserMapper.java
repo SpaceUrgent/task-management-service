@@ -13,6 +13,11 @@ public class ProjectUserMapper {
                 .email(model.email().value())
                 .firstName(model.firstName())
                 .lastName(model.lastName())
+                .fullName(getFullName(model))
                 .build();
+    }
+
+    private String getFullName(ProjectUser model) {
+        return "%s %s".formatted(model.firstName(), model.lastName());
     }
 }

@@ -1,10 +1,7 @@
 package com.task.managment.web.project;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.task.management.domain.project.model.ProjectUserId;
-import com.task.management.domain.project.model.TaskDetails;
-import com.task.management.domain.project.model.TaskId;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.port.in.AssignTaskUseCase;
 import com.task.management.domain.project.port.in.GetTaskDetailsUseCase;
 import com.task.management.domain.project.port.in.UpdateTaskStatusUseCase;
@@ -68,6 +65,8 @@ class TaskControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(taskDetails.id().value()))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.updatedAt").isNotEmpty())
+                .andExpect(jsonPath("$.number").value(taskDetails.number().value()))
                 .andExpect(jsonPath("$.projectId").value(taskDetails.projectId().value()))
                 .andExpect(jsonPath("$.title").value(taskDetails.title()))
                 .andExpect(jsonPath("$.description").value(taskDetails.description()))
@@ -151,7 +150,9 @@ class TaskControllerTest {
         return TaskDetails.builder()
                 .id(randomTaskId())
                 .createdAt(Instant.now().minus(Duration.ofDays(1)))
+                .updatedAt(Instant.now())
                 .projectId(randomProjectId())
+                .number(new TaskNumber(randomLong()))
                 .title("Task title")
                 .description("Task description")
                 .status(TaskStatus.IN_PROGRESS)

@@ -1,12 +1,18 @@
 package com.task.managment.web;
 
 
+import com.task.managment.web.iam.AuthController;
+import com.task.managment.web.security.MockUser;
 import com.task.managment.web.security.SecuredUser;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebTest
+@WebTest(testClasses = AuthController.class)
 class AuthControllerTest {
 
     @Autowired
@@ -73,11 +79,13 @@ class AuthControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @MockUser
     @Test
     void logout_shouldReturnOk_whenAllConditionsMet() throws Exception {
-        mockMvc.perform(post("/api/auth/logout"))
+        MockHttpSession session = new MockHttpSession();
+        mockMvc.perform(post("/api/auth/logout")
+                        .session(session)
+                        .cookie(new Cookie("JSESSIONID", session.getId())))
                 .andExpect(status().isOk());
     }
-
-
 }

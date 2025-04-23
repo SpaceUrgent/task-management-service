@@ -4,14 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.management.domain.common.Page;
 import com.task.management.domain.common.Sort;
-import com.task.management.domain.project.model.ProjectDetails;
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.ProjectPreview;
-import com.task.management.domain.project.model.ProjectUser;
-import com.task.management.domain.project.model.ProjectUserId;
-import com.task.management.domain.project.model.TaskId;
-import com.task.management.domain.project.model.TaskPreview;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.port.in.AddProjectMemberUseCase;
 import com.task.management.domain.project.port.in.CreateProjectUseCase;
 import com.task.management.domain.project.port.in.CreateTaskUseCase;
@@ -270,6 +263,8 @@ class ProjectControllerTest {
     private void assertMatches(TaskPreview expected, TaskPreviewDto actual) {
         assertEquals(expected.id().value(), actual.getId());
         assertEquals(expected.createdAt(), actual.getCreatedAt());
+        assertEquals(expected.updatedAt(), actual.getUpdatedAt());
+        assertEquals(expected.number().value(), actual.getNumber());
         assertEquals(expected.title(), actual.getTitle());
         assertEquals(expected.status(), actual.getStatus());
         assertMatches(expected.assignee(), actual.getAssignee());
@@ -370,6 +365,8 @@ class ProjectControllerTest {
         return TaskPreview.builder()
                 .id(new TaskId(idValue))
                 .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .number(new TaskNumber(randomLong()))
                 .title("Task %d".formatted(idValue))
                 .status(TaskStatus.IN_PROGRESS)
                 .assignee(randomProjectUser())
