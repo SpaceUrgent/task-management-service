@@ -21,6 +21,7 @@ public class TaskPreviewMapper {
         return TaskPreview.builder()
                 .id(new TaskId(entity.getId()))
                 .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .number(new TaskNumber(entity.getNumber()))
                 .title(entity.getTitle())
                 .status(entity.getStatus())

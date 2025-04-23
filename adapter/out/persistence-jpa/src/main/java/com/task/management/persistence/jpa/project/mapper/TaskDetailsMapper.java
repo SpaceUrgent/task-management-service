@@ -22,6 +22,7 @@ public class TaskDetailsMapper {
         return TaskDetails.builder()
                 .id(new TaskId(entity.getId()))
                 .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .number(new TaskNumber(entity.getNumber()))
                 .title(entity.getTitle())
                 .description(entity.getDescription())
