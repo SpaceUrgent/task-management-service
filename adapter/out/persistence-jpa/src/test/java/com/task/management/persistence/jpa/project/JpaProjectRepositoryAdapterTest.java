@@ -10,7 +10,9 @@ import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
+import com.task.management.persistence.jpa.entity.TaskNumberSequence;
 import com.task.management.persistence.jpa.entity.UserEntity;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -56,6 +58,7 @@ class JpaProjectRepositoryAdapterTest {
         assertMatches(givenProject, added);
         final var projectEntity = findProjectEntityOrNull(added.getId());
         assertNotNull(projectEntity);
+        assertHasTaskNumberSequence(projectEntity);
         assertMatches(projectEntity, added);
     }
 
@@ -69,6 +72,7 @@ class JpaProjectRepositoryAdapterTest {
     @Test
     void save_shouldReturnUpdatedProject() {
         final var projectEntity = getFirstProjectEntity();
+        Hibernate.initialize(projectEntity);
         final var userEntities = userEntityDao.findAll();
         final var newOwnerUserEntity = userEntities.stream()
                 .filter(entity -> !projectEntity.getOwner().equals(entity))
@@ -85,6 +89,7 @@ class JpaProjectRepositoryAdapterTest {
         assertMatches(givenProject, updatedProject);
         final var updateProjectEntity = projectEntityDao.findById(projectEntity.getId()).orElseThrow();
         assertMatches(updateProjectEntity, updatedProject);
+        assertEquals(projectEntity.getTaskNumberSequence(), updateProjectEntity.getTaskNumberSequence());
         assertTrue(updateProjectEntity.getMembers().containsAll(projectEntity.getMembers()));
     }
 
@@ -167,6 +172,13 @@ class JpaProjectRepositoryAdapterTest {
     private UserEntity getUserEntityByEmail(String email) {
         return userEntityDao.findByEmail(email)
                 .orElseThrow(() -> new InvalidTestSetupException("Test user with email '%s' is missing".formatted(email)));
+    }
+
+    private static void assertHasTaskNumberSequence(final ProjectEntity projectEntity) {
+        final var taskNumberSequence = projectEntity.getTaskNumberSequence();
+        assertNotNull(taskNumberSequence);
+        assertEquals(projectEntity.getId(), taskNumberSequence.getId());
+        assertEquals(0L, taskNumberSequence.getCurrentValue());
     }
 
     private static void assertMatches(Project expected, Project actual) {

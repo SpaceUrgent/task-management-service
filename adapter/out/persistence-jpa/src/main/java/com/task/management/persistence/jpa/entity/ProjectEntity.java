@@ -24,7 +24,6 @@ public class ProjectEntity extends JpaEntity<Long> {
     @Column(nullable = false)
     private String title;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(columnDefinition = "text")
     private String description;
@@ -32,6 +31,9 @@ public class ProjectEntity extends JpaEntity<Long> {
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
+    private TaskNumberSequence taskNumberSequence;
 
     @ManyToMany
     @JoinTable(

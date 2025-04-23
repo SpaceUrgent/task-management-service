@@ -1,9 +1,6 @@
 package com.task.management.persistence.jpa.project.mapper;
 
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.ProjectUserId;
-import com.task.management.domain.project.model.Task;
-import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.*;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import static java.util.Objects.requireNonNull;
@@ -20,6 +17,7 @@ public class TaskMapper {
                 .id(getId(entity))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .number(new TaskNumber(entity.getNumber()))
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .status(entity.getStatus())

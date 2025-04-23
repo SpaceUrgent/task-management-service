@@ -3,6 +3,7 @@ package com.task.management.persistence.jpa.project.mapper;
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.TaskDetails;
 import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.TaskNumber;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import static java.util.Objects.requireNonNull;
@@ -21,6 +22,7 @@ public class TaskDetailsMapper {
         return TaskDetails.builder()
                 .id(new TaskId(entity.getId()))
                 .createdAt(entity.getCreatedAt())
+                .number(new TaskNumber(entity.getNumber()))
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .status(entity.getStatus())

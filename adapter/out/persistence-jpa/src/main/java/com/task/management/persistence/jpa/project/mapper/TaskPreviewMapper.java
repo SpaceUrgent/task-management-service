@@ -1,6 +1,7 @@
 package com.task.management.persistence.jpa.project.mapper;
 
 import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.TaskNumber;
 import com.task.management.domain.project.model.TaskPreview;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
@@ -20,6 +21,7 @@ public class TaskPreviewMapper {
         return TaskPreview.builder()
                 .id(new TaskId(entity.getId()))
                 .createdAt(entity.getCreatedAt())
+                .number(new TaskNumber(entity.getNumber()))
                 .title(entity.getTitle())
                 .status(entity.getStatus())
                 .assignee(projectUserMapper.toModel(entity.getAssignee()))

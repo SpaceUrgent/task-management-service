@@ -1,14 +1,7 @@
 package com.task.management.persistence.jpa.project;
 
 import com.task.management.domain.common.Sort;
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.ProjectUser;
-import com.task.management.domain.project.model.ProjectUserId;
-import com.task.management.domain.project.model.Task;
-import com.task.management.domain.project.model.TaskDetails;
-import com.task.management.domain.project.model.TaskId;
-import com.task.management.domain.project.model.TaskPreview;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.port.in.query.FindTasksQuery;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.JpaTestConfiguration;
@@ -74,6 +67,7 @@ class JpaTaskRepositoryAdapterTest {
                 .build();
         final var added = taskRepositoryAdapter.save(givenTask);
         assertNotNull(added.getId());
+        assertNotNull(added.getNumber());
         assertMatches(givenTask, added);
         final var taskEntity = taskEntityDao.findById(added.getId().value()).orElseThrow();
         assertMatches(added, taskEntity);
@@ -94,6 +88,7 @@ class JpaTaskRepositoryAdapterTest {
         final var givenTask = Task.builder()
                 .id(new TaskId(taskEntity.getId()))
                 .createdAt(taskEntity.getCreatedAt())
+                .number(new TaskNumber(taskEntity.getNumber()))
                 .title("Updated task title")
                 .description("Update task description")
                 .status(TaskStatus.DONE)
@@ -264,6 +259,7 @@ class JpaTaskRepositoryAdapterTest {
     private void assertMatches(TaskEntity expected, TaskDetails actual) {
         assertEquals(expected.getId(), actual.id().value());
         assertEquals(expected.getCreatedAt(), actual.createdAt());
+        assertEquals(expected.getNumber(), actual.number().value());
         assertEquals(expected.getTitle(), actual.title());
         assertEquals(expected.getDescription(), actual.description());
         assertEquals(expected.getStatus(), actual.status());
@@ -288,6 +284,7 @@ class JpaTaskRepositoryAdapterTest {
     private void assertMatches(Task expected, TaskEntity actual) {
         assertEquals(expected.getId().value(), actual.getId());
         assertEquals(expected.getCreatedAt(), actual.getCreatedAt());
+        assertEquals(expected.getNumber().value(), actual.getNumber());
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getStatus(), actual.getStatus());
@@ -310,6 +307,7 @@ class JpaTaskRepositoryAdapterTest {
     private void assertMatches(TaskEntity expected, TaskPreview actual) {
         assertEquals(expected.getId(), actual.id().value());
         assertEquals(expected.getCreatedAt(), actual.createdAt());
+        assertEquals(expected.getNumber(), actual.number().value());
         assertEquals(expected.getTitle(), actual.title());
         assertEquals(expected.getStatus(), actual.status());
         assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());

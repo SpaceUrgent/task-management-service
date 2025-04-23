@@ -16,13 +16,17 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 @ToString(callSuper = true)
 @Data
 @Entity
-@Table(name = "tasks")
+@Table(
+        name = "tasks",
+        uniqueConstraints = @UniqueConstraint(name = "task_number_constraint", columnNames = {"number", "project"})
+)
 public class TaskEntity extends JpaEntity<Long> {
+    @Column(nullable = false, updatable = false)
+    private Long number;
 
     @Column(nullable = false)
     private String title;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(columnDefinition = "text")
     private String description;
@@ -51,6 +55,7 @@ public class TaskEntity extends JpaEntity<Long> {
     public TaskEntity(Long id,
                       Instant createdAt,
                       Instant updatedAt,
+                      Long number,
                       String title,
                       String description,
                       TaskStatus status,
@@ -60,6 +65,7 @@ public class TaskEntity extends JpaEntity<Long> {
         this.id = id;
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;
+        this.number = parameterRequired(number, "Number");
         this.title = notBlank(title, "Title");
         this.description = description;
         this.status = parameterRequired(status, "Status");

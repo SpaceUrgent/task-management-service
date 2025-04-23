@@ -2,14 +2,12 @@ package com.task.management.persistence.jpa.project;
 
 import com.task.management.domain.common.Page;
 import com.task.management.domain.common.annotation.AppComponent;
-import com.task.management.domain.project.model.Task;
-import com.task.management.domain.project.model.TaskDetails;
-import com.task.management.domain.project.model.TaskId;
-import com.task.management.domain.project.model.TaskPreview;
+import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.port.in.query.FindTasksQuery;
 import com.task.management.domain.project.port.out.TaskRepositoryPort;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
+import com.task.management.persistence.jpa.dao.TaskNumberSequenceDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 import com.task.management.persistence.jpa.project.mapper.TaskDetailsMapper;
@@ -26,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor
 public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     private final TaskEntityDao taskEntityDao;
+    private final TaskNumberSequenceDao taskNumberSequenceDao;
     private final ProjectEntityDao projectEntityDao;
     private final UserEntityDao userEntityDao;
     private final TaskMapper taskMapper = TaskMapper.INSTANCE;
@@ -66,13 +65,15 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     }
 
     private TaskEntity buildTaskEntity(Task task) {
+        final var projectId = task.getProject().value();
         final var ownerReference = userEntityDao.getReference(task.getOwner().value());
         final var assigneeReference = userEntityDao.getReference(task.getAssignee().value());
-        final var projectReference = projectEntityDao.getReference(task.getProject().value());
+        final var projectReference = projectEntityDao.getReference(projectId);
         return TaskEntity.builder()
                 .id(Optional.ofNullable(task.getId()).map(TaskId::value).orElse(null))
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
+                .number(Optional.ofNullable(task.getNumber()).map(TaskNumber::value).orElseGet(() -> taskNumberSequenceDao.nextNumber(projectId)))
                 .title(task.getTitle())
                 .description(task.getDescription())
                 .status(task.getStatus())

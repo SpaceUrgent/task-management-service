@@ -11,6 +11,7 @@ import com.task.management.domain.project.port.out.ProjectRepositoryPort;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
+import com.task.management.persistence.jpa.entity.TaskNumberSequence;
 import com.task.management.persistence.jpa.project.mapper.ProjectDetailsMapper;
 import com.task.management.persistence.jpa.project.mapper.ProjectMapper;
 import com.task.management.persistence.jpa.project.mapper.ProjectPreviewMapper;
@@ -38,6 +39,7 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
     public Project save(Project project) {
         projectRequired(project);
         var projectEntity = buildProjectEntity(project);
+        projectEntity.setTaskNumberSequence(new TaskNumberSequence(projectEntity));
         projectEntity = projectEntityDao.save(projectEntity);
         return projectMapper.toModel(projectEntity);
     }

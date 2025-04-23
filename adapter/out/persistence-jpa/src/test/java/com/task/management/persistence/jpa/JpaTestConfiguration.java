@@ -2,9 +2,11 @@ package com.task.management.persistence.jpa;
 
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
+import com.task.management.persistence.jpa.dao.TaskNumberSequenceDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.dao.impl.ProjectEntityDaoImpl;
 import com.task.management.persistence.jpa.dao.impl.TaskEntityDaoImpl;
+import com.task.management.persistence.jpa.dao.impl.TaskNumberSequenceDaoImpl;
 import com.task.management.persistence.jpa.dao.impl.UserEntityDaoImpl;
 import com.task.management.persistence.jpa.iam.JpaUserRepositoryAdapter;
 import com.task.management.persistence.jpa.project.JpaProjectRepositoryAdapter;
@@ -45,10 +47,12 @@ public class JpaTestConfiguration {
 
     @Bean
     public JpaTaskRepositoryAdapter jpaTaskRepositoryAdapter(TaskEntityDao taskEntityDao,
+                                                             TaskNumberSequenceDao taskNumberSequenceDao,
                                                              ProjectEntityDao projectEntityDao,
                                                              UserEntityDao userEntityDao) {
         return new JpaTaskRepositoryAdapter(
                 taskEntityDao,
+                taskNumberSequenceDao,
                 projectEntityDao,
                 userEntityDao
         );
@@ -67,6 +71,11 @@ public class JpaTestConfiguration {
     @Bean
     public TaskEntityDao taskEntityDao(EntityManager entityManager) {
         return new TaskEntityDaoImpl(entityManager);
+    }
+
+    @Bean
+    public TaskNumberSequenceDao taskNumberSequenceDao(EntityManager entityManager) {
+        return new TaskNumberSequenceDaoImpl(entityManager);
     }
 
     @Bean
