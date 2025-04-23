@@ -11,6 +11,7 @@ public record TaskPreview(
         TaskId id,
         TaskNumber number,
         Instant createdAt,
+        Instant updatedAt,
         String title,
         TaskStatus status,
         ProjectUser assignee

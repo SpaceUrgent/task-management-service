@@ -11,6 +11,7 @@ public record TaskDetails(
         TaskId id,
         TaskNumber number,
         Instant createdAt,
+        Instant updatedAt,
         ProjectId projectId,
         String title,
         String description,
