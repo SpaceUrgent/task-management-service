@@ -36,7 +36,7 @@ export default function ProjectMembers() {
                             key={index}
                             className="list-group-item list-group-item-action d-flex flex-column"
                         >
-                            <strong>{member.firstName} {member.lastName}</strong>
+                            <strong>{member.fullName}</strong>
                             <small className="text-muted">{member.email}</small>
                         </div>
                     ))}

@@ -44,11 +44,6 @@ export default function ProjectTasks() {
         }
     }
 
-    const memberFullName = (member) => {
-        if (!member) return "";
-        return `${member.firstName} ${member.lastName}`;
-    }
-
     useEffect(() => {
         fetchTaskPage();
     }, [])
@@ -116,7 +111,7 @@ export default function ProjectTasks() {
                             { value: "", label: "All" },
                             ...members.map(member => ({
                                 value: member.id,
-                                label: member.firstName + " " + member.lastName,
+                                label: member.fullName,
                             }))
                         ]}
                     />

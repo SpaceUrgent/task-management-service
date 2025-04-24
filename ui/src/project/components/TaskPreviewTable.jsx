@@ -32,9 +32,7 @@ export default function TaskPreviewTable({taskPreviews = []}) {
                             <span className="badge bg-secondary">{task.status}</span>
                         </td>
                         <td>
-                            {task.assignee
-                                ? `${task.assignee.firstName} ${task.assignee.lastName}`
-                                : "Unassigned"}
+                            {task.assignee ? task.assignee.fullName : "Unassigned"}
                         </td>
                         <td>
                             <button

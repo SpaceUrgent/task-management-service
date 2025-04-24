@@ -2,7 +2,6 @@ import React from "react";
 import {Link} from "react-router-dom";
 
 export default function ProjectPreview({ projectPreview }) {
-    const ownerFullName = `${projectPreview.owner.firstName} ${projectPreview.owner.lastName}`;
 
     return (
         <li key={projectPreview.id} className="list-group-item">
@@ -13,7 +12,7 @@ export default function ProjectPreview({ projectPreview }) {
                 <div className="card-body">
                     <div className="row">
                         <div className="col">
-                            Owner: {ownerFullName}
+                            Owner: {projectPreview.owner.fullName}
                         </div>
                         <div className="col text-end">
                             <Link to={`/projects/${projectPreview.id}`} className="btn btn-sm btn-outline-secondary">

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link, Navigate, useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import {useProjectContext} from "../contexts/ProjectContext";
 import {ProjectClient} from "../api/ProjectClient.ts";
 import LoadingSpinner from "../../common/components/LoadingSpinner";
@@ -142,14 +142,14 @@ export default function Task() {
                                 onChange={handleChangeAssignee}
                                 options={members.map((member) => ({
                                     value: member.id,
-                                    label: member.firstName + " " + member.lastName,
+                                    label: member.fullName,
                                 }))}
                             />
                         </div>
                         <div className="col-md-3">
                             <div className="input-group">
                                 <label className="input-group-text" htmlFor="owner">Owner</label>
-                                <input className="form-control" value={`${task.owner.firstName} ${task.owner.lastName}`} disabled={true}/>
+                                <input className="form-control" value={task.owner?.fullName} disabled={true}/>
                             </div>
                         </div>
                     </div>

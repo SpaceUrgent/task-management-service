@@ -26,10 +26,6 @@ export default function CreateTaskModal({projectId, members = [], onClose, onSub
         setAssigneeIdIsValid(!!assigneeId);
     }, [assigneeId]);
 
-    const memberName = (member) => {
-        return member ? `${member?.firstName} ${member?.lastName}` : "";
-    }
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -91,7 +87,7 @@ export default function CreateTaskModal({projectId, members = [], onClose, onSub
                                     <option value="">Select Assignee</option>
                                     {
                                         members.map((member) => (
-                                            <option key={member.id} value={member.id}>{memberName(member)}</option>
+                                            <option key={member.id} value={member.id}>{member.fullName}</option>
                                         ))
                                     }
                                 </select>
