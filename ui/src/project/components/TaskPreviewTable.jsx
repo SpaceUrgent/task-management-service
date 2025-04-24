@@ -14,7 +14,7 @@ export default function TaskPreviewTable({taskPreviews = []}) {
             <table className="table table-hover align-middle">
                 <thead className="table-light">
                 <tr>
-                    <th scope="col">Key</th>
+                    <th scope="col">#</th>
                     <th scope="col">Created</th>
                     <th scope="col">Title</th>
                     <th scope="col">Status</th>
@@ -25,7 +25,7 @@ export default function TaskPreviewTable({taskPreviews = []}) {
                 <tbody>
                 {taskPreviews.map((task) => (
                     <tr key={task.id}>
-                        <td>#{task.id}</td>
+                        <td>{task.number}</td>
                         <td>{new Date(task.createdAt).toLocaleDateString()}</td>
                         <td>{task.title}</td>
                         <td>

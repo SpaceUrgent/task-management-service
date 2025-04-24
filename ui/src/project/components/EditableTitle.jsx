@@ -1,12 +1,8 @@
 import React, {useState} from "react";
 
 export default function EditableTitle({
-                                          // isEditing,
                                           initialValue,
-                                          //onChange,
-                                          onSave,
-                                          // onCancel,
-                                          // onEdit,
+                                          onSave
 }) {
     const [isEditing, setIsEditing] = useState(false);
     const [ value, setValue ] = useState(initialValue);

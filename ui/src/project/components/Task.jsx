@@ -95,7 +95,7 @@ export default function Task() {
                 </div>
                 <div className="row align-items-center">
                 <div className="col d-flex align-items-center ms-3 me-3">
-                        <strong className="me-2">#{task.id}</strong>
+                        <h4 className="flex-grow-1 m-0 pe-2">#{task.number} </h4>
                         <EditableTitle
                             initialValue={task.title}
                             onSave={handleUpdateTitle}
