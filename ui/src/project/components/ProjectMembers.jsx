@@ -3,7 +3,7 @@ import AddMemberModal from "./modal/AddMemberModal";
 import {useProjectContext} from "../contexts/ProjectContext";
 
 export default function ProjectMembers() {
-    const { members, refreshData} = useProjectContext();
+    const { members, refreshData } = useProjectContext();
 
     const [addMemberModalIsOpen, setAddMemberModalIsOpen] = useState(false);
 
@@ -16,8 +16,8 @@ export default function ProjectMembers() {
         <div className="container p-3">
             {addMemberModalIsOpen &&
                 <AddMemberModal
-                    onAddMember={handleAddMember}
                     onClose={() => setAddMemberModalIsOpen(false)}
+                    onSubmit={handleAddMember}
                 />
             }
             <div className="d-flex justify-content-between align-items-center mb-3">
