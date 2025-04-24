@@ -3,10 +3,11 @@ package com.task.management.domain.project.service;
 import com.task.management.domain.common.Email;
 import com.task.management.domain.common.UseCaseException;
 import com.task.management.domain.common.validation.ValidationService;
-import com.task.management.domain.project.model.Project;
-import com.task.management.domain.project.model.ProjectPreview;
+import com.task.management.domain.project.model.*;
+import com.task.management.domain.project.port.in.command.UpdateMemberRoleCommand;
 import com.task.management.domain.project.port.in.command.UpdateProjectCommand;
 import com.task.management.domain.project.port.in.command.CreateProjectCommand;
+import com.task.management.domain.project.port.out.ProjectMemberRepositoryPort;
 import com.task.management.domain.project.port.out.ProjectRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,22 +19,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
-import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectId;
-import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectUser;
-import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectUserId;
-import static com.task.management.domain.project.service.ProjectTestUtils.randomProjectUsers;
-import static com.task.management.domain.project.service.ProjectTestUtils.self;
+import static com.task.management.domain.project.service.ProjectTestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -45,6 +40,8 @@ class ProjectServiceTest {
     private ProjectUserService projectUserService;
     @Mock
     private ProjectRepositoryPort projectRepositoryPort;
+    @Mock
+    private ProjectMemberRepositoryPort projectMemberRepositoryPort;
     @InjectMocks
     private ProjectService projectService;
 
@@ -156,6 +153,146 @@ class ProjectServiceTest {
         verify(projectRepositoryPort, times(0)).addMember(any(), any());
     }
 
+    @Test
+    void updateMemberRole_shouldUpdate_whenOwnerRoleIsPassed() throws UseCaseException {
+        final var projectId = randomProjectId();
+
+        final var actingMember = createMember(projectId, MemberRole.OWNER);
+        final var updatedMember = createMember(projectId, null);
+        final var givenCommand = UpdateMemberRoleCommand.builder()
+                .projectId(projectId)
+                .memberId(updatedMember.getId())
+                .role(MemberRole.OWNER)
+                .build();
+        final var givenActorId = actingMember.getId();
+        doReturn(Optional.of(actingMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(givenActorId));
+        doReturn(Optional.of(updatedMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(updatedMember.getId()));
+
+        projectService.updateMemberRole(givenActorId, givenCommand);
+
+        assertEquals(MemberRole.ADMIN, actingMember.getRole());
+        assertEquals(MemberRole.OWNER, updatedMember.getRole());
+        verify(projectMemberRepositoryPort).update(actingMember);
+        verify(projectMemberRepositoryPort).update(updatedMember);
+    }
+
+    @Test
+    void updateMemberRole_shouldUpdate_whenOwnerPromotesToAdmin() throws UseCaseException {
+        final var projectId = randomProjectId();
+        final var actingMember = createMember(projectId, MemberRole.OWNER);
+        final var updatedMember = createMember(projectId, null);
+        final var givenCommand = UpdateMemberRoleCommand.builder()
+                .projectId(projectId)
+                .memberId(updatedMember.getId())
+                .role(MemberRole.ADMIN)
+                .build();
+        final var givenActorId = actingMember.getId();
+        doReturn(Optional.of(actingMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(givenActorId));
+        doReturn(Optional.of(updatedMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(updatedMember.getId()));
+
+        projectService.updateMemberRole(givenActorId, givenCommand);
+
+        assertEquals(givenCommand.role(), updatedMember.getRole());
+        verify(projectMemberRepositoryPort).update(updatedMember);
+    }
+
+    @Test
+    void updateMemberRole_shouldUpdate_whenOwnerRemovesRole() throws UseCaseException {
+        final var projectId = randomProjectId();
+        final var actingMember = createMember(projectId, MemberRole.OWNER);
+        final var updatedMember = createMember(projectId, null);
+        final var givenCommand = UpdateMemberRoleCommand.builder()
+                .projectId(projectId)
+                .memberId(updatedMember.getId())
+                .build();
+        final var givenActorId = actingMember.getId();
+        doReturn(Optional.of(actingMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(givenActorId));
+        doReturn(Optional.of(updatedMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(updatedMember.getId()));
+
+        projectService.updateMemberRole(givenActorId, givenCommand);
+
+        assertEquals(givenCommand.role(), updatedMember.getRole());
+        verify(projectMemberRepositoryPort).update(updatedMember);
+    }
+
+    @Test
+    void updateMemberRole_throwsIllegalAccess_whenActorIsNotMember() {
+        final var givenActorId = randomMemberId();
+        final var givenCommand = UpdateMemberRoleCommand.builder()
+                .projectId(randomProjectId())
+                .memberId(randomMemberId())
+                .role(MemberRole.ADMIN)
+                .build();
+        doReturn(Optional.empty()).when(projectMemberRepositoryPort).findMember(eq(givenCommand.projectId()), eq(givenActorId));
+
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> projectService.updateMemberRole(givenActorId, givenCommand)
+        );
+    }
+
+    @Test
+    void updateMemberRole_throwsEntityNotFound_whenUpdatedMemberNotFound() {
+        final var projectId = randomProjectId();
+        final var actingMember = createMember(projectId, null);
+        final var givenCommand = UpdateMemberRoleCommand.builder()
+                .projectId(projectId)
+                .memberId(randomMemberId())
+                .role(MemberRole.ADMIN)
+                .build();
+        doReturn(Optional.of(actingMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(actingMember.getId()));
+        doReturn(Optional.empty()).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(givenCommand.memberId()));
+
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> projectService.updateMemberRole(actingMember.getId(), givenCommand)
+        );
+    }
+
+    @Test
+    void updateMemberRole_shouldThrowIllegalAccess_whenAdminUpdating() throws UseCaseException {
+        final var projectId = randomProjectId();
+        final var actingMember = createMember(projectId, MemberRole.ADMIN);
+        final var updatedMember = createMember(projectId, null);
+        final var givenCommand = UpdateMemberRoleCommand.builder()
+                .projectId(projectId)
+                .memberId(updatedMember.getId())
+                .role(MemberRole.ADMIN)
+                .build();
+        final var givenActorId = actingMember.getId();
+        doReturn(Optional.of(actingMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(givenActorId));
+        doReturn(Optional.of(updatedMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(updatedMember.getId()));
+
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> projectService.updateMemberRole(givenActorId, givenCommand)
+        );
+
+        verifyNoMoreInteractions(projectMemberRepositoryPort);
+    }
+
+    @Test
+    void updateMemberRole_shouldThrowIllegalAccess_whenMemberUpdating() throws UseCaseException {
+        final var projectId = randomProjectId();
+        final var actingMember = createMember(projectId, null);
+        final var updatedMember = createMember(projectId, null);
+        final var givenCommand = UpdateMemberRoleCommand.builder()
+                .projectId(projectId)
+                .memberId(updatedMember.getId())
+                .role(MemberRole.ADMIN)
+                .build();
+        final var givenActorId = actingMember.getId();
+        doReturn(Optional.of(actingMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(givenActorId));
+        doReturn(Optional.of(updatedMember)).when(projectMemberRepositoryPort).findMember(eq(projectId), eq(updatedMember.getId()));
+
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> projectService.updateMemberRole(givenActorId, givenCommand)
+        );
+
+        verifyNoMoreInteractions(projectMemberRepositoryPort);
+    }
+
     private List<ProjectPreview> randomProjectPreviews() {
         return IntStream.range(0, 10)
                 .mapToObj(value -> rendomProjectPreview())
@@ -196,5 +333,20 @@ class ProjectServiceTest {
                 .title("Update title")
                 .description("Updated description")
                 .build();
+    }
+
+    private Member createMember(ProjectId projectId, MemberRole memberRole) {
+        final var idValue = randomLong();
+        return Member.builder()
+                .id(new MemberId(idValue))
+                .projectId(projectId)
+                .email(new Email("user-%d@domain.com".formatted(idValue)))
+                .fullName("User %d".formatted(idValue))
+                .role(memberRole)
+                .build();
+    }
+
+    private MemberId randomMemberId() {
+        return new MemberId(randomLong());
     }
 }

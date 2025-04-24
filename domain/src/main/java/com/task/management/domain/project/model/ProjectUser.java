@@ -9,7 +9,8 @@ public record ProjectUser(
         ProjectUserId id,
         Email email,
         String firstName,
-        String lastName
+        String lastName,
+        MemberRole role
 ) {
 
     public static ProjectUser withId(ProjectUserId id) {

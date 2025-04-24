@@ -5,20 +5,12 @@ import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.domain.common.annotation.UseCase;
 import com.task.management.domain.common.UseCaseException;
 import com.task.management.domain.common.validation.ValidationService;
-import com.task.management.domain.project.model.ProjectDetails;
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.ProjectPreview;
-import com.task.management.domain.project.model.ProjectUser;
-import com.task.management.domain.project.model.ProjectUserId;
-import com.task.management.domain.project.port.in.AddProjectMemberUseCase;
-import com.task.management.domain.project.port.in.GetAvailableProjectsUseCase;
-import com.task.management.domain.project.port.in.GetProjectDetailsUseCase;
-import com.task.management.domain.project.port.in.GetProjectMembersUseCase;
-import com.task.management.domain.project.port.in.UpdateProjectUseCase;
+import com.task.management.domain.project.model.*;
+import com.task.management.domain.project.port.in.*;
 import com.task.management.domain.project.port.in.command.CreateProjectCommand;
-import com.task.management.domain.project.model.Project;
-import com.task.management.domain.project.port.in.CreateProjectUseCase;
+import com.task.management.domain.project.port.in.command.UpdateMemberRoleCommand;
 import com.task.management.domain.project.port.in.command.UpdateProjectCommand;
+import com.task.management.domain.project.port.out.ProjectMemberRepositoryPort;
 import com.task.management.domain.project.port.out.ProjectRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +25,9 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 @Slf4j
 @AppComponent
 @RequiredArgsConstructor
-public class ProjectService implements CreateProjectUseCase,
+public class ProjectService implements  CreateProjectUseCase,
                                         AddProjectMemberUseCase,
+                                        UpdateMemberRoleUseCase,
                                         GetAvailableProjectsUseCase,
                                         GetProjectMembersUseCase,
                                         UpdateProjectUseCase,
@@ -42,6 +35,7 @@ public class ProjectService implements CreateProjectUseCase,
     private final ValidationService validationService;
     private final ProjectUserService projectUserService;
     private final ProjectRepositoryPort projectRepositoryPort;
+    private final ProjectMemberRepositoryPort projectMemberRepositoryPort;
 
     @UseCase
     @Override
@@ -102,6 +96,24 @@ public class ProjectService implements CreateProjectUseCase,
 
     @UseCase
     @Override
+    public void updateMemberRole(MemberId actorId, UpdateMemberRoleCommand command) throws UseCaseException {
+        parameterRequired(actorId, "Actor id");
+        validationService.validate(command);
+        ProjectId projectId = command.projectId();
+        final var actor = getActingMember(projectId, new MemberId(actorId.value()));
+        final var targetMember = getProjectMember(projectId, new MemberId(command.memberId().value()));
+        if (!actor.isOwner()) raiseOperationNotAllowed();
+        final var newRole = command.role();
+        targetMember.setRole(newRole);
+        projectMemberRepositoryPort.update(targetMember);
+        if (MemberRole.OWNER == newRole) {
+            actor.setRole(MemberRole.ADMIN);
+            projectMemberRepositoryPort.update(actor);
+        }
+    }
+
+    @UseCase
+    @Override
     public ProjectDetails getProjectDetails(ProjectUserId actorId, ProjectId projectId) throws UseCaseException {
         parameterRequired(actorId, "Actor id");
         parameterRequired(projectId, "Project id");
@@ -130,7 +142,25 @@ public class ProjectService implements CreateProjectUseCase,
                 .orElseThrow(raiseProjectNotFound(projectId));
     }
 
+    private Member getActingMember(ProjectId projectId, MemberId memberId) throws UseCaseException.IllegalAccessException {
+        return projectMemberRepositoryPort.findMember(projectId, memberId)
+                .orElseThrow(ProjectService::operationNotAllowed);
+    }
+
+    private Member getProjectMember(ProjectId projectId, MemberId memberId) throws UseCaseException.EntityNotFoundException {
+        return projectMemberRepositoryPort.findMember(projectId, memberId)
+                .orElseThrow(() -> new UseCaseException.EntityNotFoundException("Updated member not found"));
+    }
+
     private static Supplier<UseCaseException.EntityNotFoundException> raiseProjectNotFound(ProjectId projectId) {
         return () -> new UseCaseException.EntityNotFoundException("Project with id %d not found".formatted(projectId.value()));
+    }
+
+    private static void raiseOperationNotAllowed() throws UseCaseException.IllegalAccessException {
+        throw operationNotAllowed();
+    }
+
+    private static UseCaseException.IllegalAccessException operationNotAllowed() {
+        return new UseCaseException.IllegalAccessException("Operation not allowed");
     }
 }

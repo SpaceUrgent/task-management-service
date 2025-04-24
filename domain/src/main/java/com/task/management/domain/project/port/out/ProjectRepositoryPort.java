@@ -21,6 +21,8 @@ public interface ProjectRepositoryPort {
 
     List<ProjectUser> findMembers(ProjectId id);
 
+    Optional<ProjectUser> findMember(ProjectId projectId, ProjectUserId memberId);
+
     Optional<ProjectDetails> findProjectDetails(ProjectId projectId);
 
     boolean isMember(ProjectUserId memberId, ProjectId projectId);

@@ -54,7 +54,7 @@ public final class ProjectTestUtils {
         return new ProjectUserId(randomLong());
     }
 
-    private static Long randomLong() {
+    static Long randomLong() {
         return new Random().nextLong();
     }
 }
