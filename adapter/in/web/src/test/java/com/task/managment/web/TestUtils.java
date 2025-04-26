@@ -27,6 +27,15 @@ public final class TestUtils {
 
     public final static UserId USER_ID = new UserId(DEFAULT_USER_ID_VALUE);
 
+    public static MemberView actingMemberView() {
+        return MemberView.builder()
+                .id(USER_ID)
+                .role(MemberRole.ADMIN)
+                .email(new Email("actor@domain.com"))
+                .fullName("Acting User")
+                .build();
+    }
+
     public static MemberView randomMemberView() {
         final var idValue = randomLong();
         return MemberView.builder()

@@ -17,6 +17,7 @@ import com.task.managment.web.common.dto.ListResponse;
 import com.task.managment.web.project.dto.ProjectDetailsDto;
 import com.task.managment.web.project.dto.ProjectPreviewDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;
+import com.task.managment.web.project.dto.UserProjectDetailsDto;
 import com.task.managment.web.project.dto.request.*;
 import com.task.managment.web.common.dto.PagedResponse;
 import com.task.managment.web.project.mapper.ProjectMapper;
@@ -75,9 +76,10 @@ public class ProjectController extends BaseController {
     }
 
     @GetMapping("/{projectId}")
-    public ProjectDetailsDto getProjectDetails(@PathVariable Long projectId) throws UseCaseException {
-        final var projectDetails = getProjectDetailsUseCase.getProjectDetails(actor(), new ProjectId(projectId));
-        return projectMapper.toDto(projectDetails);
+    public UserProjectDetailsDto getProjectDetails(@PathVariable Long projectId) throws UseCaseException {
+        final var actor = actor();
+        final var projectDetails = getProjectDetailsUseCase.getProjectDetails(actor, new ProjectId(projectId));
+        return projectMapper.toDto(actor, projectDetails);
     }
 
     @PutMapping("/{projectId}")

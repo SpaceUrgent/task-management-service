@@ -41,7 +41,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ComponentScan(basePackageClasses = {UserController.class})
+@ComponentScan(basePackages = {
+        "com.task.managment.web.common.mapper",
+        "com.task.managment.web.iam.mapper"
+})
 @WebTest(testClasses = UserController.class)
 class UserControllerTest {
 

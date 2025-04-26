@@ -22,10 +22,7 @@ import com.task.managment.web.common.dto.ListResponse;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.common.dto.UserInfoDto;
-import com.task.managment.web.project.dto.ProjectDetailsDto;
-import com.task.managment.web.project.dto.ProjectPreviewDto;
-import com.task.managment.web.project.dto.MemberDto;
-import com.task.managment.web.project.dto.TaskPreviewDto;
+import com.task.managment.web.project.dto.*;
 import com.task.managment.web.project.dto.request.*;
 import com.task.managment.web.common.dto.PagedResponse;
 import com.task.managment.web.security.MockUser;
@@ -113,7 +110,7 @@ class ProjectControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        final var result = objectMapper.readValue(responseBody, ProjectDetailsDto.class);
+        final var result = objectMapper.readValue(responseBody, UserProjectDetailsDto.class);
         assertMatches(projectDetails, result);
     }
 
@@ -306,8 +303,8 @@ class ProjectControllerTest {
                 .updatedAt(Instant.now())
                 .title("Project title")
                 .description("Project description")
-                .owner(randomMemberView())
-                .members(Set.of(randomMemberView()))
+                .owner(actingMemberView())
+                .members(Set.of(actingMemberView()))
                 .build();
     }
 
@@ -328,6 +325,11 @@ class ProjectControllerTest {
         assertEquals(expected.email().value(), actual.getEmail());
         assertEquals(expected.fullName(), actual.getFullName());
         assertEquals(expected.role(), actual.getRole());
+    }
+
+    private void assertMatches(ProjectDetails projectDetails, UserProjectDetailsDto result) {
+        assertEquals(actingMemberView().role(), result.getRole());
+        assertMatches(projectDetails, result.getProjectDetails());
     }
 
     private void assertMatches(ProjectDetails expected, ProjectDetailsDto actual) {
