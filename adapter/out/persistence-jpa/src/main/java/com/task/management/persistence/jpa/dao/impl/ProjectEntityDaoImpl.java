@@ -22,7 +22,7 @@ public class ProjectEntityDaoImpl extends AbstractEntityDao<ProjectEntity, Long>
         return entityManager.createQuery("""
                 from ProjectEntity project\s
                 inner join project.members member\s
-                where member.id = :memberId
+                where member.user.id = :memberId
                 """, ProjectEntity.class)
                 .setParameter("memberId", memberId)
                 .getResultStream();

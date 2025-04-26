@@ -1,5 +1,6 @@
 package com.task.management.persistence.jpa.entity;
 
+import com.task.management.domain.project.model.MemberRole;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
@@ -28,20 +29,11 @@ public class ProjectEntity extends JpaEntity<Long> {
     @Column(columnDefinition = "text")
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    private UserEntity owner;
-
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
     private TaskNumberSequence taskNumberSequence;
 
-    @ManyToMany
-    @JoinTable(
-            name = "projects_members",
-            joinColumns = @JoinColumn(name = "project_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "member_id", nullable = false)
-    )
-    private List<UserEntity> members = new ArrayList<>();
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MemberEntity> members = new ArrayList<>();
 
     protected ProjectEntity() {
     }
@@ -52,20 +44,28 @@ public class ProjectEntity extends JpaEntity<Long> {
                          Instant updatedAt,
                          String title,
                          String description,
-                         UserEntity owner,
-                         List<UserEntity> members) {
+                         List<MemberEntity> members) {
         this.id = id;
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;
         this.title = notBlank(title, "Title");
         this.description = description;
-        this.owner = parameterRequired(owner, "Owner");
         this.members = Optional.ofNullable(members).orElse(new ArrayList<>());
     }
 
-    public void addMember(UserEntity member) {
-        parameterRequired(member, "Member");
-        this.members.add(member);
-        member.getProjects().add(this);
+    public MemberEntity getOwner() {
+        return this.members.stream()
+                .filter(member -> MemberRole.OWNER == member.getRole())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Project owner not found"));
+    }
+
+    public void addMember(UserEntity userEntity, MemberRole role) {
+        final var newMember = MemberEntity.builder()
+                .projectEntity(this)
+                .userEntity(userEntity)
+                .role(role)
+                .build();
+        this.members.add(newMember);
     }
 }

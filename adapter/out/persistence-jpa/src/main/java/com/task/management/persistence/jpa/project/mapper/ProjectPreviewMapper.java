@@ -7,12 +7,12 @@ import com.task.management.persistence.jpa.entity.ProjectEntity;
 import static java.util.Objects.requireNonNull;
 
 public class ProjectPreviewMapper {
-    public static final ProjectPreviewMapper INSTANCE = new ProjectPreviewMapper(ProjectUserMapper.INSTANCE);
+    public static final ProjectPreviewMapper INSTANCE = new ProjectPreviewMapper(MemberViewMapper.INSTANCE);
 
-    private final ProjectUserMapper projectUserMapper;
+    private final MemberViewMapper memberViewMapper;
 
-    private ProjectPreviewMapper(ProjectUserMapper projectUserMapper) {
-        this.projectUserMapper = projectUserMapper;
+    private ProjectPreviewMapper(MemberViewMapper memberViewMapper) {
+        this.memberViewMapper = memberViewMapper;
     }
 
     public ProjectPreview toModel(ProjectEntity entity) {
@@ -20,7 +20,7 @@ public class ProjectPreviewMapper {
         return ProjectPreview.builder()
                 .id(new ProjectId(entity.getId()))
                 .title(entity.getTitle())
-                .owner(projectUserMapper.toModel(entity.getOwner()))
+                .owner(memberViewMapper.toModel(entity.getOwner()))
                 .build();
     }
 }

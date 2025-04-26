@@ -4,17 +4,18 @@ import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.projection.TaskDetails;
 import com.task.management.domain.project.model.TaskId;
 import com.task.management.domain.project.model.TaskNumber;
+import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import static java.util.Objects.requireNonNull;
 
 public class TaskDetailsMapper {
-    public static final TaskDetailsMapper INSTANCE = new TaskDetailsMapper(ProjectUserMapper.INSTANCE);
+    public static final TaskDetailsMapper INSTANCE = new TaskDetailsMapper(UserInfoMapper.INSTANCE);
 
-    private final ProjectUserMapper projectUserMapper;
+    private final UserInfoMapper userInfoMapper;
 
-    private TaskDetailsMapper(ProjectUserMapper projectUserMapper) {
-        this.projectUserMapper = projectUserMapper;
+    private TaskDetailsMapper(UserInfoMapper userInfoMapper) {
+        this.userInfoMapper = userInfoMapper;
     }
 
     public TaskDetails toModel(TaskEntity entity) {
@@ -28,8 +29,8 @@ public class TaskDetailsMapper {
                 .description(entity.getDescription())
                 .status(entity.getStatus())
                 .projectId(new ProjectId(entity.getProject().getId()))
-                .owner(projectUserMapper.toModel(entity.getOwner()))
-                .assignee(projectUserMapper.toModel(entity.getAssignee()))
+                .owner(userInfoMapper.toModel(entity.getOwner()))
+                .assignee(userInfoMapper.toModel(entity.getAssignee()))
                 .build();
     }
 }

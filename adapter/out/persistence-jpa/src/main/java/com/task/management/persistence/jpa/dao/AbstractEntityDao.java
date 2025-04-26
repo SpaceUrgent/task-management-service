@@ -1,6 +1,5 @@
 package com.task.management.persistence.jpa.dao;
 
-import com.task.management.domain.common.validation.Validation;
 import com.task.management.persistence.jpa.IPage;
 import com.task.management.persistence.jpa.PageImpl;
 import com.task.management.persistence.jpa.entity.JpaEntity;
@@ -44,7 +43,7 @@ public abstract class AbstractEntityDao<T extends JpaEntity<ID>, ID> implements 
                 .getResultList();
         final var total = entityManager.createQuery(query.toCountQuery(criteriaBuilder))
                 .getSingleResult();
-        return new PageImpl<T>(query.pageIndex(), query.size(), total, content);
+        return new PageImpl<>(query.pageIndex(), query.size(), total, content);
     }
 
     public T getReference(ID id) {

@@ -8,11 +8,10 @@ import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.iam.port.out.UserCredentialsPort;
 import com.task.management.domain.iam.port.out.UserRepositoryPort;
+import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.iam.mapper.UserCredentialsMapper;
 import com.task.management.persistence.jpa.iam.mapper.UserMapper;
-import com.task.management.persistence.jpa.iam.mapper.UserProfileMapper;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
@@ -20,13 +19,16 @@ import static com.task.management.domain.common.validation.Validation.emailRequi
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 @AppComponent
-@RequiredArgsConstructor
 public class JpaUserRepositoryAdapter implements UserRepositoryPort,
                                                  UserCredentialsPort {
-    private final UserEntityDao userEntityDao;
     private final UserMapper userMapper = UserMapper.INSTANCE;
-    private final UserProfileMapper userProfileMapper = UserProfileMapper.INSTANCE;
+    private final UserInfoMapper userInfoMapper = UserInfoMapper.INSTANCE;
     private final UserCredentialsMapper userCredentialsMapper = UserCredentialsMapper.INSTANCE;
+    private final UserEntityDao userEntityDao;
+
+    public JpaUserRepositoryAdapter(UserEntityDao userEntityDao) {
+        this.userEntityDao = userEntityDao;
+    }
 
     @Override
     public User save(final User user) {
@@ -37,9 +39,10 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort,
     }
 
     @Override
-    public Optional<UserInfo> findUserProfile(UserId id) {
+    public Optional<UserInfo> find(UserId id) {
         parameterRequired(id, "User id");
-        return userEntityDao.findById(id.value()).map(userProfileMapper::toModel);
+        return userEntityDao.findById(id.value())
+                .map(userInfoMapper::toModel);
     }
 
     @Override

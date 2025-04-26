@@ -1,6 +1,7 @@
 package com.task.management.persistence.jpa.project;
 
 import com.task.management.domain.common.application.query.Sort;
+import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.application.query.FindTasksQuery;
 import com.task.management.domain.project.projection.TaskDetails;
@@ -52,7 +53,7 @@ class JpaTaskRepositoryAdapterTest {
     @Test
     void save_shouldReturnSavedTask() {
         final var projectEntity = getFirstProjectEntity();
-        final var ownerId = new ProjectUserId(projectEntity.getOwner().getId());
+        final var ownerId = new UserId(projectEntity.getOwner().getId().getMemberId());
         final var givenTask = Task.builder()
                 .createdAt(Instant.now())
                 .title("New task title")
@@ -80,7 +81,8 @@ class JpaTaskRepositoryAdapterTest {
         final var newAssignee = userEntityDao.findAll().stream()
                 .filter(entity -> !taskEntity.getAssignee().equals(entity))
                 .findFirst()
-                .map(entity -> ProjectUser.withId(new ProjectUserId(entity.getId())))
+                .map(UserEntity::getId)
+                .map(UserId::new)
                 .orElseThrow(() -> new InvalidTestSetupException("New assignee user entity is expected in DB for test"));
         final var givenTask = Task.builder()
                 .id(new TaskId(taskEntity.getId()))
@@ -90,8 +92,8 @@ class JpaTaskRepositoryAdapterTest {
                 .description("Update task description")
                 .status(TaskStatus.DONE)
                 .project(new ProjectId(taskEntity.getProject().getId()))
-                .owner(new ProjectUserId(taskEntity.getOwner().getId()))
-                .assignee(newAssignee.id())
+                .owner(new UserId(taskEntity.getOwner().getId()))
+                .assignee(newAssignee)
                 .build();
         final var updated = taskRepositoryAdapter.save(givenTask);
         assertMatches(givenTask, updated);
@@ -206,7 +208,7 @@ class JpaTaskRepositoryAdapterTest {
     @Test
     void findProjectTasks_shouldReturnFilteredTaskPreviewPage_whenFiltersPassed() {
         final var projectId = getFirstProjectEntity().getId();
-        final var givenAssigneeId = new ProjectUserId(getUserEntityByEmail("jsnow@mail.com").getId());
+        final var givenAssigneeId = new UserId(getUserEntityByEmail("jsnow@mail.com").getId());
         final var givenStatuses = Set.of(TaskStatus.TO_DO, TaskStatus.IN_PROGRESS);
 
         final var expectedTaskEntities = taskEntityDao.findAll().stream()

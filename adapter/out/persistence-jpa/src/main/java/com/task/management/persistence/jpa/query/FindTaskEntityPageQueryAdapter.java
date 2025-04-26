@@ -1,7 +1,7 @@
 package com.task.management.persistence.jpa.query;
 
 import com.task.management.domain.common.application.query.Sort;
-import com.task.management.domain.project.model.ProjectUserId;
+import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.TaskStatus;
 import com.task.management.domain.project.application.query.FindTasksQuery;
 import com.task.management.persistence.jpa.entity.TaskEntity;
@@ -78,7 +78,7 @@ public class FindTaskEntityPageQueryAdapter implements FindPageQuery<TaskEntity>
     }
 
     private Long assigneeId() {
-        return Optional.ofNullable(this.query.getAssigneeId()).map(ProjectUserId::value).orElse(null);
+        return Optional.ofNullable(this.query.getAssigneeId()).map(UserId::value).orElse(null);
     }
 
     private Set<String> statusIn() {

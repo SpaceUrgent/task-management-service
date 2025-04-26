@@ -1,16 +1,10 @@
 package com.task.management.persistence.jpa;
 
-import com.task.management.persistence.jpa.dao.ProjectEntityDao;
-import com.task.management.persistence.jpa.dao.TaskEntityDao;
-import com.task.management.persistence.jpa.dao.TaskNumberSequenceDao;
-import com.task.management.persistence.jpa.dao.UserEntityDao;
-import com.task.management.persistence.jpa.dao.impl.ProjectEntityDaoImpl;
-import com.task.management.persistence.jpa.dao.impl.TaskEntityDaoImpl;
-import com.task.management.persistence.jpa.dao.impl.TaskNumberSequenceDaoImpl;
-import com.task.management.persistence.jpa.dao.impl.UserEntityDaoImpl;
+import com.task.management.persistence.jpa.common.JpaUserInfoRepositoryAdapter;
+import com.task.management.persistence.jpa.dao.*;
+import com.task.management.persistence.jpa.dao.impl.*;
 import com.task.management.persistence.jpa.iam.JpaUserRepositoryAdapter;
 import com.task.management.persistence.jpa.project.JpaProjectRepositoryAdapter;
-import com.task.management.persistence.jpa.project.JpaProjectUserRepositoryAdapter;
 import com.task.management.persistence.jpa.project.JpaTaskRepositoryAdapter;
 import jakarta.persistence.EntityManager;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -32,16 +26,18 @@ public class JpaTestConfiguration {
     }
 
     @Bean
-    public JpaProjectUserRepositoryAdapter jpaProjectUserRepositoryAdapter(UserEntityDao jpaUserRepository) {
-        return new JpaProjectUserRepositoryAdapter(jpaUserRepository);
+    public MemberEntityDao memberEntityDao(EntityManager entityManager) {
+        return new MemberEntityDaoImpl(entityManager);
     }
 
     @Bean
     public JpaProjectRepositoryAdapter jpaProjectRepositoryAdapter(UserEntityDao userEntityDao,
-                                                                   ProjectEntityDao projectEntityDao) {
+                                                                   ProjectEntityDao projectEntityDao,
+                                                                   MemberEntityDao memberEntityDao) {
         return new JpaProjectRepositoryAdapter(
                 userEntityDao,
-                projectEntityDao
+                projectEntityDao,
+                memberEntityDao
         );
     }
 
@@ -56,6 +52,11 @@ public class JpaTestConfiguration {
                 projectEntityDao,
                 userEntityDao
         );
+    }
+
+    @Bean
+    public JpaUserInfoRepositoryAdapter jpaUserInfoRepositoryAdapter(UserEntityDao userEntityDao) {
+        return new JpaUserInfoRepositoryAdapter(userEntityDao);
     }
 
     @Bean

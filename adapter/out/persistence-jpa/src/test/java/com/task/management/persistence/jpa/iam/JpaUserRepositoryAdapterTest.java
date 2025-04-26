@@ -69,7 +69,7 @@ class JpaUserRepositoryAdapterTest {
     void findUserProfile_shouldReturnOptionalOfUserProfile_whenUserExists() {
         final var existingUserEntity = userEntityDao.findAll().stream().findFirst().orElseThrow();
         final var givenUserId = new UserId(existingUserEntity.getId());
-        final var result = userRepositoryAdapter.findUserProfile(givenUserId);
+        final var result = userRepositoryAdapter.find(givenUserId);
         assertTrue(result.isPresent());
         assertMatches(existingUserEntity, result.get());
     }
@@ -77,7 +77,7 @@ class JpaUserRepositoryAdapterTest {
     @Test
     void findUserProfile_shouldReturnEmptyOptional_whenUserDoesNotExist() {
         final var givenUserId = new UserId(new Random().nextLong());
-        assertTrue(userRepositoryAdapter.findUserProfile(givenUserId).isEmpty());
+        assertTrue(userRepositoryAdapter.find(givenUserId).isEmpty());
     }
 
     @Test
