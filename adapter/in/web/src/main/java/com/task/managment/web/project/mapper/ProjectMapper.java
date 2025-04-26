@@ -14,7 +14,7 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 @Component
 @RequiredArgsConstructor
 public class ProjectMapper {
-    private final ProjectUserMapper projectUserDtoMapper;
+    private final MemberMapper projectUserDtoMapper;
 
     public ProjectPreviewDto toDto(ProjectPreview model) {
         return ProjectPreviewDto.builder()

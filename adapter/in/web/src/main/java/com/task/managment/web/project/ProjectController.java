@@ -3,32 +3,23 @@ package com.task.managment.web.project;
 import com.task.management.domain.common.model.Email;
 import com.task.management.domain.common.application.query.Sort;
 import com.task.management.domain.common.application.UseCaseException;
+import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.project.application.command.UpdateMemberRoleCommand;
 import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.ProjectUserId;
 import com.task.management.domain.project.model.TaskStatus;
-import com.task.management.domain.project.port.in.AddProjectMemberUseCase;
-import com.task.management.domain.project.port.in.CreateProjectUseCase;
-import com.task.management.domain.project.port.in.CreateTaskUseCase;
-import com.task.management.domain.project.port.in.FindTasksUseCase;
-import com.task.management.domain.project.port.in.GetAvailableProjectsUseCase;
-import com.task.management.domain.project.port.in.GetProjectDetailsUseCase;
-import com.task.management.domain.project.port.in.UpdateProjectUseCase;
+import com.task.management.domain.project.port.in.*;
 import com.task.management.domain.project.application.command.CreateProjectCommand;
 import com.task.management.domain.project.application.command.CreateTaskCommand;
 import com.task.management.domain.project.application.command.UpdateProjectCommand;
 import com.task.management.domain.project.application.query.FindTasksQuery;
-import com.task.managment.web.ListResponse;
+import com.task.managment.web.common.BaseController;
+import com.task.managment.web.common.dto.ListResponse;
 import com.task.managment.web.project.dto.ProjectDetailsDto;
 import com.task.managment.web.project.dto.ProjectPreviewDto;
-import com.task.managment.web.project.dto.ProjectUserDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;
-import com.task.managment.web.project.dto.request.CreateTaskRequest;
-import com.task.managment.web.project.dto.request.UpdateProjectRequest;
-import com.task.managment.web.project.dto.request.AddProjectMemberRequest;
-import com.task.managment.web.project.dto.request.CreateProjectRequest;
-import com.task.managment.web.PagedResponse;
+import com.task.managment.web.project.dto.request.*;
+import com.task.managment.web.common.dto.PagedResponse;
 import com.task.managment.web.project.mapper.ProjectMapper;
-import com.task.managment.web.project.mapper.ProjectUserMapper;
 import com.task.managment.web.project.mapper.TaskMapper;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -55,32 +46,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectController extends BaseController {
     private final GetAvailableProjectsUseCase getAvailableProjectsUseCase;
-    private final GetProjectMembersUseCase getProjectMembersUseCase;
     private final CreateProjectUseCase createProjectUseCase;
     private final GetProjectDetailsUseCase getProjectDetailsUseCase;
     private final UpdateProjectUseCase updateProjectUseCase;
     private final AddProjectMemberUseCase addProjectMemberUseCase;
+    private final UpdateMemberRoleUseCase updateMemberRoleUseCase;
     private final CreateTaskUseCase createTaskUseCase;
     private final FindTasksUseCase findTasksUseCase;
     private final ProjectMapper projectMapper;
-    private final ProjectUserMapper projectUserDtoMapper;
     private final TaskMapper taskMapper;
 
     @GetMapping
     public ListResponse<ProjectPreviewDto> getAvailableProjects() {
-        final var projectPreviews = getAvailableProjectsUseCase.getAvailableProjects(actorId());
+        final var projectPreviews = getAvailableProjectsUseCase.getAvailableProjects(actor());
         return ListResponse.<ProjectPreviewDto>builder()
                 .data(projectPreviews.stream().map(projectMapper::toDto).toList())
-                .build();
-    }
-
-    @GetMapping("/{projectId}/members")
-    public ListResponse<ProjectUserDto> getProjectMembers(@PathVariable Long projectId) throws UseCaseException {
-        final var data = getProjectMembersUseCase.getMembers(actorId(), new ProjectId(projectId)).stream()
-                .map(projectUserDtoMapper::toDto)
-                .toList();
-        return ListResponse.<ProjectUserDto>builder()
-                .data(data)
                 .build();
     }
 
@@ -91,12 +71,12 @@ public class ProjectController extends BaseController {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .build();
-        createProjectUseCase.createProject(actorId(), command);
+        createProjectUseCase.createProject(actor(), command);
     }
 
     @GetMapping("/{projectId}")
     public ProjectDetailsDto getProjectDetails(@PathVariable Long projectId) throws UseCaseException {
-        final var projectDetails = getProjectDetailsUseCase.getProjectDetails(actorId(), new ProjectId(projectId));
+        final var projectDetails = getProjectDetailsUseCase.getProjectDetails(actor(), new ProjectId(projectId));
         return projectMapper.toDto(projectDetails);
     }
 
@@ -107,15 +87,26 @@ public class ProjectController extends BaseController {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .build();
-        updateProjectUseCase.updateProject(actorId(), new ProjectId(projectId), command);
+        updateProjectUseCase.updateProject(actor(), new ProjectId(projectId), command);
     }
 
     @PostMapping("/{projectId}/members")
     public void addProjectMember(@PathVariable Long projectId,
                                  @RequestBody @Valid @NotNull AddProjectMemberRequest request) throws UseCaseException {
         addProjectMemberUseCase.addMember(
-                actorId(), new ProjectId(projectId), new Email(request.getEmail())
+                actor(), new ProjectId(projectId), new Email(request.getEmail())
         );
+    }
+
+    @PutMapping("/{projectId}/members")
+    public void updateMemberRole(@PathVariable Long projectId,
+                                 @RequestBody @Valid @NotNull UpdateMemberRoleRequest request) throws UseCaseException {
+        final var command = UpdateMemberRoleCommand.builder()
+                .projectId(new ProjectId(projectId))
+                .memberId(new UserId(request.getMemberId()))
+                .role(request.getRole())
+                .build();
+        updateMemberRoleUseCase.updateMemberRole(actor(), command);
     }
 
     @GetMapping("/{projectId}/tasks")
@@ -131,11 +122,11 @@ public class ProjectController extends BaseController {
                 .pageNumber(page)
                 .pageSize(size)
                 .projectId(new ProjectId(projectId))
-                .assigneeId(Optional.ofNullable(assigneeId).map(ProjectUserId::new).orElse(null))
+                .assigneeId(Optional.ofNullable(assigneeId).map(UserId::new).orElse(null))
                 .statusIn(statusIn)
                 .sortBy(sortList)
                 .build();
-        final var taskPreviewPage = findTasksUseCase.findTasks(actorId(), query);
+        final var taskPreviewPage = findTasksUseCase.findTasks(actor(), query);
         final var data = taskPreviewPage.content().stream()
                 .map(taskMapper::toDto)
                 .toList();
@@ -153,11 +144,11 @@ public class ProjectController extends BaseController {
     public void createTask(@PathVariable Long projectId,
                            @RequestBody @Valid @NonNull CreateTaskRequest request) throws UseCaseException {
         final var command = CreateTaskCommand.builder()
-                .assigneeId(new ProjectUserId(request.getAssigneeId()))
+                .assigneeId(new UserId(request.getAssigneeId()))
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .build();
-        createTaskUseCase.createTask(actorId(), new ProjectId(projectId), command);
+        createTaskUseCase.createTask(actor(), new ProjectId(projectId), command);
     }
 
     private static List<Sort> toSortList(List<String> sortBy) {

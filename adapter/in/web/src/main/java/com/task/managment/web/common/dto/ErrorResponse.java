@@ -1,4 +1,4 @@
-package com.task.managment.web;
+package com.task.managment.web.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,8 +8,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.Instant;
 import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)

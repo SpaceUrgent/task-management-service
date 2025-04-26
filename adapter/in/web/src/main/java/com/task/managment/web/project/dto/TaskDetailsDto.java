@@ -1,6 +1,7 @@
 package com.task.managment.web.project.dto;
 
 import com.task.management.domain.project.model.TaskStatus;
+import com.task.managment.web.common.dto.UserInfoDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,8 +20,8 @@ public class TaskDetailsDto {
     private String title;
     private String description;
     private TaskStatus status;
-    private ProjectUserDto owner;
-    private ProjectUserDto assignee;
+    private UserInfoDto owner;
+    private UserInfoDto assignee;
 
     @Builder
     public TaskDetailsDto(Long id,
@@ -31,8 +32,8 @@ public class TaskDetailsDto {
                           String title,
                           String description,
                           TaskStatus status,
-                          ProjectUserDto owner,
-                          ProjectUserDto assignee) {
+                          UserInfoDto owner,
+                          UserInfoDto assignee) {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;

@@ -1,15 +1,14 @@
 package com.task.managment.web;
 
 import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.iam.model.UserCredentials;
 import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.project.model.MemberRole;
 import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.ProjectUser;
-import com.task.management.domain.project.model.ProjectUserId;
+import com.task.management.domain.project.projection.MemberView;
 
-import java.util.List;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 import static com.task.managment.web.security.MockUser.DEFAULT_USER_ID_VALUE;
 
@@ -26,18 +25,22 @@ public final class TestUtils {
 
     public final static UserCredentials DEFAULT_CREDENTIALS = new UserCredentials(DEFAULT_USER_ID, new Email(EMAIL), ENCRYPTED_PASSWORD);
 
-    public final static ProjectUserId PROJECT_USER_ID = new ProjectUserId(DEFAULT_USER_ID_VALUE);
+    public final static UserId USER_ID = new UserId(DEFAULT_USER_ID_VALUE);
 
-    public static List<ProjectUser> randomProjectUsers() {
-        return IntStream.range(0, 20)
-                .mapToObj(value -> randomProjectUser())
-                .toList();
+    public static MemberView randomMemberView() {
+        final var idValue = randomLong();
+        return MemberView.builder()
+                .id(new UserId(idValue))
+                .email(new Email("user-%d@mail.com".formatted(idValue)))
+                .fullName("FName LName")
+                .role(MemberRole.ADMIN)
+                .build();
     }
 
-    public static ProjectUser randomProjectUser() {
+    public static UserInfo randomUserInfo() {
         final var idValue = randomLong();
-        return ProjectUser.builder()
-                .id(new ProjectUserId(idValue))
+        return UserInfo.builder()
+                .id(new UserId(idValue))
                 .email(new Email("user-%d@mail.com".formatted(idValue)))
                 .firstName("FName-%d".formatted(idValue))
                 .lastName("LName-%d".formatted(idValue))
@@ -46,6 +49,10 @@ public final class TestUtils {
 
     public static ProjectId randomProjectId() {
         return new ProjectId(randomLong());
+    }
+
+    public static UserId randomUserId() {
+        return new UserId(randomLong());
     }
 
     public static Long randomLong() {

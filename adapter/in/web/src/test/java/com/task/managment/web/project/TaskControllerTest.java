@@ -1,6 +1,7 @@
 package com.task.managment.web.project;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.port.in.AssignTaskUseCase;
 import com.task.management.domain.project.port.in.GetTaskDetailsUseCase;
@@ -23,10 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Duration;
 import java.time.Instant;
 
-import static com.task.managment.web.TestUtils.PROJECT_USER_ID;
-import static com.task.managment.web.TestUtils.randomLong;
-import static com.task.managment.web.TestUtils.randomProjectId;
-import static com.task.managment.web.TestUtils.randomProjectUser;
+import static com.task.managment.web.TestUtils.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -37,7 +35,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ComponentScan(basePackages = "com.task.managment.web.project.mapper")
+@ComponentScan(basePackages = {
+        "com.task.managment.web.common.mapper",
+        "com.task.managment.web.project.mapper"
+})
 @WebTest(testClasses = TaskController.class)
 class TaskControllerTest {
 
@@ -60,7 +61,7 @@ class TaskControllerTest {
         final var taskDetails = randomTaskDetails();
         final var taskOwner = taskDetails.owner();
         final var assignee = taskDetails.assignee();
-        doReturn(taskDetails).when(getTaskDetailsUseCase).getTaskDetails(eq(PROJECT_USER_ID), eq(taskDetails.id()));
+        doReturn(taskDetails).when(getTaskDetailsUseCase).getTaskDetails(eq(USER_ID), eq(taskDetails.id()));
         mockMvc.perform(get("/api/tasks/{taskId}", taskDetails.id().value()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -91,14 +92,14 @@ class TaskControllerTest {
         final var expectedCommand = UpdateTaskCommand.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .assigneeId(new ProjectUserId(request.getAssigneeId()))
+                .assigneeId(new UserId(request.getAssigneeId()))
                 .taskStatus(request.getStatus())
                 .build();
         mockMvc.perform(put("/api/tasks/{taskId}", givenTaskId.value())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk());
-        verify(updateTaskUseCase).updateTask(eq(PROJECT_USER_ID), eq(givenTaskId), eq(expectedCommand));
+        verify(updateTaskUseCase).updateTask(eq(USER_ID), eq(givenTaskId), eq(expectedCommand));
     }
 
     @MockUser
@@ -110,7 +111,7 @@ class TaskControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
-        verify(updateTaskStatusUseCase).updateStatus(eq(PROJECT_USER_ID), eq(givenTaskId), eq(request.getStatus()));
+        verify(updateTaskStatusUseCase).updateStatus(eq(USER_ID), eq(givenTaskId), eq(request.getStatus()));
     }
 
     @MockUser
@@ -123,7 +124,7 @@ class TaskControllerTest {
                             .content(objectMapper.writeValueAsString(givenRequest)))
                         .andExpect(status().isOk());
         verify(assignTaskUseCase)
-                .assignTask(eq(PROJECT_USER_ID), eq(givenTaskId), eq(new ProjectUserId(givenRequest.getAssigneeId())));
+                .assignTask(eq(USER_ID), eq(givenTaskId), eq(new UserId(givenRequest.getAssigneeId())));
     }
 
     private UpdateTaskRequest getUpdateTaskRequest() {
@@ -157,8 +158,8 @@ class TaskControllerTest {
                 .title("Task title")
                 .description("Task description")
                 .status(TaskStatus.IN_PROGRESS)
-                .assignee(randomProjectUser())
-                .owner(randomProjectUser())
+                .assignee(randomUserInfo())
+                .owner(randomUserInfo())
                 .build();
     }
 

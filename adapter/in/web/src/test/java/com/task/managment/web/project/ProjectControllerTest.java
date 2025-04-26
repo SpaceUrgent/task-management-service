@@ -2,34 +2,32 @@ package com.task.managment.web.project;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.common.projection.Page;
 import com.task.management.domain.common.application.query.Sort;
+import com.task.management.domain.project.application.command.UpdateMemberRoleCommand;
 import com.task.management.domain.project.model.*;
-import com.task.management.domain.project.port.in.AddProjectMemberUseCase;
-import com.task.management.domain.project.port.in.CreateProjectUseCase;
-import com.task.management.domain.project.port.in.CreateTaskUseCase;
-import com.task.management.domain.project.port.in.FindTasksUseCase;
-import com.task.management.domain.project.port.in.GetAvailableProjectsUseCase;
-import com.task.management.domain.project.port.in.GetProjectDetailsUseCase;
-import com.task.management.domain.project.port.in.UpdateProjectUseCase;
+import com.task.management.domain.project.port.in.*;
 import com.task.management.domain.project.application.command.CreateProjectCommand;
 import com.task.management.domain.project.application.command.CreateTaskCommand;
 import com.task.management.domain.project.application.command.UpdateProjectCommand;
 import com.task.management.domain.project.application.query.FindTasksQuery;
+import com.task.management.domain.project.projection.MemberView;
 import com.task.management.domain.project.projection.ProjectDetails;
 import com.task.management.domain.project.projection.ProjectPreview;
 import com.task.management.domain.project.projection.TaskPreview;
-import com.task.managment.web.ListResponse;
+import com.task.managment.web.common.dto.ListResponse;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
+import com.task.managment.web.common.dto.UserInfoDto;
 import com.task.managment.web.project.dto.ProjectDetailsDto;
 import com.task.managment.web.project.dto.ProjectPreviewDto;
-import com.task.managment.web.project.dto.ProjectUserDto;
+import com.task.managment.web.project.dto.MemberDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;
-import com.task.managment.web.project.dto.request.CreateProjectRequest;
-import com.task.managment.web.project.dto.request.CreateTaskRequest;
-import com.task.managment.web.project.dto.request.UpdateProjectRequest;
-import com.task.managment.web.PagedResponse;
+import com.task.managment.web.project.dto.request.*;
+import com.task.managment.web.common.dto.PagedResponse;
 import com.task.managment.web.security.MockUser;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
@@ -45,10 +43,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static com.task.managment.web.TestUtils.PROJECT_USER_ID;
-import static com.task.managment.web.TestUtils.randomLong;
-import static com.task.managment.web.TestUtils.randomProjectUser;
-import static com.task.managment.web.TestUtils.randomProjectUsers;
+import static com.task.managment.web.TestUtils.*;
 import static com.task.managment.web.security.MockUser.DEFAULT_USER_ID_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -61,7 +56,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ComponentScan(basePackages = "com.task.managment.web.project.mapper")
+@ComponentScan(basePackages = {
+        "com.task.managment.web.common.mapper",
+        "com.task.managment.web.project.mapper"
+})
 @WebTest(testClasses = ProjectController.class)
 class ProjectControllerTest {
 
@@ -72,8 +70,6 @@ class ProjectControllerTest {
     @MockBean
     private GetAvailableProjectsUseCase getAvailableProjectsUseCase;
     @MockBean
-    private GetProjectMembersUseCase getProjectMembersUseCase;
-    @MockBean
     private GetProjectDetailsUseCase getProjectDetailsUseCase;
     @MockBean
     private CreateProjectUseCase createProjectUseCase;
@@ -81,6 +77,8 @@ class ProjectControllerTest {
     private UpdateProjectUseCase updateProjectUseCase;
     @MockBean
     private AddProjectMemberUseCase addProjectMemberUseCase;
+    @MockBean
+    private UpdateMemberRoleUseCase updateMemberRoleUseCase;
     @MockBean
     private FindTasksUseCase findTasksUseCase;
     @MockBean
@@ -91,7 +89,7 @@ class ProjectControllerTest {
     void getAvailableProjects() throws Exception {
         final var expectedProjects = randomProjectPreviews();
         doReturn(expectedProjects).when(getAvailableProjectsUseCase)
-                .getAvailableProjects(eq(new ProjectUserId(DEFAULT_USER_ID_VALUE)));
+                .getAvailableProjects(eq(new UserId(DEFAULT_USER_ID_VALUE)));
         final var responseBody = mockMvc.perform(get("/api/projects"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -105,31 +103,10 @@ class ProjectControllerTest {
 
     @MockUser
     @Test
-    void getProjectMembers() throws Exception {
-        final var givenProjectId = randomProjectId();
-        final var expectedMembers = randomProjectUsers();
-        doReturn(expectedMembers)
-                .when(getProjectMembersUseCase)
-                .getMembers(eq(new ProjectUserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
-        final var responseBody = mockMvc.perform(get("/api/projects/{projectId}/members", givenProjectId.value()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        final var result = objectMapper.readValue(responseBody, new TypeReference<ListResponse<ProjectUserDto>>() {
-        });
-        for (int i = 0; i < expectedMembers.size(); i++) {
-            assertMatches(expectedMembers.get(i), result.getData().get(i));
-        }
-    }
-
-    @MockUser
-    @Test
     void getProjectDetails() throws Exception {
         final var projectDetails = projectDetails();
         final var givenProjectId = projectDetails.id();
-        doReturn(projectDetails).when(getProjectDetailsUseCase).getProjectDetails(eq(new ProjectUserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
+        doReturn(projectDetails).when(getProjectDetailsUseCase).getProjectDetails(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
         final var responseBody = mockMvc.perform(get("/api/projects/{projectId}", givenProjectId.value()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -148,7 +125,7 @@ class ProjectControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(givenRequest)))
                 .andExpect(status().isCreated());
-        verify(createProjectUseCase).createProject(eq(new ProjectUserId(DEFAULT_USER_ID_VALUE)), argThat(createProjectCommandMatcher(givenRequest)));
+        verify(createProjectUseCase).createProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), argThat(createProjectCommandMatcher(givenRequest)));
     }
 
     @MockUser
@@ -164,8 +141,39 @@ class ProjectControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(givenRequest)))
                         .andExpect(status().isOk());
-        verify(updateProjectUseCase).updateProject(eq(new ProjectUserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(expectedCommand));
+        verify(updateProjectUseCase).updateProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(expectedCommand));
     }
+
+    @MockUser
+    @Test
+    void addMember() throws Exception {
+        final var givenRequest = getAddMemberRequest();
+        final var givenProjectId = randomProjectId();
+        final var expectedEmail = new Email(givenRequest.getEmail());
+        mockMvc.perform(post("/api/projects/{projectId}/members", givenProjectId.value())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(givenRequest)))
+                .andExpect(status().isOk());
+        verify(addProjectMemberUseCase).addMember(eq(USER_ID), eq(givenProjectId), eq(expectedEmail));
+    }
+
+    @MockUser
+    @Test
+    void updateMemberRole() throws Exception {
+        final var givenRequest = getUpdateMemberRequest();
+        final var givenProjectId = randomProjectId();
+        final var expectedCommand = UpdateMemberRoleCommand.builder()
+                .projectId(givenProjectId)
+                .memberId(new UserId(givenRequest.getMemberId()))
+                .role(givenRequest.getRole())
+                .build();
+        mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(givenRequest)))
+                        .andExpect(status().isOk());
+        verify(updateMemberRoleUseCase).updateMemberRole(eq(USER_ID), eq(expectedCommand));
+    }
+
 
     @MockUser
     @Test
@@ -184,7 +192,7 @@ class ProjectControllerTest {
                 .totalPages(2)
                 .content(randomTaskPreviews(expectedQuery.getPageSize()))
                 .build();
-        doReturn(expectedTaskPreviews).when(findTasksUseCase).findTasks(eq(PROJECT_USER_ID), eq(expectedQuery));
+        doReturn(expectedTaskPreviews).when(findTasksUseCase).findTasks(eq(USER_ID), eq(expectedQuery));
         final var responseBody = mockMvc.perform(get("/api/projects/{projectId}/tasks", givenProjectId.value()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -199,7 +207,7 @@ class ProjectControllerTest {
     @Test
     void getTasks_withCustomParams() throws Exception {
         final var givenProjectId = randomProjectId();
-        final var givenAssigneeId = randomProjectUser().id();
+        final var givenAssigneeId = randomUserId();
         final var givenTaskStatus = Set.of(TaskStatus.DONE, TaskStatus.IN_PROGRESS);
         final var expectedQuery = FindTasksQuery.builder()
                 .pageNumber(2)
@@ -217,7 +225,7 @@ class ProjectControllerTest {
                 .totalPages(totalTasks / expectedQuery.getPageSize())
                 .content(randomTaskPreviews(expectedQuery.getPageSize()))
                 .build();
-        doReturn(expectedTaskPreviews).when(findTasksUseCase).findTasks(eq(PROJECT_USER_ID), eq(expectedQuery));
+        doReturn(expectedTaskPreviews).when(findTasksUseCase).findTasks(eq(USER_ID), eq(expectedQuery));
         final var responseBody = mockMvc.perform(get("/api/projects/{projectId}/tasks", givenProjectId.value())
                         .param("page", "2")
                         .param("size", "10")
@@ -241,7 +249,7 @@ class ProjectControllerTest {
         final var expectedCommand = CreateTaskCommand.builder()
                 .title(givenRequest.getTitle())
                 .description(givenRequest.getDescription())
-                .assigneeId(new ProjectUserId(givenRequest.getAssigneeId()))
+                .assigneeId(new UserId(givenRequest.getAssigneeId()))
                 .build();
 
         mockMvc.perform(post("/api/projects/{projectId}/tasks", givenProjectId.value())
@@ -249,7 +257,7 @@ class ProjectControllerTest {
                         .content(objectMapper.writeValueAsString(givenRequest)))
                 .andExpect(status().isCreated());
 
-        verify(createTaskUseCase).createTask(eq(PROJECT_USER_ID), eq(givenProjectId), eq(expectedCommand));
+        verify(createTaskUseCase).createTask(eq(USER_ID), eq(givenProjectId), eq(expectedCommand));
     }
 
     private void assertMatches(Page<TaskPreview> expected, PagedResponse<TaskPreviewDto> actual) {
@@ -272,6 +280,17 @@ class ProjectControllerTest {
         assertMatches(expected.assignee(), actual.getAssignee());
     }
 
+    private void assertMatches(UserInfo expected, UserInfoDto actual) {
+        assertEquals(expected.id().value(), actual.getId());
+        assertEquals(expected.email().value(), actual.getEmail());
+        assertEquals(expected.firstName(), actual.getFirstName());
+        assertEquals(expected.lastName(), actual.getLastName());
+        assertEquals(
+                "%s %s".formatted(expected.firstName(), expected.lastName()),
+                actual.getFullName()
+        );
+    }
+
     private CreateTaskRequest getCreateTaskRequest() {
         final var request = new CreateTaskRequest();
         request.setTitle("New task");
@@ -287,8 +306,8 @@ class ProjectControllerTest {
                 .updatedAt(Instant.now())
                 .title("Project title")
                 .description("Project description")
-                .owner(randomProjectUser())
-                .members(Set.of(randomProjectUser()))
+                .owner(randomMemberView())
+                .members(Set.of(randomMemberView()))
                 .build();
     }
 
@@ -304,11 +323,11 @@ class ProjectControllerTest {
         assertMatches(expected.owner(), actual.getOwner());
     }
 
-    private void assertMatches(ProjectUser expected, ProjectUserDto actual) {
+    private void assertMatches(MemberView expected, MemberDto actual) {
         assertEquals(expected.id().value(), actual.getId());
         assertEquals(expected.email().value(), actual.getEmail());
-        assertEquals(expected.firstName(), actual.getFirstName());
-        assertEquals(expected.lastName(), actual.getLastName());
+        assertEquals(expected.fullName(), actual.getFullName());
+        assertEquals(expected.role(), actual.getRole());
     }
 
     private void assertMatches(ProjectDetails expected, ProjectDetailsDto actual) {
@@ -318,10 +337,10 @@ class ProjectControllerTest {
         assertEquals(expected.title(), actual.getTitle());
         assertEquals(expected.description(), actual.getDescription());
         assertMatches(expected.owner(), actual.getOwner());
-        assertMatches(expected.members().toArray(new ProjectUser[]{}), actual.getMembers().toArray(new ProjectUserDto[]{}));
+        assertMatches(expected.members().toArray(new MemberView[]{}), actual.getMembers().toArray(new MemberDto[]{}));
     }
 
-    private void assertMatches(ProjectUser[] expected, ProjectUserDto[] actual) {
+    private void assertMatches(MemberView[] expected, MemberDto[] actual) {
         for (int i = 0; i < expected.length; i++) {
             assertMatches(expected[i], actual[i]);
         }
@@ -341,6 +360,13 @@ class ProjectControllerTest {
         return request;
     }
 
+    private UpdateMemberRoleRequest getUpdateMemberRequest() {
+        final var request = new UpdateMemberRoleRequest();
+        request.setMemberId(randomLong());
+        request.setRole(MemberRole.ADMIN);
+        return request;
+    }
+
     private List<ProjectPreview> randomProjectPreviews() {
         return IntStream.range(0, 20)
                 .mapToObj(value -> randomProjectPreview())
@@ -352,7 +378,7 @@ class ProjectControllerTest {
         return ProjectPreview.builder()
                 .id(new ProjectId(randomProjectIdValue))
                 .title("Title %d".formatted(randomProjectIdValue))
-                .owner(TestUtils.randomProjectUser())
+                .owner(TestUtils.randomMemberView())
                 .build();
     }
 
@@ -371,8 +397,14 @@ class ProjectControllerTest {
                 .number(new TaskNumber(randomLong()))
                 .title("Task %d".formatted(idValue))
                 .status(TaskStatus.IN_PROGRESS)
-                .assignee(randomProjectUser())
+                .assignee(randomUserInfo())
                 .build();
+    }
+
+    private AddProjectMemberRequest getAddMemberRequest() {
+        AddProjectMemberRequest request = new AddProjectMemberRequest();
+        request.setEmail("member@domain.com");
+        return request;
     }
 
     private ProjectId randomProjectId() {

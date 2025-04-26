@@ -20,9 +20,9 @@ public class ProjectDetailsDto {
     private Instant updatedAt;
     private String title;
     private String description;
-    private ProjectUserDto owner;
+    private MemberDto owner;
     private Set<TaskStatus> taskStatuses;
-    private Set<ProjectUserDto> members;
+    private Set<MemberDto> members;
 
     @Builder
     public ProjectDetailsDto(Long id,
@@ -30,9 +30,9 @@ public class ProjectDetailsDto {
                              Instant updatedAt,
                              String title,
                              String description,
-                             ProjectUserDto owner,
+                             MemberDto owner,
                              Set<TaskStatus> taskStatuses,
-                             Set<ProjectUserDto> members) {
+                             Set<MemberDto> members) {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;

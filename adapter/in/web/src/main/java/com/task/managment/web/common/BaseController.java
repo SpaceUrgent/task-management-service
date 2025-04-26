@@ -1,16 +1,16 @@
-package com.task.managment.web.project;
+package com.task.managment.web.common;
 
-import com.task.management.domain.project.model.ProjectUserId;
+import com.task.management.domain.common.model.UserId;
 import com.task.managment.web.security.SecuredUser;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public abstract class BaseController {
 
-    protected ProjectUserId actorId() {
-        return new ProjectUserId(actor().getId());
+    protected UserId actor() {
+        return new UserId(securedUser().getId());
     }
 
-    protected SecuredUser actor() {
+    protected SecuredUser securedUser() {
         final var authentication = SecurityContextHolder.getContext().getAuthentication();
         return (SecuredUser) authentication.getDetails();
     }

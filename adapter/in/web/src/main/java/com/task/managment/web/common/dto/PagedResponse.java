@@ -1,4 +1,4 @@
-package com.task.managment.web;
+package com.task.managment.web.common.dto;
 
 import lombok.Builder;
 import lombok.Data;

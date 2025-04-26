@@ -1,14 +1,14 @@
 package com.task.managment.web.project.dto;
 
+import com.task.management.domain.project.model.MemberRole;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class ProjectUserDto {
+public class MemberDto {
     private Long id;
     private String email;
-    private String firstName;
-    private String lastName;
     private String fullName;
+    private MemberRole role;
 }

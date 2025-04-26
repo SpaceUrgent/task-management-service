@@ -2,6 +2,7 @@ package com.task.managment.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.management.domain.common.application.UseCaseException;
+import com.task.managment.web.common.dto.ErrorResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

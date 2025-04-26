@@ -8,5 +8,5 @@ import lombok.Data;
 public class ProjectPreviewDto {
     private Long id;
     private String title;
-    private ProjectUserDto owner;
+    private MemberDto owner;
 }

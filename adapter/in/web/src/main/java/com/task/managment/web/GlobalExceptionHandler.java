@@ -2,6 +2,7 @@ package com.task.managment.web;
 
 import com.task.management.domain.common.application.UseCaseException;
 import com.task.management.domain.common.application.UseCaseException.EntityNotFoundException;
+import com.task.managment.web.common.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;

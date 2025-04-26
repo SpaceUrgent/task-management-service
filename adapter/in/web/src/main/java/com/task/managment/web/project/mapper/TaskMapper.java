@@ -2,6 +2,7 @@ package com.task.managment.web.project.mapper;
 
 import com.task.management.domain.project.projection.TaskDetails;
 import com.task.management.domain.project.projection.TaskPreview;
+import com.task.managment.web.common.mapper.UserInfoMapper;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TaskMapper {
 
-    private final ProjectUserMapper projectUserDtoMapper;
+    private final UserInfoMapper userInfoMapper;
 
     public TaskPreviewDto toDto(TaskPreview taskPreview) {
         return TaskPreviewDto.builder()
@@ -21,7 +22,7 @@ public class TaskMapper {
                 .number(taskPreview.number().value())
                 .title(taskPreview.title())
                 .status(taskPreview.status())
-                .assignee(projectUserDtoMapper.toDto(taskPreview.assignee()))
+                .assignee(userInfoMapper.toDto(taskPreview.assignee()))
                 .build();
     }
 
@@ -35,8 +36,8 @@ public class TaskMapper {
                 .description(taskDetails.description())
                 .projectId(taskDetails.projectId().value())
                 .status(taskDetails.status())
-                .assignee(projectUserDtoMapper.toDto(taskDetails.assignee()))
-                .owner(projectUserDtoMapper.toDto(taskDetails.owner()))
+                .assignee(userInfoMapper.toDto(taskDetails.assignee()))
+                .owner(userInfoMapper.toDto(taskDetails.owner()))
                 .build();
     }
 }

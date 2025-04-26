@@ -1,13 +1,14 @@
 package com.task.managment.web.project;
 
 import com.task.management.domain.common.application.UseCaseException;
-import com.task.management.domain.project.model.ProjectUserId;
+import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.TaskId;
 import com.task.management.domain.project.port.in.AssignTaskUseCase;
 import com.task.management.domain.project.port.in.GetTaskDetailsUseCase;
 import com.task.management.domain.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.domain.project.port.in.UpdateTaskUseCase;
 import com.task.management.domain.project.application.command.UpdateTaskCommand;
+import com.task.managment.web.common.BaseController;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.request.AssignTaskRequest;
 import com.task.managment.web.project.dto.request.UpdateTaskRequest;
@@ -36,7 +37,7 @@ public class TaskController extends BaseController {
 
     @GetMapping("/{taskId}")
     public TaskDetailsDto getTaskDetails(@PathVariable Long taskId) throws UseCaseException {
-        final var taskDetails = getTaskDetailsUseCase.getTaskDetails(actorId(), new TaskId(taskId));
+        final var taskDetails = getTaskDetailsUseCase.getTaskDetails(actor(), new TaskId(taskId));
         return taskDetailsDtoMapper.toDto(taskDetails);
     }
 
@@ -46,21 +47,21 @@ public class TaskController extends BaseController {
         final var command = UpdateTaskCommand.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .assigneeId(new ProjectUserId(request.getAssigneeId()))
+                .assigneeId(new UserId(request.getAssigneeId()))
                 .taskStatus(request.getStatus())
                 .build();
-        updateTaskUseCase.updateTask(actorId(), new TaskId(taskId), command);
+        updateTaskUseCase.updateTask(actor(), new TaskId(taskId), command);
     }
 
     @PatchMapping("/{taskId}/status")
     public void updateStatus(@PathVariable Long taskId,
                              @RequestBody @Valid @NotNull UpdateTaskStatusRequest request) throws UseCaseException {
-        updateTaskStatusUseCase.updateStatus(actorId(), new TaskId(taskId), request.getStatus());
+        updateTaskStatusUseCase.updateStatus(actor(), new TaskId(taskId), request.getStatus());
     }
 
     @PatchMapping("/{taskId}/assign")
     public void assignTask(@PathVariable Long taskId,
                            @RequestBody @Valid @NotNull AssignTaskRequest request) throws UseCaseException {
-        assignTaskUseCase.assignTask(actorId(), new TaskId(taskId), new ProjectUserId(request.getAssigneeId()));
+        assignTaskUseCase.assignTask(actor(), new TaskId(taskId), new UserId(request.getAssigneeId()));
     }
 }

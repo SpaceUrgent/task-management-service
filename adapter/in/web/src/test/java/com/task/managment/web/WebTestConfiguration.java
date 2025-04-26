@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-//@ComponentScan(basePackages = "com.task.managment.web")
 @EnableAutoConfiguration
 @Configuration
 public class WebTestConfiguration {
