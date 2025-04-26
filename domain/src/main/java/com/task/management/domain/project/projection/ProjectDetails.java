@@ -1,6 +1,5 @@
 package com.task.management.domain.project.projection;
 
-import com.task.management.domain.project.model.Member;
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.TaskStatus;
 import lombok.Builder;
@@ -42,6 +41,4 @@ public record ProjectDetails(
         notEmpty(taskStatuses, "Task status set");
         notEmpty(members, "Members");
     }
-
-
 }
