@@ -82,14 +82,14 @@ class UserServiceTest {
                 .lastName("LName")
                 .build();
         final var givenActorId = expectedUserProfile.id();
-        doReturn(Optional.of(expectedUserProfile)).when(userRepositoryPort).findUserProfile(eq(givenActorId));
+        doReturn(Optional.of(expectedUserProfile)).when(userRepositoryPort).find(eq(givenActorId));
         assertEquals(expectedUserProfile, userService.getUserProfile(givenActorId));
     }
 
     @Test
     void getUserProfile_shouldThrowEntityNotFoundException_whenUserDoesNotExist() {
         final var givenActorId = randomUserId();
-        doReturn(Optional.empty()).when(userRepositoryPort).findUserProfile(eq(givenActorId));
+        doReturn(Optional.empty()).when(userRepositoryPort).find(eq(givenActorId));
         assertThrows(UseCaseException.EntityNotFoundException.class, () -> userService.getUserProfile(givenActorId));
     }
 

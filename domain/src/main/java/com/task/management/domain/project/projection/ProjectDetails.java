@@ -18,9 +18,9 @@ public record ProjectDetails(
         Instant updatedAt,
         String title,
         String description,
-        Member owner,
+        MemberView owner,
         Set<TaskStatus> taskStatuses,
-        Set<Member> members
+        Set<MemberView> members
 ) {
 
     @Builder
@@ -29,8 +29,8 @@ public record ProjectDetails(
                           Instant updatedAt,
                           String title,
                           String description,
-                          Member owner,
-                          Set<Member> members) {
+                          MemberView owner,
+                          Set<MemberView> members) {
         this(id, createdAt, updatedAt, title, description, owner, TaskStatus.all(), members);
     }
 

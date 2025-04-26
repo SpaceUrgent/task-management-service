@@ -1,5 +1,6 @@
 package com.task.management.domain.project.projection;
 
+import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.project.model.TaskId;
 import com.task.management.domain.project.model.TaskNumber;
 import com.task.management.domain.project.model.TaskStatus;
@@ -17,7 +18,7 @@ public record TaskPreview(
         Instant updatedAt,
         String title,
         TaskStatus status,
-        MemberView assignee
+        UserInfo assignee
 ) {
     @Builder
     public TaskPreview {

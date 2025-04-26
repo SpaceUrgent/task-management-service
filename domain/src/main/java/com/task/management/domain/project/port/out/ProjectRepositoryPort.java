@@ -2,7 +2,6 @@ package com.task.management.domain.project.port.out;
 
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.*;
-import com.task.management.domain.project.projection.MemberView;
 import com.task.management.domain.project.projection.ProjectDetails;
 import com.task.management.domain.project.projection.ProjectPreview;
 
@@ -16,13 +15,5 @@ public interface ProjectRepositoryPort {
 
     List<ProjectPreview> findProjectsByMember(UserId memberId);
 
-    void addMember(ProjectId projectId, UserId memberId);
-
-    List<MemberView> findMembers(ProjectId id);
-
-    Optional<Member> findMember(ProjectId projectId, UserId memberId);
-
     Optional<ProjectDetails> findProjectDetails(ProjectId projectId);
-
-    boolean isMember(UserId memberId, ProjectId projectId);
 }

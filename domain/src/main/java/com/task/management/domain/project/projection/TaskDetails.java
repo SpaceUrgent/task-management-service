@@ -1,5 +1,6 @@
 package com.task.management.domain.project.projection;
 
+import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.project.model.*;
 import lombok.Builder;
 
@@ -17,8 +18,8 @@ public record TaskDetails(
         String title,
         String description,
         TaskStatus status,
-        MemberView owner,
-        MemberView assignee
+        UserInfo owner,
+        UserInfo assignee
 ) {
     @Builder
     public TaskDetails {

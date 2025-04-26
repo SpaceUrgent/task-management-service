@@ -150,22 +150,6 @@ class TaskServiceTest {
     }
 
     @Test
-    void updateTask_shouldThrowIllegalAccessException_whenCurrentUserIsNotTaskOwner() {
-        final var task = randomTask();
-        final var givenActorId = randomUserId();
-        final var givenCommand = UpdateTaskCommand.builder()
-                .title("Updated title")
-                .description("Updated description")
-                .build();
-        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(task.getId()));
-        assertThrows(
-                UseCaseException.IllegalAccessException.class,
-                () -> taskService.updateTask(givenActorId, task.getId(), givenCommand)
-        );
-        verify(taskRepositoryPort, times(0)).save(any());
-    }
-
-    @Test
     void updateStatus_shouldSaveUpdatedTask_whenAllConditionsMet() throws UseCaseException {
         final var task = randomTask();
         final var givenActorId = task.getAssignee();
@@ -188,20 +172,6 @@ class TaskServiceTest {
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
-                () -> taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus)
-        );
-        verify(taskRepositoryPort, times(0)).save(any());
-    }
-
-    @Test
-    void updateStatus_shouldThrowIllegalAccessException_whenUserIsNorOwnerNorAssignee() {
-        final var task = randomTask();
-        final var givenActorId = randomUserId();
-        final var givenTaskId = randomTaskId();
-        final var givenTaskStatus = TaskStatus.DONE;
-        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
-        assertThrows(
-                UseCaseException.IllegalAccessException.class,
                 () -> taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus)
         );
         verify(taskRepositoryPort, times(0)).save(any());
@@ -314,8 +284,8 @@ class TaskServiceTest {
                 .status(TaskStatus.IN_PROGRESS)
                 .title("Title")
                 .description("Description")
-                .owner(randomMemberView())
-                .assignee(randomMemberView())
+                .owner(randomUserInfo())
+                .assignee(randomUserInfo())
                 .build();
     }
 
@@ -332,7 +302,7 @@ class TaskServiceTest {
                 .createdAt(Instant.now())
                 .title("Title")
                 .status(TaskStatus.IN_PROGRESS)
-                .assignee(randomMemberView())
+                .assignee(randomUserInfo())
                 .build();
     }
 }

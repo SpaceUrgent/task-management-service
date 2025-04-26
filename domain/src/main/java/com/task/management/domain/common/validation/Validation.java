@@ -1,6 +1,7 @@
 package com.task.management.domain.common.validation;
 
 import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.UserId;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -11,6 +12,10 @@ public final class Validation {
 
     public static <T> T parameterRequired(T parameterValue, String argumentName) {
         return Objects.requireNonNull(parameterValue, "%s is required".formatted(argumentName));
+    }
+
+    public static UserId actorIdRequired(UserId actorId) {
+        return parameterRequired(actorId, "Actor id");
     }
 
     public static String notBlank(String argumentValue, String argumentName) {

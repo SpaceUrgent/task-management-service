@@ -32,7 +32,7 @@ public final class ProjectTestUtils {
         return invocation ->  selfClass.cast(invocation.getArgument(0));
     }
 
-    static MemberView randomMemberView() {
+    public static MemberView randomMemberView() {
         return MemberView.builder()
                 .id(randomUserId())
                 .email(new Email("project-user@mail.com"))
@@ -40,7 +40,7 @@ public final class ProjectTestUtils {
                 .build();
     }
 
-    static UserInfo randomUserInfo() {
+    public static UserInfo randomUserInfo() {
         return UserInfo.builder()
                 .id(randomUserId())
                 .email(new Email("username@domain.com"))

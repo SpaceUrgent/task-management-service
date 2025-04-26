@@ -4,7 +4,6 @@ import com.task.management.domain.common.model.Email;
 import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.domain.project.model.ProjectUser;
 import com.task.management.domain.project.model.ProjectUserId;
-import com.task.management.domain.project.port.out.UserRepositoryPort;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.project.mapper.ProjectUserMapper;
 import lombok.RequiredArgsConstructor;

@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 
+import static com.task.management.domain.common.validation.Validation.actorIdRequired;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 @AppComponent
@@ -45,7 +46,7 @@ public class TaskService implements CreateTaskUseCase,
     public void createTask(final UserId actorId,
                            final ProjectId projectId,
                            final CreateTaskCommand command) throws UseCaseException {
-        parameterRequired(actorId, "Actor id");
+        actorIdRequired(actorId);
         parameterRequired(projectId, "Project id");
         validationService.validate(command);
         projectService.checkIsMember(actorId, projectId);
@@ -67,11 +68,11 @@ public class TaskService implements CreateTaskUseCase,
     public void updateTask(final UserId actorId,
                            final TaskId taskId,
                            final UpdateTaskCommand command) throws UseCaseException {
-        parameterRequired(actorId, "Actor id");
-        parameterRequired(taskId, "Task id");
+        actorIdRequired(actorId);
+        taskIdRequired(taskId);
         validationService.validate(command);
         var task = findOrThrow(taskId);
-        checkUserIsOwner(actorId, task);
+        projectService.checkIsMember(actorId, task.getProject());
         task.updateTitle(command.title());
         task.updateDescription(command.description());
         taskRepositoryPort.save(task);
@@ -82,11 +83,11 @@ public class TaskService implements CreateTaskUseCase,
     public void updateStatus(final UserId actorId,
                              final TaskId taskId,
                              final TaskStatus status) throws UseCaseException {
-        parameterRequired(actorId, "Actor id");
-        parameterRequired(taskId, "Task id");
+        actorIdRequired(actorId);
+        taskIdRequired(taskId);
         parameterRequired(status, "Task status");
         final var task = findOrThrow(taskId);
-        checkAllowedToUpdateStatus(actorId, task);
+        projectService.checkIsMember(actorId, task.getProject());
         task.updateStatus(status);
         taskRepositoryPort.save(task);
     }
@@ -96,11 +97,11 @@ public class TaskService implements CreateTaskUseCase,
     public void assignTask(final UserId actorId,
                            final TaskId taskId,
                            final UserId assigneeId) throws UseCaseException {
-        parameterRequired(actorId, "Actor id");
-        parameterRequired(taskId, "Task id");
+        actorIdRequired(actorId);
+        taskIdRequired(taskId);
         parameterRequired(assigneeId, "Assignee id is required");
         final var task = findOrThrow(taskId);
-        checkAllowedToAssign(actorId, task);
+        projectService.checkIsMember(actorId, task.getProject());
         checkAssigneeIsMember(assigneeId, task.getProject());
         task.assignTo(assigneeId);
         taskRepositoryPort.save(task);
@@ -110,8 +111,8 @@ public class TaskService implements CreateTaskUseCase,
     @Override
     public TaskDetails getTaskDetails(final UserId actorId,
                                       final TaskId taskId) throws UseCaseException {
-        parameterRequired(actorId, "Actor id");
-        parameterRequired(taskId, "Task id");
+        actorIdRequired(actorId);
+        taskIdRequired(taskId);
         final var taskDetails = findTaskDetailsOrThrow(taskId);
         projectService.checkIsMember(actorId, taskDetails.projectId());
         return taskDetails;
@@ -121,7 +122,7 @@ public class TaskService implements CreateTaskUseCase,
     @Override
     public Page<TaskPreview> findTasks(final UserId actorId,
                                        final FindTasksQuery query) throws UseCaseException {
-        parameterRequired(actorId, "Actor id");
+        actorIdRequired(actorId);
         parameterRequired(query, "Query");
         projectService.checkIsMember(actorId, query.getProjectId());
         return taskRepositoryPort.findProjectTasks(query);
@@ -143,29 +144,11 @@ public class TaskService implements CreateTaskUseCase,
         }
     }
 
-    private void checkUserIsOwner(UserId userId, Task task) throws UseCaseException.IllegalAccessException {
-        if (!task.isOwnedBy(userId)) {
-            throw new UseCaseException.IllegalAccessException("Current user is not allowed modify task");
-        }
-    }
-
-    private void checkAllowedToUpdateStatus(UserId userId, Task task) throws UseCaseException.IllegalAccessException {
-        if (!hasDirectAccessToTask(userId, task)) {
-            throw new UseCaseException.IllegalAccessException("Current user is not allowed to update task status");
-        }
-    }
-
-    private void checkAllowedToAssign(UserId userId, Task task) throws UseCaseException.IllegalAccessException {
-        if (!hasDirectAccessToTask(userId, task)) {
-            throw new UseCaseException.IllegalAccessException("Current user is not allowed to assign task");
-        }
-    }
-
-    private boolean hasDirectAccessToTask(UserId userId, Task task) {
-        return task.isOwnedBy(userId) || task.isAssignedTo(userId);
-    }
-
     private static UseCaseException.IllegalAccessException projectMemberNotFoundException() {
         return new UseCaseException.IllegalAccessException("Project member not found");
+    }
+
+    private static void taskIdRequired(TaskId taskId) {
+        parameterRequired(taskId, "Task id");
     }
 }

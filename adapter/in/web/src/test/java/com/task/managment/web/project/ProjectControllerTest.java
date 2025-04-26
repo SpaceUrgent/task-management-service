@@ -11,7 +11,6 @@ import com.task.management.domain.project.port.in.CreateTaskUseCase;
 import com.task.management.domain.project.port.in.FindTasksUseCase;
 import com.task.management.domain.project.port.in.GetAvailableProjectsUseCase;
 import com.task.management.domain.project.port.in.GetProjectDetailsUseCase;
-import com.task.management.domain.project.port.in.GetProjectMembersUseCase;
 import com.task.management.domain.project.port.in.UpdateProjectUseCase;
 import com.task.management.domain.project.application.command.CreateProjectCommand;
 import com.task.management.domain.project.application.command.CreateTaskCommand;

@@ -3,6 +3,7 @@ package com.task.management.domain.iam.application.service;
 import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.domain.common.annotation.UseCase;
 import com.task.management.domain.common.application.UseCaseException;
+import com.task.management.domain.common.port.out.UserInfoRepositoryPort;
 import com.task.management.domain.common.validation.ValidationService;
 import com.task.management.domain.iam.application.EmailExistsException;
 import com.task.management.domain.common.model.UserId;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 
+import static com.task.management.domain.common.validation.Validation.actorIdRequired;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 @AppComponent
@@ -49,12 +51,12 @@ public class UserService implements RegisterUserUseCase,
     @UseCase
     @Override
     public UserInfo getUserProfile(UserId actorId) throws UseCaseException {
-        parameterRequired(actorId, "Actor id");
+        actorIdRequired(actorId);
         return findOrThrow(actorId);
     }
 
     private UserInfo findOrThrow(UserId id) throws UseCaseException {
-        return userRepositoryPort.findUserProfile(id)
+        return userRepositoryPort.find(id)
                 .orElseThrow(() -> new UseCaseException.EntityNotFoundException("User not found"));
     }
 }

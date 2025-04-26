@@ -21,7 +21,22 @@ public class Member {
         this.role = role;
     }
 
+    public static Member create(UserId userId, ProjectId projectId) {
+        return Member.builder()
+                .id(userId)
+                .projectId(projectId)
+                .build();
+    }
+
+    public boolean isOwnerOrAdmin() {
+        return isOwner() || isAdmin();
+    }
+
     public boolean isOwner() {
         return MemberRole.OWNER == this.role;
+    }
+
+    private boolean isAdmin() {
+        return MemberRole.ADMIN == this.role;
     }
 }

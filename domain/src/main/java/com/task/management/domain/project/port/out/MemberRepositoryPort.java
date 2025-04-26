@@ -5,9 +5,9 @@ import com.task.management.domain.project.model.*;
 
 import java.util.Optional;
 
-public interface ProjectMemberRepositoryPort {
+public interface MemberRepositoryPort {
 
-    Optional<Member> findMember(ProjectId projectId, UserId memberId);
+    Member save(Member member);
 
-    Member update(Member member);
+    Optional<Member> find(ProjectId projectId, UserId memberId);
 }
