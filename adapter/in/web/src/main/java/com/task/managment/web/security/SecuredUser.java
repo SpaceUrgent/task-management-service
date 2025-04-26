@@ -1,7 +1,6 @@
 package com.task.managment.web.security;
 
-import com.task.management.domain.common.UserCredentials;
-import com.task.management.domain.iam.model.UserId;
+import com.task.management.domain.iam.model.UserCredentials;
 import com.task.management.domain.project.model.ProjectUserId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

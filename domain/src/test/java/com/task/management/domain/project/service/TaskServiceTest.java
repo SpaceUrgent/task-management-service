@@ -1,15 +1,17 @@
 package com.task.management.domain.project.service;
 
-import com.task.management.domain.common.Page;
-import com.task.management.domain.common.UseCaseException;
+import com.task.management.domain.common.projection.Page;
+import com.task.management.domain.common.application.UseCaseException;
 import com.task.management.domain.common.validation.ValidationService;
+import com.task.management.domain.project.application.service.ProjectService;
+import com.task.management.domain.project.application.service.TaskService;
 import com.task.management.domain.project.model.Task;
-import com.task.management.domain.project.model.TaskDetails;
-import com.task.management.domain.project.model.TaskPreview;
+import com.task.management.domain.project.projection.TaskDetails;
+import com.task.management.domain.project.projection.TaskPreview;
 import com.task.management.domain.project.model.TaskStatus;
-import com.task.management.domain.project.port.in.command.CreateTaskCommand;
-import com.task.management.domain.project.port.in.command.UpdateTaskCommand;
-import com.task.management.domain.project.port.in.query.FindTasksQuery;
+import com.task.management.domain.project.application.command.CreateTaskCommand;
+import com.task.management.domain.project.application.command.UpdateTaskCommand;
+import com.task.management.domain.project.application.query.FindTasksQuery;
 import com.task.management.domain.project.port.out.TaskRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,9 +54,9 @@ class TaskServiceTest {
 
     @Test
     void createTask_shouldReturnCreatedTask_whenAllConditionsMet() throws UseCaseException {
-        final var owner = randomProjectUser();
+        final var owner = randomMemberView();
         final var givenActorId = owner.id();
-        final var assignee = randomProjectUser();
+        final var assignee = randomMemberView();
         final var givenProjectId = randomProjectId();
         final var givenCommand = CreateTaskCommand.builder()
                 .title("New task title")
@@ -75,8 +77,8 @@ class TaskServiceTest {
 
     @Test
     void createTask_shouldThrowIllegalAccessException_whenOwnerIsNotProjectMember() {
-        final var assignee = randomProjectUser();
-        final var givenActorId = randomProjectUserId();
+        final var assignee = randomMemberView();
+        final var givenActorId = randomUserId();
         final var givenProjectId = randomProjectId();
         final var givenCommand = CreateTaskCommand.builder()
                 .title("New task title")
@@ -95,13 +97,13 @@ class TaskServiceTest {
 
     @Test
     void createTask_shouldThrowIllegalAccessException_whenAssigneeIsNotProjectMember() {
-        final var owner = randomProjectUser();
+        final var owner = randomMemberView();
         final var givenActorId = owner.id();
         final var givenProjectId = randomProjectId();
         final var givenCommand = CreateTaskCommand.builder()
                 .title("New task title")
                 .description("New task description")
-                .assigneeId(randomProjectUserId())
+                .assigneeId(randomUserId())
                 .build();
         doReturn(false).when(projectService).isMember(eq(givenCommand.assigneeId()), eq(givenProjectId));
         assertThrows(
@@ -142,7 +144,7 @@ class TaskServiceTest {
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
-                () -> taskService.updateTask(randomProjectUserId(), givenTaskId, givenCommand)
+                () -> taskService.updateTask(randomUserId(), givenTaskId, givenCommand)
         );
         verify(taskRepositoryPort, times(0)).save(any());
     }
@@ -150,7 +152,7 @@ class TaskServiceTest {
     @Test
     void updateTask_shouldThrowIllegalAccessException_whenCurrentUserIsNotTaskOwner() {
         final var task = randomTask();
-        final var givenActorId = randomProjectUserId();
+        final var givenActorId = randomUserId();
         final var givenCommand = UpdateTaskCommand.builder()
                 .title("Updated title")
                 .description("Updated description")
@@ -180,7 +182,7 @@ class TaskServiceTest {
 
     @Test
     void updateStatus_shouldThrowEntityNotFoundException_whenTaskNotFound() {
-        final var givenActorId = randomProjectUserId();
+        final var givenActorId = randomUserId();
         final var givenTaskId = randomTaskId();
         final var givenTaskStatus = TaskStatus.DONE;
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
@@ -194,7 +196,7 @@ class TaskServiceTest {
     @Test
     void updateStatus_shouldThrowIllegalAccessException_whenUserIsNorOwnerNorAssignee() {
         final var task = randomTask();
-        final var givenActorId = randomProjectUserId();
+        final var givenActorId = randomUserId();
         final var givenTaskId = randomTaskId();
         final var givenTaskStatus = TaskStatus.DONE;
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
@@ -208,7 +210,7 @@ class TaskServiceTest {
     @Test
     void assignTask_shouldSaveUpdatedTask_whenAllConditionsMet() throws UseCaseException {
         final var task = randomTask();
-        final var assignee = randomProjectUser();
+        final var assignee = randomMemberView();
         final var givenActorId = task.getAssignee();
         final var givenTaskId = task.getId();
         final var givenAssigneeId = assignee.id();
@@ -225,9 +227,9 @@ class TaskServiceTest {
 
     @Test
     void assignTask_shouldThrowEntityNotFoundException_whenTaskNotFound() {
-        final var givenActorId = randomProjectUserId();
+        final var givenActorId = randomUserId();
         final var givenTaskId = randomTaskId();
-        final var givenAssigneeId = randomProjectUserId();
+        final var givenAssigneeId = randomUserId();
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
@@ -239,9 +241,9 @@ class TaskServiceTest {
     @Test
     void assignTask_shouldThrowIllegalAccessException_whenActorDoesNotHaveAccess() {
         final var task = randomTask();
-        final var givenActorId = randomProjectUserId();
+        final var givenActorId = randomUserId();
         final var givenTaskId = task.getId();
-        final var givenAssigneeId = randomProjectUserId();
+        final var givenAssigneeId = randomUserId();
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
@@ -253,7 +255,7 @@ class TaskServiceTest {
     @Test
     void getTaskDetails_shouldReturnTaskDetails_whenAllConditionsMet() throws UseCaseException {
         final var expected = randomTaskDetails();
-        final var givenActorId = randomProjectUserId();
+        final var givenActorId = randomUserId();
         final var givenTaskId = expected.id();
         doReturn(Optional.of(expected)).when(taskRepositoryPort).findTaskDetails(eq(givenTaskId));
         assertEquals(expected, taskService.getTaskDetails(givenActorId, givenTaskId));
@@ -261,7 +263,7 @@ class TaskServiceTest {
 
     @Test
     void getTaskDetails_shouldThrowEntityNotFoundException_whenTaskNotFound() {
-        final var givenActorId = randomProjectUserId();
+        final var givenActorId = randomUserId();
         final var givenTaskId = randomTaskId();
         doReturn(Optional.empty()).when(taskRepositoryPort).findTaskDetails(eq(givenTaskId));
         assertThrows(
@@ -277,7 +279,7 @@ class TaskServiceTest {
                 .pageSize(20)
                 .projectId(randomProjectId())
                 .build();
-        final var givenActorId = randomProjectUserId();
+        final var givenActorId = randomUserId();
         final var expected = Page.<TaskPreview>builder()
                 .pageNo(givenQuery.getPageNumber())
                 .pageSize(givenQuery.getPageSize())
@@ -298,8 +300,8 @@ class TaskServiceTest {
                 .status(TaskStatus.IN_PROGRESS)
                 .title("Title")
                 .description("Description")
-                .owner(randomProjectUserId())
-                .assignee(randomProjectUserId())
+                .owner(randomUserId())
+                .assignee(randomUserId())
                 .build();
     }
 
@@ -312,8 +314,8 @@ class TaskServiceTest {
                 .status(TaskStatus.IN_PROGRESS)
                 .title("Title")
                 .description("Description")
-                .owner(randomProjectUser())
-                .assignee(randomProjectUser())
+                .owner(randomMemberView())
+                .assignee(randomMemberView())
                 .build();
     }
 
@@ -330,7 +332,7 @@ class TaskServiceTest {
                 .createdAt(Instant.now())
                 .title("Title")
                 .status(TaskStatus.IN_PROGRESS)
-                .assignee(randomProjectUser())
+                .assignee(randomMemberView())
                 .build();
     }
 }

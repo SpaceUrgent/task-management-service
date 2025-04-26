@@ -1,12 +1,12 @@
 package com.task.managment.web.iam;
 
-import com.task.management.domain.common.Email;
-import com.task.management.domain.iam.exception.EmailExistsException;
-import com.task.management.domain.iam.model.UserId;
-import com.task.management.domain.iam.model.UserProfile;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.iam.application.EmailExistsException;
+import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.iam.port.in.GetUserProfileUseCase;
 import com.task.management.domain.iam.port.in.RegisterUserUseCase;
-import com.task.management.domain.iam.port.in.command.RegisterUserCommand;
+import com.task.management.domain.iam.application.command.RegisterUserCommand;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.iam.dto.request.RegisterUserRequest;
@@ -121,8 +121,8 @@ class UserControllerTest {
         return registerUserDto;
     }
 
-    private static UserProfile getUserProfile() {
-        return UserProfile.builder()
+    private static UserInfo getUserProfile() {
+        return UserInfo.builder()
                 .id(new UserId(MockUser.DEFAULT_USER_ID_VALUE))
                 .email(new Email("user-%d@mail.com".formatted(MockUser.DEFAULT_USER_ID_VALUE)))
                 .firstName("FName-%d".formatted(MockUser.DEFAULT_USER_ID_VALUE))
@@ -139,7 +139,7 @@ class UserControllerTest {
                 .build();
     }
 
-    private static void assertMatches(UserProfile expectedUser, ResultActions apiActionResult) throws Exception {
+    private static void assertMatches(UserInfo expectedUser, ResultActions apiActionResult) throws Exception {
         apiActionResult
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(expectedUser.id().value()))

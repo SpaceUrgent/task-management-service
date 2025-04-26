@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.project.mapper;
 
-import com.task.management.domain.project.model.ProjectDetails;
+import com.task.management.domain.project.projection.ProjectDetails;
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.ProjectUser;
 import com.task.management.persistence.jpa.entity.ProjectEntity;

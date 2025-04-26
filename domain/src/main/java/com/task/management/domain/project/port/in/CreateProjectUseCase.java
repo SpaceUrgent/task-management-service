@@ -1,9 +1,9 @@
 package com.task.management.domain.project.port.in;
 
-import com.task.management.domain.common.UseCaseException;
-import com.task.management.domain.project.model.ProjectUserId;
-import com.task.management.domain.project.port.in.command.CreateProjectCommand;
+import com.task.management.domain.common.application.UseCaseException;
+import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.project.application.command.CreateProjectCommand;
 
 public interface CreateProjectUseCase {
-    void createProject(ProjectUserId actorId, CreateProjectCommand command) throws UseCaseException;
+    void createProject(UserId actorId, CreateProjectCommand command) throws UseCaseException;
 }

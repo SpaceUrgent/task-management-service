@@ -1,6 +1,6 @@
 package com.task.management.domain.common.validation;
 
-import com.task.management.domain.common.Email;
+import com.task.management.domain.common.model.Email;
 
 import java.util.Collection;
 import java.util.Objects;

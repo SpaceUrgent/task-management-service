@@ -1,11 +1,10 @@
 package com.task.managment.web;
 
-import com.task.management.domain.common.UseCaseException;
-import com.task.management.domain.common.UseCaseException.EntityNotFoundException;
+import com.task.management.domain.common.application.UseCaseException;
+import com.task.management.domain.common.application.UseCaseException.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.method.ParameterValidationResult;

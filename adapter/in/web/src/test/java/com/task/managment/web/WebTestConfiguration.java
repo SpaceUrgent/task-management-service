@@ -1,6 +1,6 @@
 package com.task.managment.web;
 
-import com.task.management.domain.common.interfaces.UserCredentialsPort;
+import com.task.management.domain.iam.port.out.UserCredentialsPort;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

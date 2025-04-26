@@ -1,8 +1,8 @@
 package com.task.managment.web.project;
 
-import com.task.management.domain.common.Email;
-import com.task.management.domain.common.Sort;
-import com.task.management.domain.common.UseCaseException;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.application.query.Sort;
+import com.task.management.domain.common.application.UseCaseException;
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.ProjectUserId;
 import com.task.management.domain.project.model.TaskStatus;
@@ -14,10 +14,10 @@ import com.task.management.domain.project.port.in.GetAvailableProjectsUseCase;
 import com.task.management.domain.project.port.in.GetProjectDetailsUseCase;
 import com.task.management.domain.project.port.in.GetProjectMembersUseCase;
 import com.task.management.domain.project.port.in.UpdateProjectUseCase;
-import com.task.management.domain.project.port.in.command.CreateProjectCommand;
-import com.task.management.domain.project.port.in.command.CreateTaskCommand;
-import com.task.management.domain.project.port.in.command.UpdateProjectCommand;
-import com.task.management.domain.project.port.in.query.FindTasksQuery;
+import com.task.management.domain.project.application.command.CreateProjectCommand;
+import com.task.management.domain.project.application.command.CreateTaskCommand;
+import com.task.management.domain.project.application.command.UpdateProjectCommand;
+import com.task.management.domain.project.application.query.FindTasksQuery;
 import com.task.managment.web.ListResponse;
 import com.task.managment.web.project.dto.ProjectDetailsDto;
 import com.task.managment.web.project.dto.ProjectPreviewDto;

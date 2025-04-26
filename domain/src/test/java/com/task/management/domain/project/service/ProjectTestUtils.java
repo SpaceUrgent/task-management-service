@@ -1,7 +1,10 @@
 package com.task.management.domain.project.service;
 
-import com.task.management.domain.common.Email;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.project.model.*;
+import com.task.management.domain.project.projection.MemberView;
 import org.mockito.stubbing.Answer;
 
 import java.util.List;
@@ -12,16 +15,16 @@ public final class ProjectTestUtils {
     private ProjectTestUtils() {
     }
 
-    static Answer<ProjectUser> getProjectUserAnswer() {
-        return invocation -> {
-            final var id = (ProjectUserId) invocation.getArgument(0);
-            return ProjectUser.withId(id);
-        };
-    }
+//    static Answer<UserInfo> getProjectUserAnswer() {
+//        return invocation -> {
+//            final var id = (UserInfo) invocation.getArgument(0);
+//            return ProjectUser.withId(id);
+//        };
+//    }
 
-    static List<ProjectUser> randomProjectUsers() {
+    static List<MemberView> randomProjectUsers() {
         return IntStream.range(0, 10)
-                .mapToObj(value -> randomProjectUser())
+                .mapToObj(value -> randomMemberView())
                 .toList();
     }
 
@@ -29,10 +32,18 @@ public final class ProjectTestUtils {
         return invocation ->  selfClass.cast(invocation.getArgument(0));
     }
 
-    static ProjectUser randomProjectUser() {
-        return ProjectUser.builder()
-                .id(randomProjectUserId())
+    static MemberView randomMemberView() {
+        return MemberView.builder()
+                .id(randomUserId())
                 .email(new Email("project-user@mail.com"))
+                .fullName("Fname Lname")
+                .build();
+    }
+
+    static UserInfo randomUserInfo() {
+        return UserInfo.builder()
+                .id(randomUserId())
+                .email(new Email("username@domain.com"))
                 .firstName("FName")
                 .lastName("LName")
                 .build();
@@ -50,8 +61,8 @@ public final class ProjectTestUtils {
         return new TaskNumber(randomLong());
     }
 
-    static ProjectUserId randomProjectUserId() {
-        return new ProjectUserId(randomLong());
+    static UserId randomUserId() {
+        return new UserId(randomLong());
     }
 
     static Long randomLong() {

@@ -1,5 +1,6 @@
 package com.task.management.domain.project.model;
 
+import com.task.management.domain.common.model.UserId;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,8 +27,8 @@ public class Task {
     private String title;
     private String description;
     private TaskStatus status;
-    private final ProjectUserId owner;
-    private ProjectUserId assignee;
+    private final UserId owner;
+    private UserId assignee;
 
     @Builder
     public Task(TaskId id,
@@ -38,8 +39,8 @@ public class Task {
                 String title,
                 String description,
                 TaskStatus status,
-                ProjectUserId owner,
-                ProjectUserId assignee) {
+                UserId owner,
+                UserId assignee) {
         this.id = id;
         this.createdAt = parameterRequired(createdAt, "Created time");
         this.updatedAt = updatedAt;
@@ -68,16 +69,16 @@ public class Task {
         this.description = description;
     }
 
-    public void assignTo(ProjectUserId assignee) {
+    public void assignTo(UserId assignee) {
         recordUpdateTime();
         this.assignee = parameterRequired(assignee, "Assignee");
     }
 
-    public boolean isOwnedBy(ProjectUserId userId) {
+    public boolean isOwnedBy(UserId userId) {
         return Objects.equals(this.owner, userId);
     }
 
-    public boolean isAssignedTo(ProjectUserId userId) {
+    public boolean isAssignedTo(UserId userId) {
         return Objects.equals(this.assignee, userId);
     }
 

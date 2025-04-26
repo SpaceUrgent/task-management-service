@@ -1,11 +1,9 @@
 package com.task.management.domain.iam.model;
 
-import com.task.management.domain.common.Email;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.UserId;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
 
 import java.time.Instant;
 

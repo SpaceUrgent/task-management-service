@@ -2,9 +2,9 @@ package com.task.management.persistence.jpa.project;
 
 import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.domain.project.model.Project;
-import com.task.management.domain.project.model.ProjectDetails;
+import com.task.management.domain.project.projection.ProjectDetails;
 import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.ProjectPreview;
+import com.task.management.domain.project.projection.ProjectPreview;
 import com.task.management.domain.project.model.ProjectUser;
 import com.task.management.domain.project.model.ProjectUserId;
 import com.task.management.domain.project.port.out.ProjectRepositoryPort;

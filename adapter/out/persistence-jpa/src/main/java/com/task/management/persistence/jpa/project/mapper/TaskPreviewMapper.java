@@ -2,7 +2,7 @@ package com.task.management.persistence.jpa.project.mapper;
 
 import com.task.management.domain.project.model.TaskId;
 import com.task.management.domain.project.model.TaskNumber;
-import com.task.management.domain.project.model.TaskPreview;
+import com.task.management.domain.project.projection.TaskPreview;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import static java.util.Objects.requireNonNull;

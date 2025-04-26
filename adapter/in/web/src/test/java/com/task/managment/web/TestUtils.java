@@ -1,8 +1,8 @@
 package com.task.managment.web;
 
-import com.task.management.domain.common.Email;
-import com.task.management.domain.common.UserCredentials;
-import com.task.management.domain.iam.model.UserId;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.iam.model.UserCredentials;
+import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.ProjectId;
 import com.task.management.domain.project.model.ProjectUser;
 import com.task.management.domain.project.model.ProjectUserId;

@@ -1,8 +1,8 @@
 package com.task.management.persistence.jpa.iam.mapper;
 
-import com.task.management.domain.common.Email;
-import com.task.management.domain.iam.model.UserId;
-import com.task.management.domain.iam.model.UserProfile;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.UserInfo;
 import com.task.management.persistence.jpa.entity.UserEntity;
 
 import java.util.Objects;
@@ -14,9 +14,9 @@ public class UserProfileMapper {
     private UserProfileMapper() {
     }
 
-    public UserProfile toModel(UserEntity userEntity) {
+    public UserInfo toModel(UserEntity userEntity) {
         Objects.requireNonNull(userEntity, "User entity is required");
-        return UserProfile.builder()
+        return UserInfo.builder()
                 .id(new UserId(userEntity.getId()))
                 .firstName(userEntity.getFirstName())
                 .lastName(userEntity.getLastName())

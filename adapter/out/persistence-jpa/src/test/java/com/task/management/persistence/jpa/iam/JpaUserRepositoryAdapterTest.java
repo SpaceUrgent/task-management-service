@@ -1,10 +1,10 @@
 package com.task.management.persistence.jpa.iam;
 
-import com.task.management.domain.common.Email;
+import com.task.management.domain.common.model.Email;
 import com.task.management.domain.iam.model.User;
-import com.task.management.domain.common.UserCredentials;
-import com.task.management.domain.iam.model.UserId;
-import com.task.management.domain.iam.model.UserProfile;
+import com.task.management.domain.iam.model.UserCredentials;
+import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.UserInfo;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.UserEntity;
@@ -129,7 +129,7 @@ class JpaUserRepositoryAdapterTest {
     }
 
 
-    private void assertMatches(UserEntity expected, UserProfile actual) {
+    private void assertMatches(UserEntity expected, UserInfo actual) {
         assertEquals(expected.getId(), actual.id().value());
         assertEquals(expected.getEmail(), actual.email().value());
         assertEquals(expected.getFirstName(), actual.firstName());

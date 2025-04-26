@@ -1,11 +1,9 @@
 package com.task.management.spring;
 
-import com.task.management.domain.common.annotation.UseCase;
 import com.task.management.domain.common.validation.ValidationService;
 import com.task.management.domain.iam.port.in.GetUserProfileUseCase;
 import com.task.management.domain.iam.port.in.RegisterUserUseCase;
 import com.task.management.domain.iam.port.out.EncryptPasswordPort;
-import com.task.management.domain.iam.port.out.UserRepositoryPort;
 import com.task.management.domain.project.port.in.AddProjectMemberUseCase;
 import com.task.management.domain.project.port.in.AssignTaskUseCase;
 import com.task.management.domain.project.port.in.CreateProjectUseCase;
@@ -19,14 +17,13 @@ import com.task.management.domain.project.port.in.UpdateProjectUseCase;
 import com.task.management.domain.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.domain.project.port.in.UpdateTaskUseCase;
 import com.task.management.domain.project.port.out.ProjectRepositoryPort;
-import com.task.management.domain.project.port.out.ProjectUserRepositoryPort;
+import com.task.management.domain.project.port.out.UserRepositoryPort;
 import com.task.management.domain.project.port.out.TaskRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,7 +42,7 @@ class TaskManagementServiceApplicationTest {
         assertNotNull(applicationContext.getBean(GetUserProfileUseCase.class));
         assertNotNull(applicationContext.getBean(RegisterUserUseCase.class));
         assertNotNull(applicationContext.getBean(EncryptPasswordPort.class));
-        assertNotNull(applicationContext.getBean(UserRepositoryPort.class));
+        assertNotNull(applicationContext.getBean(com.task.management.domain.iam.port.out.UserRepositoryPort.class));
 
         assertNotNull(applicationContext.getBean(AddProjectMemberUseCase.class));
         assertNotNull(applicationContext.getBean(AssignTaskUseCase.class));
@@ -60,7 +57,7 @@ class TaskManagementServiceApplicationTest {
         assertNotNull(applicationContext.getBean(UpdateTaskStatusUseCase.class));
         assertNotNull(applicationContext.getBean(UpdateTaskUseCase.class));
         assertNotNull(applicationContext.getBean(ProjectRepositoryPort.class));
-        assertNotNull(applicationContext.getBean(ProjectUserRepositoryPort.class));
+        assertNotNull(applicationContext.getBean(UserRepositoryPort.class));
         assertNotNull(applicationContext.getBean(TaskRepositoryPort.class));
     }
 

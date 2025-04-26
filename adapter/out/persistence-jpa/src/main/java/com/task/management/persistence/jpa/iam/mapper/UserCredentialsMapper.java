@@ -1,8 +1,8 @@
 package com.task.management.persistence.jpa.iam.mapper;
 
-import com.task.management.domain.common.Email;
-import com.task.management.domain.common.UserCredentials;
-import com.task.management.domain.iam.model.UserId;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.iam.model.UserCredentials;
+import com.task.management.domain.common.model.UserId;
 import com.task.management.persistence.jpa.entity.UserEntity;
 
 import static java.util.Objects.requireNonNull;

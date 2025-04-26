@@ -1,11 +1,10 @@
 package com.task.management.domain.project.port.out;
 
-import com.task.management.domain.project.model.Project;
-import com.task.management.domain.project.model.ProjectDetails;
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.ProjectPreview;
-import com.task.management.domain.project.model.ProjectUser;
-import com.task.management.domain.project.model.ProjectUserId;
+import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.project.model.*;
+import com.task.management.domain.project.projection.MemberView;
+import com.task.management.domain.project.projection.ProjectDetails;
+import com.task.management.domain.project.projection.ProjectPreview;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,15 +14,15 @@ public interface ProjectRepositoryPort {
 
     Optional<Project> find(ProjectId id);
 
-    List<ProjectPreview> findProjectsByMember(ProjectUserId memberId);
+    List<ProjectPreview> findProjectsByMember(UserId memberId);
 
-    void addMember(ProjectId projectId, ProjectUserId memberId);
+    void addMember(ProjectId projectId, UserId memberId);
 
-    List<ProjectUser> findMembers(ProjectId id);
+    List<MemberView> findMembers(ProjectId id);
 
-    Optional<ProjectUser> findMember(ProjectId projectId, ProjectUserId memberId);
+    Optional<Member> findMember(ProjectId projectId, UserId memberId);
 
     Optional<ProjectDetails> findProjectDetails(ProjectId projectId);
 
-    boolean isMember(ProjectUserId memberId, ProjectId projectId);
+    boolean isMember(UserId memberId, ProjectId projectId);
 }

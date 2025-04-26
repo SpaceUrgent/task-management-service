@@ -1,10 +1,11 @@
 package com.task.management.persistence.jpa.project;
 
-import com.task.management.domain.common.Sort;
+import com.task.management.domain.common.application.query.Sort;
 import com.task.management.domain.project.model.*;
-import com.task.management.domain.project.port.in.query.FindTasksQuery;
+import com.task.management.domain.project.application.query.FindTasksQuery;
+import com.task.management.domain.project.projection.TaskDetails;
+import com.task.management.domain.project.projection.TaskPreview;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
-import com.task.management.persistence.jpa.JpaTestConfiguration;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
@@ -14,11 +15,7 @@ import com.task.management.persistence.jpa.entity.TaskEntity;
 import com.task.management.persistence.jpa.entity.UserEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Comparator;

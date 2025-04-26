@@ -1,13 +1,13 @@
 package com.task.managment.web.project;
 
-import com.task.management.domain.common.UseCaseException;
+import com.task.management.domain.common.application.UseCaseException;
 import com.task.management.domain.project.model.ProjectUserId;
 import com.task.management.domain.project.model.TaskId;
 import com.task.management.domain.project.port.in.AssignTaskUseCase;
 import com.task.management.domain.project.port.in.GetTaskDetailsUseCase;
 import com.task.management.domain.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.domain.project.port.in.UpdateTaskUseCase;
-import com.task.management.domain.project.port.in.command.UpdateTaskCommand;
+import com.task.management.domain.project.application.command.UpdateTaskCommand;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.request.AssignTaskRequest;
 import com.task.managment.web.project.dto.request.UpdateTaskRequest;

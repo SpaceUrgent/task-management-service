@@ -1,5 +1,6 @@
 package com.task.management.domain.project.model;
 
+import com.task.management.domain.common.model.UserId;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,7 +22,7 @@ public class Project {
     private Instant updatedAt;
     private String title;
     private String description;
-    private final ProjectUserId ownerId;
+    private final UserId ownerId;
 
     @Builder
     public Project(ProjectId id,
@@ -29,7 +30,7 @@ public class Project {
                    Instant updatedAt,
                    String title,
                    String description,
-                   ProjectUserId ownerId) {
+                   UserId ownerId) {
         this.id = id;
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;
@@ -48,7 +49,7 @@ public class Project {
         this.description = description;
     }
 
-    public boolean isOwnedBy(ProjectUserId userId) {
+    public boolean isOwnedBy(UserId userId) {
         parameterRequired(userId, "User id");
         return Objects.equals(this.ownerId, userId);
     }

@@ -1,7 +1,7 @@
 package com.task.managment.web.project.mapper;
 
-import com.task.management.domain.project.model.TaskDetails;
-import com.task.management.domain.project.model.TaskPreview;
+import com.task.management.domain.project.projection.TaskDetails;
+import com.task.management.domain.project.projection.TaskPreview;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;
 import lombok.RequiredArgsConstructor;

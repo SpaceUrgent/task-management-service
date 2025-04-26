@@ -1,15 +1,16 @@
 package com.task.management.domain.iam.service;
 
-import com.task.management.domain.common.Email;
-import com.task.management.domain.common.UseCaseException;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.application.UseCaseException;
 import com.task.management.domain.common.validation.ValidationService;
-import com.task.management.domain.iam.exception.EmailExistsException;
+import com.task.management.domain.iam.application.EmailExistsException;
+import com.task.management.domain.iam.application.service.UserService;
 import com.task.management.domain.iam.model.User;
-import com.task.management.domain.iam.model.UserId;
-import com.task.management.domain.iam.model.UserProfile;
-import com.task.management.domain.iam.port.in.command.RegisterUserCommand;
+import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.UserInfo;
+import com.task.management.domain.iam.application.command.RegisterUserCommand;
 import com.task.management.domain.iam.port.out.EncryptPasswordPort;
-import com.task.management.domain.common.interfaces.UserCredentialsPort;
+import com.task.management.domain.iam.port.out.UserCredentialsPort;
 import com.task.management.domain.iam.port.out.UserRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,7 +75,7 @@ class UserServiceTest {
 
     @Test
     void getUserProfile_shouldReturnUserProfile_whenAllConditionsMet() throws UseCaseException {
-        final var expectedUserProfile = UserProfile.builder()
+        final var expectedUserProfile = UserInfo.builder()
                 .id(randomUserId())
                 .email(new Email("user@mail.com"))
                 .firstName("FName")

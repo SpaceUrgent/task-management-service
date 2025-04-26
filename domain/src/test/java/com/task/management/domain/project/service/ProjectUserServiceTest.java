@@ -1,8 +1,9 @@
 package com.task.management.domain.project.service;
 
-import com.task.management.domain.common.Email;
-import com.task.management.domain.common.UseCaseException;
-import com.task.management.domain.project.port.out.ProjectUserRepositoryPort;
+import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.application.UseCaseException;
+import com.task.management.domain.project.application.service.UserService;
+import com.task.management.domain.project.port.out.UserRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,35 +19,35 @@ import static org.mockito.Mockito.doReturn;
 @ExtendWith(MockitoExtension.class)
 class ProjectUserServiceTest {
     @Mock
-    private ProjectUserRepositoryPort projectUserRepositoryPort;
+    private UserRepositoryPort projectUserRepositoryPort;
     @InjectMocks
-    private ProjectUserService projectUserService;
+    private UserService projectUserService;
 
     @Test
     void getProjectUserWithId_shouldReturnProjectUser_whenAllConditionsMet() throws UseCaseException.EntityNotFoundException {
-        final var expectedUser = ProjectTestUtils.randomProjectUser();
+        final var expectedUser = ProjectTestUtils.randomUserInfo();
         final var givenId = expectedUser.id();
         doReturn(Optional.of(expectedUser)).when(projectUserRepositoryPort).find(eq(givenId));
-        assertEquals(expectedUser, projectUserService.getProjectUser(givenId));
+        assertEquals(expectedUser, projectUserService.getUser(givenId));
     }
 
     @Test
     void getProjectUserWithId_shouldThrowEntityNotFoundException_whenProjectUserDoesNotExist() {
-        final var expectedUser = ProjectTestUtils.randomProjectUser();
+        final var expectedUser = ProjectTestUtils.randomMemberView();
         final var givenId = expectedUser.id();
         doReturn(Optional.empty()).when(projectUserRepositoryPort).find(eq(givenId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
-                () -> projectUserService.getProjectUser(givenId)
+                () -> projectUserService.getUser(givenId)
         );
     }
 
     @Test
     void getProjectUserWithEmail_shouldReturnProjectUser_whenAllConditionsMet() throws UseCaseException.EntityNotFoundException {
-        final var expectedUser = ProjectTestUtils.randomProjectUser();
+        final var expectedUser = ProjectTestUtils.randomUserInfo();
         final var givenEmail = expectedUser.email();
         doReturn(Optional.of(expectedUser)).when(projectUserRepositoryPort).find(eq(givenEmail));
-        assertEquals(expectedUser, projectUserService.getProjectUser(givenEmail));
+        assertEquals(expectedUser, projectUserService.getUser(givenEmail));
     }
 
     @Test
@@ -55,7 +56,7 @@ class ProjectUserServiceTest {
         doReturn(Optional.empty()).when(projectUserRepositoryPort).find(eq(givenEmail));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
-                () -> projectUserService.getProjectUser(givenEmail)
+                () -> projectUserService.getUser(givenEmail)
         );
     }
 }

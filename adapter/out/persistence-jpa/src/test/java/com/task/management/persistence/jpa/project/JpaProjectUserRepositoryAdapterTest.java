@@ -1,21 +1,16 @@
 package com.task.management.persistence.jpa.project;
 
-import com.task.management.domain.common.Email;
+import com.task.management.domain.common.model.Email;
 import com.task.management.domain.project.model.ProjectUser;
 import com.task.management.domain.project.model.ProjectUserId;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
-import com.task.management.persistence.jpa.JpaTestConfiguration;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.UserEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
