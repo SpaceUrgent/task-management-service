@@ -53,6 +53,7 @@ public class TaskService implements CreateTaskUseCase,
         checkAssigneeIsMember(command.assigneeId(), projectId);
         var task = Task.builder()
                 .createdAt(Instant.now())
+                .dueDate(command.dueDate())
                 .project(projectId)
                 .title(command.title())
                 .description(command.description())
@@ -75,6 +76,7 @@ public class TaskService implements CreateTaskUseCase,
         projectService.checkIsMember(actorId, task.getProject());
         task.updateTitle(command.title());
         task.updateDescription(command.description());
+        task.setDueDate(command.dueDate());
         taskRepositoryPort.save(task);
     }
 

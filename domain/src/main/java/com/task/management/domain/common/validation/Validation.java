@@ -3,6 +3,7 @@ package com.task.management.domain.common.validation;
 import com.task.management.domain.common.model.Email;
 import com.task.management.domain.common.model.UserId;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -24,6 +25,13 @@ public final class Validation {
             return argumentValue;
         }
         throw new ValidationException("%s must be not blank".formatted(argumentName));
+    }
+
+    public static void presentOrFuture(LocalDate localDate, String argumentName) {
+        parameterRequired(localDate, argumentName);
+        if (LocalDate.now().isAfter(localDate)) {
+            throw new ValidationException("%s must be present or future date".formatted(argumentName));
+        }
     }
 
     public static Email emailRequired(Email email) {

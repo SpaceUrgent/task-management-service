@@ -7,6 +7,7 @@ import com.task.management.domain.project.model.TaskStatus;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
@@ -16,6 +17,7 @@ public record TaskPreview(
         TaskNumber number,
         Instant createdAt,
         Instant updatedAt,
+        LocalDate dueDate,
         String title,
         TaskStatus status,
         UserInfo assignee

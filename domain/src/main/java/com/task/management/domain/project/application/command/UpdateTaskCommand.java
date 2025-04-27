@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
+import java.time.LocalDate;
+
 public record UpdateTaskCommand(
         @NotBlank(message = "Title is required")
         String title,
@@ -13,7 +15,8 @@ public record UpdateTaskCommand(
         @NotNull(message = "Task status is required")
         TaskStatus taskStatus,
         @NotNull
-        UserId assigneeId
+        UserId assigneeId,
+        LocalDate dueDate
 ) {
     @Builder
     public UpdateTaskCommand {

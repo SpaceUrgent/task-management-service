@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
@@ -22,6 +23,7 @@ public class Task {
     private final Instant createdAt;
     @EqualsAndHashCode.Exclude
     private Instant updatedAt;
+    private LocalDate dueDate;
     private final ProjectId project;
     private final TaskNumber number;
     private String title;
@@ -34,6 +36,7 @@ public class Task {
     public Task(TaskId id,
                 Instant createdAt,
                 Instant updatedAt,
+                LocalDate dueDate,
                 ProjectId project,
                 TaskNumber number,
                 String title,
@@ -44,6 +47,7 @@ public class Task {
         this.id = id;
         this.createdAt = parameterRequired(createdAt, "Created time");
         this.updatedAt = updatedAt;
+        this.dueDate = dueDate;
         this.project = parameterRequired(project, "Project id");
         this.number = number;
         this.title = notBlank(title, "Title");
@@ -67,6 +71,11 @@ public class Task {
     public void updateDescription(String description) {
         recordUpdateTime();
         this.description = description;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        recordUpdateTime();
+        this.dueDate = dueDate;
     }
 
     public void assignTo(UserId assignee) {

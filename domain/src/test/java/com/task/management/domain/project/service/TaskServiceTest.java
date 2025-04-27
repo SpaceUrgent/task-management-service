@@ -24,6 +24,7 @@ import org.mockito.quality.Strictness;
 
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -62,6 +63,7 @@ class TaskServiceTest {
                 .title("New task title")
                 .description("New task description")
                 .assigneeId(assignee.id())
+                .dueDate(LocalDate.now().plusMonths(1))
                 .build();
         final var taskCaptor = ArgumentCaptor.forClass(Task.class);
         doReturn(true).when(projectService).isMember(eq(givenCommand.assigneeId()), eq(givenProjectId));
@@ -73,6 +75,7 @@ class TaskServiceTest {
         assertEquals(givenCommand.description(), created.getDescription());
         assertEquals(givenActorId, created.getOwner());
         assertEquals(givenCommand.assigneeId(), created.getAssignee());
+        assertEquals(givenCommand.dueDate(), created.getDueDate());
     }
 
     @Test
@@ -120,6 +123,7 @@ class TaskServiceTest {
         final var givenCommand = UpdateTaskCommand.builder()
                 .title("Updated title")
                 .description("Updated description")
+                .dueDate(LocalDate.now().plusWeeks(1))
                 .build();
         final var taskCaptor = ArgumentCaptor.forClass(Task.class);
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(task.getId()));
@@ -132,6 +136,7 @@ class TaskServiceTest {
         assertEquals(task.getStatus(), updated.getStatus());
         assertEquals(task.getOwner(), updated.getOwner());
         assertEquals(task.getAssignee(), updated.getAssignee());
+        assertEquals(givenCommand.dueDate(), updated.getDueDate());
     }
 
     @Test
@@ -280,6 +285,7 @@ class TaskServiceTest {
                 .id(randomTaskId())
                 .number(randomTaskNumber())
                 .createdAt(Instant.now())
+                .dueDate(LocalDate.now().plusWeeks(1))
                 .projectId(randomProjectId())
                 .status(TaskStatus.IN_PROGRESS)
                 .title("Title")
@@ -300,6 +306,7 @@ class TaskServiceTest {
                 .id(randomTaskId())
                 .number(randomTaskNumber())
                 .createdAt(Instant.now())
+                .dueDate(LocalDate.now().minusWeeks(1))
                 .title("Title")
                 .status(TaskStatus.IN_PROGRESS)
                 .assignee(randomUserInfo())
