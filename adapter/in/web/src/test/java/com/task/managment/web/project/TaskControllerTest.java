@@ -23,6 +23,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static com.task.managment.web.TestUtils.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -68,6 +70,7 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.id").value(taskDetails.id().value()))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty())
                 .andExpect(jsonPath("$.updatedAt").isNotEmpty())
+                .andExpect(jsonPath("$.dueDate").value(taskDetails.dueDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .andExpect(jsonPath("$.number").value(taskDetails.number().value()))
                 .andExpect(jsonPath("$.projectId").value(taskDetails.projectId().value()))
                 .andExpect(jsonPath("$.title").value(taskDetails.title()))
@@ -94,6 +97,7 @@ class TaskControllerTest {
                 .description(request.getDescription())
                 .assigneeId(new UserId(request.getAssigneeId()))
                 .taskStatus(request.getStatus())
+                .dueDate(request.getDueDate())
                 .build();
         mockMvc.perform(put("/api/tasks/{taskId}", givenTaskId.value())
                         .content(objectMapper.writeValueAsString(request))
@@ -133,6 +137,7 @@ class TaskControllerTest {
         request.setDescription("Updated description");
         request.setAssigneeId(randomLong());
         request.setStatus(TaskStatus.DONE);
+        request.setDueDate(LocalDate.now().plusYears(1));
         return request;
     }
 
@@ -153,6 +158,7 @@ class TaskControllerTest {
                 .id(randomTaskId())
                 .createdAt(Instant.now().minus(Duration.ofDays(1)))
                 .updatedAt(Instant.now())
+                .dueDate(LocalDate.now().plusWeeks(1))
                 .projectId(randomProjectId())
                 .number(new TaskNumber(randomLong()))
                 .title("Task title")

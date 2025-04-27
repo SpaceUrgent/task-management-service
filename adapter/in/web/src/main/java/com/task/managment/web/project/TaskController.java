@@ -49,6 +49,7 @@ public class TaskController extends BaseController {
                 .description(request.getDescription())
                 .assigneeId(new UserId(request.getAssigneeId()))
                 .taskStatus(request.getStatus())
+                .dueDate(request.getDueDate())
                 .build();
         updateTaskUseCase.updateTask(actor(), new TaskId(taskId), command);
     }

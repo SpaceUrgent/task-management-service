@@ -6,8 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
@@ -17,6 +16,8 @@ public class TaskDetailsDto {
     private Long id;
     private String createdAt;
     private String updatedAt;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate dueDate;
     private Long projectId;
     private Long number;
     private String title;
@@ -29,6 +30,7 @@ public class TaskDetailsDto {
     public TaskDetailsDto(Long id,
                           String createdAt,
                           String updatedAt,
+                          LocalDate dueDate,
                           Long projectId,
                           Long number,
                           String title,
@@ -39,6 +41,7 @@ public class TaskDetailsDto {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;
+        this.dueDate = dueDate;
         this.projectId = parameterRequired(projectId, "Project id");
         this.number = parameterRequired(number, "Number");
         this.title = notBlank(title, "Title");

@@ -149,6 +149,7 @@ public class ProjectController extends BaseController {
                 .assigneeId(new UserId(request.getAssigneeId()))
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .dueDate(request.getDueDate())
                 .build();
         createTaskUseCase.createTask(actor(), new ProjectId(projectId), command);
     }

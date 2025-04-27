@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
@@ -19,6 +20,8 @@ public class TaskPreviewDto {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Instant createdAt;
     private Instant updatedAt;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate dueDate;
     private Long number;
     private String title;
     private TaskStatus status;
@@ -28,6 +31,7 @@ public class TaskPreviewDto {
     public TaskPreviewDto(Long id,
                           Instant createdAt,
                           Instant updatedAt,
+                          LocalDate dueDate,
                           Long number,
                           String title,
                           TaskStatus status,
@@ -35,6 +39,7 @@ public class TaskPreviewDto {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;
+        this.dueDate = dueDate;
         this.number = parameterRequired(number, "Number");
         this.title = notBlank(title, "Title");
         this.status = parameterRequired(status, "Status");

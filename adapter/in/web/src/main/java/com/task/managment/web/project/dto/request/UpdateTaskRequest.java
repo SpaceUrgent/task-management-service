@@ -1,9 +1,12 @@
 package com.task.managment.web.project.dto.request;
 
 import com.task.management.domain.project.model.TaskStatus;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
+import java.time.LocalDate;
 
 @Data
 public class UpdateTaskRequest {
@@ -14,4 +17,6 @@ public class UpdateTaskRequest {
     private Long assigneeId;
     @NotNull(message = "Status is required")
     private TaskStatus status;
+    @FutureOrPresent(message = "Due date must be present or future date")
+    private LocalDate dueDate;
 }

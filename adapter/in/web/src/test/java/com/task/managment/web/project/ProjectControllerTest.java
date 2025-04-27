@@ -35,6 +35,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -247,6 +248,7 @@ class ProjectControllerTest {
                 .title(givenRequest.getTitle())
                 .description(givenRequest.getDescription())
                 .assigneeId(new UserId(givenRequest.getAssigneeId()))
+                .dueDate(givenRequest.getDueDate())
                 .build();
 
         mockMvc.perform(post("/api/projects/{projectId}/tasks", givenProjectId.value())
@@ -271,6 +273,7 @@ class ProjectControllerTest {
         assertEquals(expected.id().value(), actual.getId());
         assertEquals(expected.createdAt(), actual.getCreatedAt());
         assertEquals(expected.updatedAt(), actual.getUpdatedAt());
+        assertEquals(expected.dueDate(), actual.getDueDate());
         assertEquals(expected.number().value(), actual.getNumber());
         assertEquals(expected.title(), actual.getTitle());
         assertEquals(expected.status(), actual.getStatus());
@@ -293,6 +296,7 @@ class ProjectControllerTest {
         request.setTitle("New task");
         request.setDescription("New task description");
         request.setAssigneeId(randomLong());
+        request.setDueDate(LocalDate.now().plusDays(1));
         return request;
     }
 
@@ -396,6 +400,7 @@ class ProjectControllerTest {
                 .id(new TaskId(idValue))
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
+                .dueDate(LocalDate.now().plusDays(10))
                 .number(new TaskNumber(randomLong()))
                 .title("Task %d".formatted(idValue))
                 .status(TaskStatus.IN_PROGRESS)
