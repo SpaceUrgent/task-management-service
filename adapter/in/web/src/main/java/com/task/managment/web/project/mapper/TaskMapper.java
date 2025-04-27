@@ -8,6 +8,11 @@ import com.task.managment.web.project.dto.TaskPreviewDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class TaskMapper {
@@ -29,8 +34,8 @@ public class TaskMapper {
     public TaskDetailsDto toDto(TaskDetails taskDetails) {
         return TaskDetailsDto.builder()
                 .id(taskDetails.id().value())
-                .createdAt(taskDetails.createdAt())
-                .updatedAt(taskDetails.updatedAt())
+                .createdAt(format(taskDetails.createdAt()))
+                .updatedAt(format(taskDetails.updatedAt()))
                 .number(taskDetails.number().value())
                 .title(taskDetails.title())
                 .description(taskDetails.description())
@@ -39,5 +44,12 @@ public class TaskMapper {
                 .assignee(userInfoMapper.toDto(taskDetails.assignee()))
                 .owner(userInfoMapper.toDto(taskDetails.owner()))
                 .build();
+    }
+
+    private String format(Instant source) {
+        return Optional.ofNullable(source)
+                .map(instant -> instant.atZone(ZoneId.systemDefault()))
+                .map(zonedDateTime -> zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .orElse(null);
     }
 }

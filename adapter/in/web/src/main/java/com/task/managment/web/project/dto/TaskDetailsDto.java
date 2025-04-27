@@ -4,8 +4,10 @@ import com.task.management.domain.project.model.TaskStatus;
 import com.task.managment.web.common.dto.UserInfoDto;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
@@ -13,8 +15,8 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 @Data
 public class TaskDetailsDto {
     private Long id;
-    private Instant createdAt;
-    private Instant updatedAt;
+    private String createdAt;
+    private String updatedAt;
     private Long projectId;
     private Long number;
     private String title;
@@ -25,8 +27,8 @@ public class TaskDetailsDto {
 
     @Builder
     public TaskDetailsDto(Long id,
-                          Instant createdAt,
-                          Instant updatedAt,
+                          String createdAt,
+                          String updatedAt,
                           Long projectId,
                           Long number,
                           String title,
