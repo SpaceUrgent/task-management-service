@@ -75,6 +75,7 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
                 .id(Optional.ofNullable(task.getId()).map(TaskId::value).orElse(null))
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
+                .dueDate(task.getDueDate())
                 .number(Optional.ofNullable(task.getNumber()).map(TaskNumber::value).orElseGet(() -> taskNumberSequenceDao.nextNumber(projectId)))
                 .title(task.getTitle())
                 .description(task.getDescription())

@@ -23,6 +23,7 @@ public class TaskPreviewMapper {
                 .id(new TaskId(entity.getId()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .dueDate(entity.getDueDate())
                 .number(new TaskNumber(entity.getNumber()))
                 .title(entity.getTitle())
                 .status(entity.getStatus())

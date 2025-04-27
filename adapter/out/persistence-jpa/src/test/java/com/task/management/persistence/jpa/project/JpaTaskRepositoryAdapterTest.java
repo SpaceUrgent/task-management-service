@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +57,7 @@ class JpaTaskRepositoryAdapterTest {
         final var ownerId = new UserId(projectEntity.getOwner().getId().getMemberId());
         final var givenTask = Task.builder()
                 .createdAt(Instant.now())
+                .dueDate(LocalDate.now().plusWeeks(1))
                 .title("New task title")
                 .description("New task description")
                 .status(TaskStatus.TO_DO)
@@ -87,6 +89,7 @@ class JpaTaskRepositoryAdapterTest {
         final var givenTask = Task.builder()
                 .id(new TaskId(taskEntity.getId()))
                 .createdAt(taskEntity.getCreatedAt())
+                .dueDate(LocalDate.now().plusYears(1))
                 .number(new TaskNumber(taskEntity.getNumber()))
                 .title("Updated task title")
                 .description("Update task description")
@@ -258,6 +261,7 @@ class JpaTaskRepositoryAdapterTest {
     private void assertMatches(TaskEntity expected, TaskDetails actual) {
         assertEquals(expected.getId(), actual.id().value());
         assertEquals(expected.getCreatedAt(), actual.createdAt());
+        assertEquals(expected.getDueDate(), actual.dueDate());
         assertEquals(expected.getNumber(), actual.number().value());
         assertEquals(expected.getTitle(), actual.title());
         assertEquals(expected.getDescription(), actual.description());
@@ -269,6 +273,7 @@ class JpaTaskRepositoryAdapterTest {
 
     private void assertMatches(Task expected, Task actual) {
         assertEquals(expected.getCreatedAt(), actual.getCreatedAt());
+        assertEquals(expected.getDueDate(), actual.getDueDate());
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getStatus(), actual.getStatus());
@@ -283,6 +288,7 @@ class JpaTaskRepositoryAdapterTest {
     private void assertMatches(Task expected, TaskEntity actual) {
         assertEquals(expected.getId().value(), actual.getId());
         assertEquals(expected.getCreatedAt(), actual.getCreatedAt());
+        assertEquals(expected.getDueDate(), actual.getDueDate());
         assertEquals(expected.getNumber().value(), actual.getNumber());
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
@@ -306,6 +312,7 @@ class JpaTaskRepositoryAdapterTest {
     private void assertMatches(TaskEntity expected, TaskPreview actual) {
         assertEquals(expected.getId(), actual.id().value());
         assertEquals(expected.getCreatedAt(), actual.createdAt());
+        assertEquals(expected.getDueDate(), actual.dueDate());
         assertEquals(expected.getNumber(), actual.number().value());
         assertEquals(expected.getTitle(), actual.title());
         assertEquals(expected.getStatus(), actual.status());

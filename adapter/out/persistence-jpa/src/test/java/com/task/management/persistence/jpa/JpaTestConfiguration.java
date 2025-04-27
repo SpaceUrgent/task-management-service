@@ -32,12 +32,10 @@ public class JpaTestConfiguration {
 
     @Bean
     public JpaProjectRepositoryAdapter jpaProjectRepositoryAdapter(UserEntityDao userEntityDao,
-                                                                   ProjectEntityDao projectEntityDao,
-                                                                   MemberEntityDao memberEntityDao) {
+                                                                   ProjectEntityDao projectEntityDao) {
         return new JpaProjectRepositoryAdapter(
                 userEntityDao,
-                projectEntityDao,
-                memberEntityDao
+                projectEntityDao
         );
     }
 

@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
@@ -21,6 +22,10 @@ import static com.task.management.domain.common.validation.Validation.parameterR
         uniqueConstraints = @UniqueConstraint(name = "task_number_constraint", columnNames = {"number", "project"})
 )
 public class TaskEntity extends JpaEntity<Long> {
+    @Temporal(TemporalType.DATE)
+    @Column(name = "due_date")
+    private LocalDate dueDate;
+
     @Column(nullable = false, updatable = false)
     private Long number;
 
@@ -55,6 +60,7 @@ public class TaskEntity extends JpaEntity<Long> {
     public TaskEntity(Long id,
                       Instant createdAt,
                       Instant updatedAt,
+                      LocalDate dueDate,
                       Long number,
                       String title,
                       String description,
@@ -65,6 +71,7 @@ public class TaskEntity extends JpaEntity<Long> {
         this.id = id;
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;
+        this.dueDate = dueDate;
         this.number = parameterRequired(number, "Number");
         this.title = notBlank(title, "Title");
         this.description = description;

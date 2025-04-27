@@ -18,6 +18,7 @@ public class TaskMapper {
                 .id(getId(entity))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .dueDate(entity.getDueDate())
                 .number(new TaskNumber(entity.getNumber()))
                 .title(entity.getTitle())
                 .description(entity.getDescription())

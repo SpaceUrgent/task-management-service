@@ -28,8 +28,8 @@ values ((select id from projects where title = 'Project'), (select id from users
 
 -- insert task
 
-insert into tasks (created_at, number, title, description, status, project_id, owner_id, assignee_id)
-values (now(), 1, 'Task 1', 'Task 1 Description', 'TO_DO',
+insert into tasks (created_at, due_date, number, title, description, status, project_id, owner_id, assignee_id)
+values (now(), '2060-11-20', 1, 'Task 1', 'Task 1 Description', 'TO_DO',
 (select id from projects where title = 'Project'),
 (select id from users where email = 'jdoe@mail.com'),
 (select id from users where email = 'jsnow@mail.com'));
