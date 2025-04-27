@@ -12,7 +12,7 @@ export default function Task() {
 
     const projectClient = ProjectClient.getInstance();
     const { taskId} = useParams();
-    const { project, members } = useProjectContext();
+    const { project } = useProjectContext();
 
     const [task, setTask] = useState(null);
     const [ isLoading, setIsLoading ] = useState(false);
@@ -140,7 +140,7 @@ export default function Task() {
                                 label="Assignee"
                                 value={task.assignee.id}
                                 onChange={handleChangeAssignee}
-                                options={members.map((member) => ({
+                                options={project?.members.map((member) => ({
                                     value: member.id,
                                     label: member.fullName,
                                 }))}

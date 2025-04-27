@@ -53,18 +53,10 @@ export class ProjectClient {
         this.validateApiResponse(response);
     }
 
-    async getProjectDetails(projectId: number): Promise<ProjectDetails> {
-        const response = await this.axiosInstance.get<ProjectDetails>(`/projects/${projectId}`);
+    async getProjectDetails(projectId: number): Promise<UserProjectDetails> {
+        const response = await this.axiosInstance.get<UserProjectDetails>(`/projects/${projectId}`);
         if (response.status === 200) {
             return response.data;
-        }
-        this.validateApiResponse(response);
-    }
-
-    async getProjectMembers(projectId: number): Promise<User[]> {
-        const response = await this.axiosInstance.get<ApiResponse<User[]>>(`/projects/${projectId}/members`);
-        if (response.status === 200) {
-            return response.data?.data;
         }
         this.validateApiResponse(response);
     }
@@ -208,6 +200,15 @@ interface TaskDetails {
     status: string;
     assignee: User;
     owner: User;
+}
+
+interface UserProjectDetails {
+    role: MemberRole;
+    projectDetails: ProjectDetails;
+}
+
+enum MemberRole {
+    OWNER, ADMIN
 }
 
 interface ProjectDetails {

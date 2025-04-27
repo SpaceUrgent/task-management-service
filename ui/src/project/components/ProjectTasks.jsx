@@ -109,7 +109,7 @@ export default function ProjectTasks() {
                         onChange={(value) => setChosenAssigneeId(value)}
                         options={[
                             { value: "", label: "All" },
-                            ...members.map(member => ({
+                            ...project.members.map(member => ({
                                 value: member.id,
                                 label: member.fullName,
                             }))

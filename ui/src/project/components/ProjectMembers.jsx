@@ -3,7 +3,7 @@ import AddMemberModal from "./modal/AddMemberModal";
 import {useProjectContext} from "../contexts/ProjectContext";
 
 export default function ProjectMembers() {
-    const { members, refreshData } = useProjectContext();
+    const { project, refreshData } = useProjectContext();
 
     const [addMemberModalIsOpen, setAddMemberModalIsOpen] = useState(false);
 
@@ -27,11 +27,11 @@ export default function ProjectMembers() {
                 </button>
             </div>
 
-            {members.length === 0 ? (
+            {project?.members.length === 0 ? (
                 <p className="text-muted">No members added yet.</p>
             ) : (
                 <div className="list-group">
-                    {members.map((member, index) => (
+                    {project?.members.map((member, index) => (
                         <div
                             key={index}
                             className="list-group-item list-group-item-action d-flex flex-column"

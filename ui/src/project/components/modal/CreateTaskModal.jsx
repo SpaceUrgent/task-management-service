@@ -2,8 +2,13 @@ import React, {useEffect, useState} from "react";
 import ValidatedInput from "../../../common/components/ValidatedInput";
 import TextArea from "../../../common/components/TextArea";
 import {ProjectClient} from "../../api/ProjectClient.ts";
+import {useParams} from "react-router-dom";
+import {useProjectContext} from "../../contexts/ProjectContext";
 
-export default function CreateTaskModal({projectId, members = [], onClose, onSubmit}) {
+export default function CreateTaskModal({onClose, onSubmit}) {
+    const { project } = useProjectContext();
+    const { projectId} = useParams();
+
     const projectClient = ProjectClient.getInstance();
 
     const [title, setTitle] = useState("");
@@ -86,7 +91,7 @@ export default function CreateTaskModal({projectId, members = [], onClose, onSub
                                 >
                                     <option value="">Select Assignee</option>
                                     {
-                                        members.map((member) => (
+                                        project?.members.map((member) => (
                                             <option key={member.id} value={member.id}>{member.fullName}</option>
                                         ))
                                     }

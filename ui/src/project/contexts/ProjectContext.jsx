@@ -3,8 +3,8 @@ import {useParams} from "react-router-dom";
 import {ProjectClient} from "../api/ProjectClient.ts";
 
 export const ProjectContext = createContext({
+    currentUserRole: null,
     project: null,
-    members: [],
     refreshData: () => {}
 });
 
@@ -12,19 +12,16 @@ export const ProjectContextProvider = ({ children }) => {
     const { projectId } = useParams();
     const projectClient = ProjectClient.getInstance();
 
+    const [ currentUserRole, setCurrentUserRole ] = useState(null);
     const [ project, setProject ] = useState(null);
-    const [ members, setMembers ] = useState(null);
     const [ isLoading, setIsLoading ] = useState(true);
 
     const fetchProjectData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const [project, members] = await Promise.all([
-                projectClient.getProjectDetails(projectId),
-                projectClient.getProjectMembers(projectId),
-            ]);
-            setProject(project);
-            setMembers(members);
+            const data = await projectClient.getProjectDetails(projectId);
+            setProject(data.projectDetails);
+            setCurrentUserRole(data.role);
         } catch (e) {
             console.error(e);
         } finally {
@@ -40,7 +37,7 @@ export const ProjectContextProvider = ({ children }) => {
     if (!project) return <div className="alert alert-danger">Project not found</div>;
 
     return (
-        <ProjectContext.Provider value={{ project, members, refreshData: fetchProjectData }}>
+        <ProjectContext.Provider value={{ currentUserRole, project, refreshData: fetchProjectData }}>
             {children}
         </ProjectContext.Provider>
     )
