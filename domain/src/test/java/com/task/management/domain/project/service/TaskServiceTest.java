@@ -8,6 +8,9 @@ import com.task.management.domain.common.validation.ValidationService;
 import com.task.management.domain.project.application.service.ProjectService;
 import com.task.management.domain.project.application.service.TaskService;
 import com.task.management.domain.project.model.Task;
+import com.task.management.domain.project.model.TaskChangeLog;
+import com.task.management.domain.project.model.TaskProperty;
+import com.task.management.domain.project.projection.TaskChangeLogView;
 import com.task.management.domain.project.projection.TaskDetails;
 import com.task.management.domain.project.projection.TaskPreview;
 import com.task.management.domain.project.model.TaskStatus;
@@ -25,8 +28,10 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -305,6 +310,15 @@ class TaskServiceTest {
                 .description("Description")
                 .owner(randomUserInfo())
                 .assignee(randomUserInfo())
+                .changeLogs(List.of(
+                        TaskChangeLogView.builder()
+                                .time(Instant.now().minus(Duration.ofHours(1)))
+                                .actor(randomUserInfo())
+                                .targetProperty(TaskProperty.TITLE)
+                                .initialValue("Old")
+                                .newValue("Title")
+                                .build()
+                ))
                 .build();
     }
 

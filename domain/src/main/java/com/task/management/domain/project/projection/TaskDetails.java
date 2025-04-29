@@ -6,6 +6,9 @@ import lombok.Builder;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
@@ -21,7 +24,8 @@ public record TaskDetails(
         String description,
         TaskStatus status,
         UserInfo owner,
-        UserInfo assignee
+        UserInfo assignee,
+        List<TaskChangeLogView> changeLogs
 ) {
     @Builder
     public TaskDetails {
@@ -33,5 +37,6 @@ public record TaskDetails(
         parameterRequired(status, "Status");
         parameterRequired(owner, "owner");
         parameterRequired(assignee, "assignee");
+        Optional.ofNullable(changeLogs).orElseGet(ArrayList::new);
     }
 }
