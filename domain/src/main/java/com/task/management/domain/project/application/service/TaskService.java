@@ -1,14 +1,14 @@
 package com.task.management.domain.project.application.service;
 
+import com.task.management.domain.common.port.out.DomainEventPublisherPort;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.domain.common.projection.Page;
 import com.task.management.domain.common.annotation.UseCase;
 import com.task.management.domain.common.application.UseCaseException;
 import com.task.management.domain.common.validation.ValidationService;
-import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.projection.TaskDetails;
-import com.task.management.domain.project.model.TaskId;
 import com.task.management.domain.project.projection.TaskPreview;
 import com.task.management.domain.project.port.in.AssignTaskUseCase;
 import com.task.management.domain.project.port.in.FindTasksUseCase;
@@ -17,8 +17,6 @@ import com.task.management.domain.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.domain.project.port.in.UpdateTaskUseCase;
 import com.task.management.domain.project.application.command.UpdateTaskCommand;
 import com.task.management.domain.project.application.query.FindTasksQuery;
-import com.task.management.domain.project.model.Task;
-import com.task.management.domain.project.model.TaskStatus;
 import com.task.management.domain.project.port.in.CreateTaskUseCase;
 import com.task.management.domain.project.application.command.CreateTaskCommand;
 import com.task.management.domain.project.port.out.TaskRepositoryPort;
@@ -38,6 +36,7 @@ public class TaskService implements CreateTaskUseCase,
                                     GetTaskDetailsUseCase,
                                     FindTasksUseCase {
     private final ValidationService validationService;
+    private final DomainEventPublisherPort eventPublisher;
     private final ProjectService projectService;
     private final TaskRepositoryPort taskRepositoryPort;
 
@@ -74,10 +73,13 @@ public class TaskService implements CreateTaskUseCase,
         validationService.validate(command);
         var task = findOrThrow(taskId);
         projectService.checkIsMember(actorId, task.getProject());
-        task.updateTitle(command.title());
-        task.updateDescription(command.description());
-        task.setDueDate(command.dueDate());
+        task.updateTitle(actorId, command.title());
+        task.updateDescription(actorId, command.description());
+        task.updateDueDate(actorId, command.dueDate());
+        task.updateStatus(actorId, command.taskStatus());
+        task.assignTo(actorId, command.assigneeId());
         taskRepositoryPort.save(task);
+        eventPublisher.publish(task.flushEvents());
     }
 
     @UseCase
@@ -90,8 +92,9 @@ public class TaskService implements CreateTaskUseCase,
         parameterRequired(status, "Task status");
         final var task = findOrThrow(taskId);
         projectService.checkIsMember(actorId, task.getProject());
-        task.updateStatus(status);
+        task.updateStatus(actorId, status);
         taskRepositoryPort.save(task);
+        eventPublisher.publish(task.flushEvents());
     }
 
     @UseCase
@@ -105,8 +108,9 @@ public class TaskService implements CreateTaskUseCase,
         final var task = findOrThrow(taskId);
         projectService.checkIsMember(actorId, task.getProject());
         checkAssigneeIsMember(assigneeId, task.getProject());
-        task.assignTo(assigneeId);
+        task.assignTo(actorId, assigneeId);
         taskRepositoryPort.save(task);
+        eventPublisher.publish(task.flushEvents());
     }
 
     @UseCase

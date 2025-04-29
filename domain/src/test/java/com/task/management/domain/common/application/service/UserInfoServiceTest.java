@@ -3,7 +3,7 @@ package com.task.management.domain.common.application.service;
 import com.task.management.domain.common.application.UseCaseException;
 import com.task.management.domain.common.model.Email;
 import com.task.management.domain.common.port.out.UserInfoRepositoryPort;
-import com.task.management.domain.project.service.ProjectTestUtils;
+import com.task.management.domain.project.ProjectTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

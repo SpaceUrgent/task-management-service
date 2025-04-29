@@ -1,6 +1,8 @@
 package com.task.management.domain.project.model;
 
+import com.task.management.domain.common.model.DomainEventAggregate;
 import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.project.event.*;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,15 +12,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.common.validation.Validation.*;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Getter
 @ToString
-@EqualsAndHashCode
-public class Task {
+@EqualsAndHashCode(callSuper = true)
+public class Task extends DomainEventAggregate {
     private final TaskId id;
     private final Instant createdAt;
     @EqualsAndHashCode.Exclude
@@ -58,37 +59,44 @@ public class Task {
         this.validateSelf();
     }
 
-    public void updateTitle(String title) {
+    public void updateTitle(UserId actor, String title) {
+        actorIdRequired(actor);
+        if (this.title.equals(title)) return;
         recordUpdateTime();
+        this.add(new TaskTitleUpdatedEvent(this.id, actor, this.title, title));
         this.title = notBlank(title, "Title");
     }
 
-    public void updateStatus(TaskStatus status) {
+    public void updateDescription(UserId actor, String description) {
+        actorIdRequired(actor);
+        if (Objects.equals(this.description, description)) return;
         recordUpdateTime();
-        this.status = parameterRequired(status, "Status");
-    }
-
-    public void updateDescription(String description) {
-        recordUpdateTime();
+        this.add(new TaskDescriptionUpdatedEvent(this.id, actor, this.description, description));
         this.description = description;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    public void updateDueDate(UserId actor, LocalDate dueDate) {
+        actorIdRequired(actor);
+        if (Objects.equals(this.dueDate, dueDate)) return;
         recordUpdateTime();
-        this.dueDate = dueDate;
+        this.add(new TaskDueDateUpdatedEvent(this.id, actor, this.dueDate, dueDate));
+        this.dueDate = presentOrFuture(dueDate, "Due date");
     }
 
-    public void assignTo(UserId assignee) {
+    public void updateStatus(UserId actor, TaskStatus status) {
+        actorIdRequired(actor);
+        if (this.status.equals(status)) return;
         recordUpdateTime();
+        this.add(new TaskStatusUpdatedEvent(this.id, actor, this.status, status));
+        this.status = parameterRequired(status, "Status");
+    }
+
+    public void assignTo(UserId actor, UserId assignee) {
+        actorIdRequired(actor);
+        if (this.assignee.equals(assignee)) return;
+        recordUpdateTime();
+        this.add(new TaskReassignedEvent(this.id, actor, this.assignee, assignee));
         this.assignee = parameterRequired(assignee, "Assignee");
-    }
-
-    public boolean isOwnedBy(UserId userId) {
-        return Objects.equals(this.owner, userId);
-    }
-
-    public boolean isAssignedTo(UserId userId) {
-        return Objects.equals(this.assignee, userId);
     }
 
     private void recordUpdateTime() {

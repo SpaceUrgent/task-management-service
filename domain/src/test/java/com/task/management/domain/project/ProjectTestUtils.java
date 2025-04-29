@@ -1,4 +1,4 @@
-package com.task.management.domain.project.service;
+package com.task.management.domain.project;
 
 import com.task.management.domain.common.model.Email;
 import com.task.management.domain.common.model.UserId;
@@ -7,6 +7,7 @@ import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.projection.MemberView;
 import org.mockito.stubbing.Answer;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -15,21 +16,28 @@ public final class ProjectTestUtils {
     private ProjectTestUtils() {
     }
 
-//    static Answer<UserInfo> getProjectUserAnswer() {
-//        return invocation -> {
-//            final var id = (UserInfo) invocation.getArgument(0);
-//            return ProjectUser.withId(id);
-//        };
-//    }
-
-    static List<MemberView> randomProjectUsers() {
+    public static List<MemberView> randomProjectUsers() {
         return IntStream.range(0, 10)
                 .mapToObj(value -> randomMemberView())
                 .toList();
     }
 
-    static <T> Answer<T> self(Class<T> selfClass) {
+    public static <T> Answer<T> self(Class<T> selfClass) {
         return invocation ->  selfClass.cast(invocation.getArgument(0));
+    }
+
+    public static Task randomTask() {
+        return Task.builder()
+                .id(randomTaskId())
+                .number(randomTaskNumber())
+                .createdAt(Instant.now())
+                .project(randomProjectId())
+                .status(TaskStatus.IN_PROGRESS)
+                .title("Title")
+                .description("Description")
+                .owner(randomUserId())
+                .assignee(randomUserId())
+                .build();
     }
 
     public static MemberView randomMemberView() {
@@ -41,31 +49,32 @@ public final class ProjectTestUtils {
     }
 
     public static UserInfo randomUserInfo() {
+        final var idValue = randomLong();
         return UserInfo.builder()
-                .id(randomUserId())
+                .id(new UserId(idValue))
                 .email(new Email("username@domain.com"))
-                .firstName("FName")
-                .lastName("LName")
+                .firstName("FName-%d".formatted(idValue))
+                .lastName("LName-%d".formatted(idValue))
                 .build();
     }
 
-    static ProjectId randomProjectId() {
+    public static ProjectId randomProjectId() {
         return new ProjectId(randomLong());
     }
 
-    static TaskId randomTaskId() {
+    public static TaskId randomTaskId() {
         return new TaskId(randomLong());
     }
 
-    static TaskNumber randomTaskNumber() {
+    public static TaskNumber randomTaskNumber() {
         return new TaskNumber(randomLong());
     }
 
-    static UserId randomUserId() {
+    public static UserId randomUserId() {
         return new UserId(randomLong());
     }
 
-    static Long randomLong() {
+    public static Long randomLong() {
         return new Random().nextLong();
     }
 }

@@ -1,5 +1,7 @@
 package com.task.management.domain.project.service;
 
+import com.task.management.domain.common.event.DomainEvent;
+import com.task.management.domain.common.port.out.DomainEventPublisherPort;
 import com.task.management.domain.common.projection.Page;
 import com.task.management.domain.common.application.UseCaseException;
 import com.task.management.domain.common.validation.ValidationService;
@@ -29,15 +31,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static com.task.management.domain.project.service.ProjectTestUtils.*;
+import static com.task.management.domain.project.ProjectTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
@@ -46,6 +43,8 @@ class TaskServiceTest {
     @SuppressWarnings("unused")
     @Mock
     private ValidationService validationService;
+    @Mock
+    private DomainEventPublisherPort eventPublisher;
     @Mock
     private ProjectService projectService;
     @Mock
@@ -124,19 +123,25 @@ class TaskServiceTest {
                 .title("Updated title")
                 .description("Updated description")
                 .dueDate(LocalDate.now().plusWeeks(1))
+                .assigneeId(randomUserId())
+                .taskStatus(TaskStatus.DONE)
                 .build();
-        final var taskCaptor = ArgumentCaptor.forClass(Task.class);
+
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(task.getId()));
-        doAnswer(self(Task.class)).when(taskRepositoryPort).save(taskCaptor.capture());
+        ArgumentCaptor<List<DomainEvent>> eventsCaptor = ArgumentCaptor.captor();
         taskService.updateTask(givenActorId, task.getId(), givenCommand);
-        final var updated = taskCaptor.getValue();
-        assertEquals(task.getProject(), updated.getProject());
-        assertEquals(givenCommand.title(), updated.getTitle());
-        assertEquals(givenCommand.description(), updated.getDescription());
-        assertEquals(task.getStatus(), updated.getStatus());
-        assertEquals(task.getOwner(), updated.getOwner());
-        assertEquals(task.getAssignee(), updated.getAssignee());
-        assertEquals(givenCommand.dueDate(), updated.getDueDate());
+
+        assertEquals(givenCommand.title(), task.getTitle());
+        assertEquals(givenCommand.description(), task.getDescription());
+        assertEquals(givenCommand.taskStatus(), task.getStatus());
+        assertEquals(givenCommand.assigneeId(), task.getAssignee());
+        assertEquals(givenCommand.dueDate(), task.getDueDate());
+
+        verify(taskRepositoryPort).save(eq(task));
+        verify(eventPublisher).publish(eventsCaptor.capture());
+
+        List<DomainEvent> events = eventsCaptor.getValue();
+        assertEquals(5, events.size());
     }
 
     @Test
@@ -151,7 +156,8 @@ class TaskServiceTest {
                 UseCaseException.EntityNotFoundException.class,
                 () -> taskService.updateTask(randomUserId(), givenTaskId, givenCommand)
         );
-        verify(taskRepositoryPort, times(0)).save(any());
+        verify(taskRepositoryPort, times(0)).save(any(Task.class));
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -160,13 +166,15 @@ class TaskServiceTest {
         final var givenActorId = task.getAssignee();
         final var givenTaskId = task.getId();
         final var givenTaskStatus = TaskStatus.DONE;
-        final var taskCaptor = ArgumentCaptor.forClass(Task.class);
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
-        doAnswer(self(Task.class)).when(taskRepositoryPort).save(taskCaptor.capture());
+        ArgumentCaptor<List<DomainEvent>> eventsCaptor = ArgumentCaptor.captor();
+
         taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus);
-        final var saved = taskCaptor.getValue();
-        assertEquals(task.getId(), saved.getId());
-        assertEquals(givenTaskStatus, saved.getStatus());
+
+        assertEquals(givenTaskStatus, task.getStatus());
+        verify(taskRepositoryPort).save(eq(task));
+        verify(eventPublisher).publish(eventsCaptor.capture());
+        assertEquals(1, eventsCaptor.getValue().size());
     }
 
     @Test
@@ -179,7 +187,8 @@ class TaskServiceTest {
                 UseCaseException.EntityNotFoundException.class,
                 () -> taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus)
         );
-        verify(taskRepositoryPort, times(0)).save(any());
+        verify(taskRepositoryPort, times(0)).save(any(Task.class));
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -189,14 +198,16 @@ class TaskServiceTest {
         final var givenActorId = task.getAssignee();
         final var givenTaskId = task.getId();
         final var givenAssigneeId = assignee.id();
+        ArgumentCaptor<List<DomainEvent>> eventsCaptor = ArgumentCaptor.captor();
         doReturn(true).when(projectService).isMember(eq(givenAssigneeId), eq(task.getProject()));
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
-        final var taskCaptor = ArgumentCaptor.forClass(Task.class);
-        doAnswer(self(Task.class)).when(taskRepositoryPort).save(taskCaptor.capture());
+
         taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId);
-        final var saved = taskCaptor.getValue();
-        assertEquals(task.getId(), saved.getId());
-        assertEquals(givenAssigneeId, saved.getAssignee());
+
+        assertEquals(givenAssigneeId, task.getAssignee());
+        verify(taskRepositoryPort).save(eq(task));
+        verify(eventPublisher).publish(eventsCaptor.capture());
+        assertEquals(1, eventsCaptor.getValue().size());
     }
 
 
@@ -210,7 +221,8 @@ class TaskServiceTest {
                 UseCaseException.EntityNotFoundException.class,
                 () -> taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId)
         );
-        verify(taskRepositoryPort, times(0)).save(any());
+        verify(taskRepositoryPort, times(0)).save(any(Task.class));
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -224,7 +236,8 @@ class TaskServiceTest {
                 UseCaseException.IllegalAccessException.class,
                 () -> taskService.assignTask(givenActorId, givenTaskId, givenAssigneeId)
         );
-        verify(taskRepositoryPort, times(0)).save(any());
+        verify(taskRepositoryPort, times(0)).save(any(Task.class));
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test

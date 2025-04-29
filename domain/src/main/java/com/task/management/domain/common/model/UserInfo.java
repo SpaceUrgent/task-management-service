@@ -20,4 +20,8 @@ public record UserInfo(
         notBlank(firstName, "First name");
         notBlank(lastName, "Last name");
     }
+
+    public String fullName() {
+        return "%s %s".formatted(firstName, lastName);
+    }
 }
