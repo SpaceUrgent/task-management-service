@@ -9,10 +9,28 @@ import lombok.ToString;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
+@NamedEntityGraph(
+        name = "task-details",
+        attributeNodes = {
+                @NamedAttributeNode("description"),
+                @NamedAttributeNode("project"),
+                @NamedAttributeNode(value = "changeLogs", subgraph = "change-log-actor")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "change-log-actor",
+                        attributeNodes = {
+                                @NamedAttributeNode("actor")
+                        }
+                )
+        }
+)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Data
@@ -52,6 +70,13 @@ public class TaskEntity extends JpaEntity<Long> {
     @JoinColumn(name = "assignee_id", nullable = false)
     private UserEntity assignee;
 
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            mappedBy = "task"
+    )
+    private List<TaskChangeLogEntity> changeLogs = new ArrayList<>();
 
     protected TaskEntity() {
     }

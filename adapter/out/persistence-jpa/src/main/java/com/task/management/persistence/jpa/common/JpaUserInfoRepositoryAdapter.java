@@ -2,6 +2,7 @@ package com.task.management.persistence.jpa.common;
 
 import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.common.port.out.UserInfoRepositoryPort;
 import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
@@ -10,6 +11,7 @@ import com.task.management.persistence.jpa.dao.UserEntityDao;
 import java.util.Optional;
 
 import static com.task.management.domain.common.validation.Validation.emailRequired;
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
 @AppComponent
 public class JpaUserInfoRepositoryAdapter implements UserInfoRepositoryPort {
@@ -18,6 +20,13 @@ public class JpaUserInfoRepositoryAdapter implements UserInfoRepositoryPort {
 
     public JpaUserInfoRepositoryAdapter(UserEntityDao userEntityDao) {
         this.userEntityDao = userEntityDao;
+    }
+
+    @Override
+    public Optional<UserInfo> find(UserId id) {
+        parameterRequired(id, "User id");
+        return userEntityDao.findById(id.value())
+                .map(userInfoMapper::toModel);
     }
 
     @Override

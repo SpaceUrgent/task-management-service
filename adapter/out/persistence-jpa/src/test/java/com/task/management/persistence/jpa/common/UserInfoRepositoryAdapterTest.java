@@ -1,6 +1,7 @@
 package com.task.management.persistence.jpa.common;
 
 import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;
@@ -34,6 +35,21 @@ class UserInfoRepositoryAdapterTest {
     private UserEntityDao userEntityDao;
     @Autowired
     private ProjectEntityDao projectEntityDao;
+
+    @Test
+    void findById_shouldReturnOptionalOfProjectUser_whenUserExists() {
+        final var expected = getFirstJpaUser();
+        final var givenId = new UserId(expected.getId());
+        final var actual = userInfoRepositoryAdapter.find(givenId).orElse(null);
+        assertNotNull(actual);
+        assertMatches(expected, actual);
+    }
+
+    @Test
+    void findById_shouldReturnEmptyOptional_whenUserDoesNotExist() {
+        final var givenId = new UserId(randomLong());
+        assertTrue(userInfoRepositoryAdapter.find(givenId).isEmpty());
+    }
 
     @Test
     void findByEmail_shouldReturnOptionalOfProjectUser_whenUserExists() {

@@ -6,6 +6,7 @@ import com.task.management.persistence.jpa.entity.JpaEntity;
 import com.task.management.persistence.jpa.query.FindPageQuery;
 import jakarta.persistence.EntityManager;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,19 @@ public abstract class AbstractEntityDao<T extends JpaEntity<ID>, ID> implements 
     public Optional<T> findById(ID id) {
         idRequired(id);
         return Optional.ofNullable(entityManager.find(entityClass(), id));
+    }
+
+    @Override
+    public Optional<T> findById(ID id, String entityGraphName) {
+        idRequired(id);
+
+        final var hints = new HashMap<String, Object>();
+
+        if (entityGraphName != null && !entityGraphName.isBlank()) {
+            hints.put("jakarta.persistence.fetchgraph", entityManager.getEntityGraph(entityGraphName));
+        }
+
+        return Optional.ofNullable(entityManager.find(entityClass(), id, hints));
     }
 
     @Override

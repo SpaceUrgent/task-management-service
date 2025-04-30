@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface EntityDao<T extends JpaEntity<ID>, ID> {
     Optional<T> findById(ID id);
 
+    Optional<T> findById(ID id, String entityGraphName);
+
     List<T> findAll();
 
     IPage<T> findPage(FindPageQuery<T> query);

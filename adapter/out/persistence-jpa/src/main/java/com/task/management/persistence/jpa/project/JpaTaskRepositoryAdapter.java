@@ -2,15 +2,14 @@ package com.task.management.persistence.jpa.project;
 
 import com.task.management.domain.common.projection.Page;
 import com.task.management.domain.common.annotation.AppComponent;
+import com.task.management.domain.common.validation.Validation;
 import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.application.query.FindTasksQuery;
 import com.task.management.domain.project.port.out.TaskRepositoryPort;
 import com.task.management.domain.project.projection.TaskDetails;
 import com.task.management.domain.project.projection.TaskPreview;
-import com.task.management.persistence.jpa.dao.ProjectEntityDao;
-import com.task.management.persistence.jpa.dao.TaskEntityDao;
-import com.task.management.persistence.jpa.dao.TaskNumberSequenceDao;
-import com.task.management.persistence.jpa.dao.UserEntityDao;
+import com.task.management.persistence.jpa.dao.*;
+import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 import com.task.management.persistence.jpa.project.mapper.TaskDetailsMapper;
 import com.task.management.persistence.jpa.project.mapper.TaskMapper;
@@ -20,12 +19,14 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
+import static com.task.management.domain.common.validation.Validation.parameterRequired;
 import static java.util.Objects.requireNonNull;
 
 @AppComponent
 @RequiredArgsConstructor
 public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     private final TaskEntityDao taskEntityDao;
+    private final TaskChangeLogEntityDao taskChangeLogEntityDao;
     private final TaskNumberSequenceDao taskNumberSequenceDao;
     private final ProjectEntityDao projectEntityDao;
     private final UserEntityDao userEntityDao;
@@ -42,6 +43,21 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     }
 
     @Override
+    public void save(TaskChangeLog taskChangeLog) {
+        parameterRequired(taskChangeLog, "Task change log");
+        final var changeLogEntity = TaskChangeLogEntity.builder()
+
+                .occurredAt(taskChangeLog.time())
+                .task(taskEntityDao.getReference(taskChangeLog.taskId().value()))
+                .actor(userEntityDao.getReference(taskChangeLog.actorId().value()))
+                .taskProperty(taskChangeLog.targetProperty())
+                .oldValue(taskChangeLog.initialValue())
+                .newValue(taskChangeLog.newValue())
+                .build();
+        taskChangeLogEntityDao.save(changeLogEntity);
+    }
+
+    @Override
     public Optional<Task> find(final TaskId id) {
         taskIdRequired(id);
         return taskEntityDao.findById(id.value()).map(taskMapper::toModel);
@@ -50,7 +66,7 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     @Override
     public Optional<TaskDetails> findTaskDetails(TaskId id) {
         taskIdRequired(id);
-        return taskEntityDao.findById(id.value()).map(taskDetailsMapper::toModel);
+        return taskEntityDao.findById(id.value(), "task-details").map(taskDetailsMapper::toModel);
     }
 
     @Override

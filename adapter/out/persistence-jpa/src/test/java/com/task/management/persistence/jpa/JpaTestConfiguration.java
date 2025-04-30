@@ -43,9 +43,11 @@ public class JpaTestConfiguration {
     public JpaTaskRepositoryAdapter jpaTaskRepositoryAdapter(TaskEntityDao taskEntityDao,
                                                              TaskNumberSequenceDao taskNumberSequenceDao,
                                                              ProjectEntityDao projectEntityDao,
-                                                             UserEntityDao userEntityDao) {
+                                                             UserEntityDao userEntityDao,
+                                                             TaskChangeLogEntityDao taskChangeLogEntityDao) {
         return new JpaTaskRepositoryAdapter(
                 taskEntityDao,
+                taskChangeLogEntityDao,
                 taskNumberSequenceDao,
                 projectEntityDao,
                 userEntityDao
@@ -70,6 +72,11 @@ public class JpaTestConfiguration {
     @Bean
     public TaskEntityDao taskEntityDao(EntityManager entityManager) {
         return new TaskEntityDaoImpl(entityManager);
+    }
+
+    @Bean
+    public TaskChangeLogEntityDao taskChangeLogEntityDao(EntityManager entityManager) {
+        return new TaskChangeLogEntityDaoImpl(entityManager);
     }
 
     @Bean

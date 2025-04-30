@@ -38,4 +38,16 @@ values (
         'TO_DO',
         (select id from projects where title = 'Project'),
         (select id from users where email = 'jdoe@mail.com'),
-        (select id from users where email = 'jsnow@mail.com'));
+        (select id from users where email = 'jsnow@mail.com')
+);
+
+insert into task_change_logs (created_at, occurred_at, task_id, actor_id, field_changed, old_value, new_value)
+values (
+        now(),
+        now(),
+        (select id from tasks where title = 'New task'),
+        (select id from users where email = 'jsnow@mail.com'),
+        'TITLE',
+        'Old title',
+        'New title'
+);

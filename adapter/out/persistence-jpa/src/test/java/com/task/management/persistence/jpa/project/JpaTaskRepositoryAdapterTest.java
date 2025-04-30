@@ -4,14 +4,17 @@ import com.task.management.domain.common.application.query.Sort;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.application.query.FindTasksQuery;
+import com.task.management.domain.project.projection.TaskChangeLogView;
 import com.task.management.domain.project.projection.TaskDetails;
 import com.task.management.domain.project.projection.TaskPreview;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
+import com.task.management.persistence.jpa.dao.TaskChangeLogEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
+import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 import com.task.management.persistence.jpa.entity.UserEntity;
 import org.junit.jupiter.api.Test;
@@ -41,6 +44,8 @@ class JpaTaskRepositoryAdapterTest {
     private ProjectEntityDao projectEntityDao;
     @Autowired
     private TaskEntityDao taskEntityDao;
+    @Autowired
+    private TaskChangeLogEntityDao taskChangeLogEntityDao;
     @Autowired
     private JpaTaskRepositoryAdapter taskRepositoryAdapter;
 
@@ -102,6 +107,34 @@ class JpaTaskRepositoryAdapterTest {
         assertMatches(givenTask, updated);
         final var updateTaskEntity = taskEntityDao.findById(taskEntity.getId()).orElseThrow();
         assertMatches(updated, updateTaskEntity);
+    }
+
+    @Test
+    @Sql(
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+            scripts = "classpath:sql/insert_task.sql"
+    )
+    void saveTaskChangeLog() {
+        final var taskEntity = getFirstTaskEntity();
+        taskEntity.getAssignee();
+        final var changeLog = TaskChangeLog.builder()
+                .time(Instant.now())
+                .taskId(new TaskId(taskEntity.getId()))
+                .actorId(new UserId(taskEntity.getAssignee().getId()))
+                .targetProperty(TaskProperty.TITLE)
+                .initialValue("Initial title")
+                .newValue("New value")
+                .build();
+        taskRepositoryAdapter.save(changeLog);
+        final var changeLogEntities = taskChangeLogEntityDao.findAll();
+        assertFalse(changeLogEntities.isEmpty());
+        final var changeLogEntity = changeLogEntities.getLast();
+        assertEquals(changeLog.time(), changeLogEntity.getOccurredAt());
+        assertEquals(changeLog.taskId().value(), changeLogEntity.getTask().getId());
+        assertEquals(changeLog.actorId().value(), changeLogEntity.getActor().getId());
+        assertEquals(changeLog.targetProperty(), changeLogEntity.getTaskProperty());
+        assertEquals(changeLog.initialValue(), changeLogEntity.getOldValue());
+        assertEquals(changeLog.newValue(), changeLogEntity.getNewValue());
     }
 
     @Sql(
@@ -269,6 +302,11 @@ class JpaTaskRepositoryAdapterTest {
         assertEquals(expected.getProject().getId(), actual.projectId().value());
         assertEquals(expected.getOwner().getId(), actual.owner().id().value());
         assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());
+        final var expectedChangeLogs = expected.getChangeLogs();
+        final var actualChangeLogs = actual.changeLogs();
+        IntStream.range(0, expectedChangeLogs.size()).forEach(index -> {
+            assertMatches(expectedChangeLogs.get(index), actualChangeLogs.get(index));
+        });
     }
 
     private void assertMatches(Task expected, Task actual) {
@@ -318,6 +356,15 @@ class JpaTaskRepositoryAdapterTest {
         assertEquals(expected.getStatus(), actual.status());
         assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());
     }
+
+    private void assertMatches(TaskChangeLogEntity expected, TaskChangeLogView actual) {
+        assertEquals(expected.getOccurredAt(), actual.time());
+        assertEquals(expected.getActor().getId(), actual.actor().id().value());
+        assertEquals(expected.getTaskProperty(), actual.targetProperty());
+        assertEquals(expected.getOldValue(), actual.initialValue());
+        assertEquals(expected.getNewValue(), actual.newValue());
+    }
+
     public static class FindTasksQueryWithSortByTitleBuilder extends FindTasksQuery.Builder {
 
         public FindTasksQuery.Builder sortByTitle(Sort.Direction direction) {
