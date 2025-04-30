@@ -1,7 +1,6 @@
 package com.task.managment.web;
 
-import com.task.management.domain.common.application.UseCaseException;
-import com.task.management.domain.common.application.UseCaseException.EntityNotFoundException;
+import com.task.management.application.common.UseCaseException;
 import com.task.managment.web.common.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -62,8 +61,8 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException exception,
+    @ExceptionHandler(UseCaseException.EntityNotFoundException.class)
+    public ErrorResponse handleEntityNotFoundException(UseCaseException.EntityNotFoundException exception,
                                                        HttpServletRequest request) {
         return ErrorResponse.builder()
                 .reason(ErrorResponse.REASON_ENTITY_NOT_FOUND)

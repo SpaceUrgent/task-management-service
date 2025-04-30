@@ -1,14 +1,14 @@
 package com.task.managment.web.project;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.task.management.application.project.command.UpdateTaskCommand;
+import com.task.management.application.project.port.in.AssignTaskUseCase;
+import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
+import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
+import com.task.management.application.project.port.in.UpdateTaskUseCase;
+import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.*;
-import com.task.management.domain.project.port.in.AssignTaskUseCase;
-import com.task.management.domain.project.port.in.GetTaskDetailsUseCase;
-import com.task.management.domain.project.port.in.UpdateTaskStatusUseCase;
-import com.task.management.domain.project.port.in.UpdateTaskUseCase;
-import com.task.management.domain.project.application.command.UpdateTaskCommand;
-import com.task.management.domain.project.projection.TaskDetails;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.project.dto.request.AssignTaskRequest;
 import com.task.managment.web.project.dto.request.UpdateTaskRequest;

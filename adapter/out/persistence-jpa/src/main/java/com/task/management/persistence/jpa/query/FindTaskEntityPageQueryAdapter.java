@@ -1,9 +1,9 @@
 package com.task.management.persistence.jpa.query;
 
-import com.task.management.domain.common.application.query.Sort;
+import com.task.management.application.common.query.Sort;
+import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.TaskStatus;
-import com.task.management.domain.project.application.query.FindTasksQuery;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

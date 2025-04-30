@@ -1,7 +1,7 @@
 package com.task.managment.web.project.mapper;
 
-import com.task.management.domain.project.projection.TaskDetails;
-import com.task.management.domain.project.projection.TaskPreview;
+import com.task.management.application.project.projection.TaskDetails;
+import com.task.management.application.project.projection.TaskPreview;
 import com.task.managment.web.common.mapper.UserInfoMapper;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;

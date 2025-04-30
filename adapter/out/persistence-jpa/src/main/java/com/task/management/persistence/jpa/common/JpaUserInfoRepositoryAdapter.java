@@ -1,10 +1,10 @@
 package com.task.management.persistence.jpa.common;
 
-import com.task.management.domain.common.annotation.AppComponent;
+import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.common.port.out.UserInfoRepositoryPort;
 import com.task.management.domain.common.model.Email;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.common.port.out.UserInfoRepositoryPort;
 import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 

@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.dao.impl;
 
-import com.task.management.domain.common.annotation.AppComponent;
+import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.persistence.jpa.dao.TaskNumberSequenceDao;
 import com.task.management.persistence.jpa.entity.TaskNumberSequence;
 import jakarta.persistence.EntityManager;

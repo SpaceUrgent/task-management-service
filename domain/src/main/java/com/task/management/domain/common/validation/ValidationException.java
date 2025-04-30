@@ -1,6 +1,6 @@
 package com.task.management.domain.common.validation;
 
-import jakarta.validation.ConstraintViolation;
+//import jakarta.validation.ConstraintViolation;
 import lombok.Getter;
 
 import java.util.List;
@@ -10,13 +10,17 @@ import java.util.Set;
 public class ValidationException extends RuntimeException {
     private final List<String> errors;
 
-    public <T> ValidationException(Set<ConstraintViolation<T>> constraintViolations) {
-        this.errors = constraintViolations.stream()
-                .map(ConstraintViolation::getMessage)
-                .toList();
-    }
+//    public <T> ValidationException(Set<ConstraintViolation<T>> constraintViolations) {
+//        this.errors = constraintViolations.stream()
+//                .map(ConstraintViolation::getMessage)
+//                .toList();
+//    }
 
     public ValidationException(String error) {
-        this.errors = List.of(error);
+        this(List.of(error));
+    }
+
+    public ValidationException(List<String> errors) {
+        this.errors = errors;
     }
 }

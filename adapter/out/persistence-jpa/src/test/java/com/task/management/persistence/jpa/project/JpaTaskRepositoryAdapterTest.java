@@ -1,12 +1,12 @@
 package com.task.management.persistence.jpa.project;
 
-import com.task.management.domain.common.application.query.Sort;
+import com.task.management.application.common.query.Sort;
+import com.task.management.application.project.projection.TaskChangeLogView;
+import com.task.management.application.project.projection.TaskDetails;
+import com.task.management.application.project.projection.TaskPreview;
+import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.*;
-import com.task.management.domain.project.application.query.FindTasksQuery;
-import com.task.management.domain.project.projection.TaskChangeLogView;
-import com.task.management.domain.project.projection.TaskDetails;
-import com.task.management.domain.project.projection.TaskPreview;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;

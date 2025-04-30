@@ -3,7 +3,6 @@ package com.task.management.domain.common.validation;
 import com.task.management.domain.common.event.DomainEvent;
 import com.task.management.domain.common.model.Email;
 import com.task.management.domain.common.model.UserId;
-import com.task.management.domain.project.event.TaskUpdatedEvent;
 
 import java.time.LocalDate;
 import java.util.Collection;

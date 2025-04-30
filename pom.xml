@@ -20,7 +20,8 @@
         <module>adapter/out/persistence-jpa</module>
         <module>adapter/in/web</module>
         <module>adapter/out/password-encryption</module>
-        <module>application/spring-application</module>
+        <module>config/spring-application</module>
+        <module>application</module>
     </modules>
 
     <properties>
@@ -46,7 +47,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.5</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -58,7 +59,7 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>5.11.0</version>
-            <scope>${mockito.version}</scope>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

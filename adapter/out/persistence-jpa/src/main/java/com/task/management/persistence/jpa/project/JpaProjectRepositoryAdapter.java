@@ -1,13 +1,13 @@
 package com.task.management.persistence.jpa.project;
 
-import com.task.management.domain.common.annotation.AppComponent;
+import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.project.port.out.ProjectRepositoryPort;
+import com.task.management.application.project.projection.ProjectDetails;
+import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.MemberRole;
 import com.task.management.domain.project.model.Project;
-import com.task.management.domain.project.projection.ProjectDetails;
 import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.projection.ProjectPreview;
-import com.task.management.domain.project.port.out.ProjectRepositoryPort;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;

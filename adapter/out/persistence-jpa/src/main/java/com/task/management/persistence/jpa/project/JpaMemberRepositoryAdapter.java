@@ -1,10 +1,10 @@
 package com.task.management.persistence.jpa.project;
 
-import com.task.management.domain.common.annotation.AppComponent;
+import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.project.port.out.MemberRepositoryPort;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.Member;
 import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.port.out.MemberRepositoryPort;
 import com.task.management.persistence.jpa.dao.MemberEntityDao;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;

@@ -1,6 +1,6 @@
 package com.task.managment.web.project.mapper;
 
-import com.task.management.domain.project.projection.MemberView;
+import com.task.management.application.project.projection.MemberView;
 import com.task.managment.web.project.dto.MemberDto;
 import org.springframework.stereotype.Component;
 

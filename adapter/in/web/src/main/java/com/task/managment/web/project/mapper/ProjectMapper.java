@@ -1,10 +1,10 @@
 package com.task.managment.web.project.mapper;
 
+import com.task.management.application.project.projection.MemberView;
+import com.task.management.application.project.projection.ProjectDetails;
+import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.MemberRole;
-import com.task.management.domain.project.projection.MemberView;
-import com.task.management.domain.project.projection.ProjectDetails;
-import com.task.management.domain.project.projection.ProjectPreview;
 import com.task.managment.web.project.dto.ProjectDetailsDto;
 import com.task.managment.web.project.dto.ProjectPreviewDto;
 import com.task.managment.web.project.dto.UserProjectDetailsDto;

@@ -1,13 +1,13 @@
 package com.task.management.persistence.jpa.iam;
 
+import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.iam.port.out.UserCredentialsPort;
+import com.task.management.application.iam.port.out.UserRepositoryPort;
 import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.annotation.AppComponent;
 import com.task.management.domain.iam.model.User;
 import com.task.management.domain.iam.model.UserCredentials;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.iam.port.out.UserCredentialsPort;
-import com.task.management.domain.iam.port.out.UserRepositoryPort;
 import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.iam.mapper.UserCredentialsMapper;

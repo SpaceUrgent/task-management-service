@@ -1,8 +1,8 @@
 package com.task.management.password.encryption;
 
-import com.task.management.domain.common.annotation.AppComponent;
+import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.iam.port.out.EncryptPasswordPort;
 import com.task.management.domain.common.validation.Validation;
-import com.task.management.domain.iam.port.out.EncryptPasswordPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @AppComponent

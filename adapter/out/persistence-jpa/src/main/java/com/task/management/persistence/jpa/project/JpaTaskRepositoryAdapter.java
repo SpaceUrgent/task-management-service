@@ -1,13 +1,12 @@
 package com.task.management.persistence.jpa.project;
 
-import com.task.management.domain.common.projection.Page;
-import com.task.management.domain.common.annotation.AppComponent;
-import com.task.management.domain.common.validation.Validation;
+import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.common.projection.Page;
+import com.task.management.application.project.port.out.TaskRepositoryPort;
+import com.task.management.application.project.projection.TaskDetails;
+import com.task.management.application.project.projection.TaskPreview;
+import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.project.model.*;
-import com.task.management.domain.project.application.query.FindTasksQuery;
-import com.task.management.domain.project.port.out.TaskRepositoryPort;
-import com.task.management.domain.project.projection.TaskDetails;
-import com.task.management.domain.project.projection.TaskPreview;
 import com.task.management.persistence.jpa.dao.*;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;

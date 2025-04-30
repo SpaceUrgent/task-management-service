@@ -1,12 +1,12 @@
 package com.task.managment.web.iam;
 
+import com.task.management.application.iam.EmailExistsException;
+import com.task.management.application.iam.command.RegisterUserCommand;
+import com.task.management.application.iam.port.in.GetUserProfileUseCase;
+import com.task.management.application.iam.port.in.RegisterUserUseCase;
 import com.task.management.domain.common.model.Email;
-import com.task.management.domain.iam.application.EmailExistsException;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.iam.port.in.GetUserProfileUseCase;
-import com.task.management.domain.iam.port.in.RegisterUserUseCase;
-import com.task.management.domain.iam.application.command.RegisterUserCommand;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.iam.dto.request.RegisterUserRequest;
