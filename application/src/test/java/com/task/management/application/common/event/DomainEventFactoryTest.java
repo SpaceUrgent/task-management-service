@@ -25,7 +25,7 @@ class DomainEventFactoryTest {
     @Test
     void shouldReturnMatchingHandler() throws EventHandlingException {
         TestEvent event = new TestEvent();
-        DomainEventHandlerPort<TestEvent> handler = factory.handle(event);
+        DomainEventHandlerPort<TestEvent> handler = factory.supplyHandlerFor(event);
         assertNotNull(handler);
         assertEquals(testHandler, handler);
     }
@@ -35,7 +35,7 @@ class DomainEventFactoryTest {
         DomainEventHandlerFactory emptyFactory = new DomainEventHandlerFactory(List.of());
 
         assertThrows(EventHandlingException.class, () ->
-                emptyFactory.handle(new TestEvent()));
+                emptyFactory.supplyHandlerFor(new TestEvent()));
     }
 
     private static class TestEventHandler implements DomainEventHandlerPort<TestEvent> {

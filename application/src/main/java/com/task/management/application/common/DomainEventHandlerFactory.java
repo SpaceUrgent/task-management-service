@@ -17,7 +17,7 @@ public class DomainEventHandlerFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends DomainEvent> DomainEventHandlerPort<T> handle(T event) throws EventHandlingException {
+    public <T extends DomainEvent> DomainEventHandlerPort<T> supplyHandlerFor(T event) throws EventHandlingException {
         eventRequired(event);
         return (DomainEventHandlerPort<T>) eventHandlers.stream()
                 .filter(handler -> Objects.equals(event.getClass(), handler.eventType()))
