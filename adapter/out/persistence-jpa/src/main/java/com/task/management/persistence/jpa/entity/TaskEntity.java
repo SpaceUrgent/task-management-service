@@ -73,7 +73,6 @@ public class TaskEntity extends JpaEntity<Long> {
     @OneToMany(
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
-            orphanRemoval = true,
             mappedBy = "task"
     )
     private List<TaskChangeLogEntity> changeLogs = new ArrayList<>();
