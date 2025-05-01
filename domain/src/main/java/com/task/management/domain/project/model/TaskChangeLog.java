@@ -22,7 +22,5 @@ public record TaskChangeLog(
         parameterRequired(taskId, "Task id");
         actorIdRequired(actorId);
         parameterRequired(targetProperty, "Target property");
-        notBlank(initialValue, "Initial value");
-        notBlank(newValue, "New value");
     }
 }
