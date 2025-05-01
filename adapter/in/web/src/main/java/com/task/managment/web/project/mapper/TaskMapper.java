@@ -1,8 +1,12 @@
 package com.task.managment.web.project.mapper;
 
+import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
+import com.task.management.domain.common.model.UserInfo;
+import com.task.management.domain.project.model.TaskProperty;
 import com.task.managment.web.common.mapper.UserInfoMapper;
+import com.task.managment.web.project.dto.TaskChangeLogDto;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -45,7 +50,34 @@ public class TaskMapper {
                 .status(taskDetails.status())
                 .assignee(userInfoMapper.toDto(taskDetails.assignee()))
                 .owner(userInfoMapper.toDto(taskDetails.owner()))
+                .changeLogs(toDtos(taskDetails.changeLogs()))
                 .build();
+    }
+
+    private List<TaskChangeLogDto> toDtos(List<TaskChangeLogView> taskChangeLogViews) {
+        return taskChangeLogViews.stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public TaskChangeLogDto toDto(TaskChangeLogView changeLog) {
+        return TaskChangeLogDto.builder()
+                .occurredAt(changeLog.time())
+                .logMessage(mapLogMessage(changeLog.actor(), changeLog.targetProperty()))
+                .oldValue(changeLog.initialValue())
+                .newValue(changeLog.newValue())
+                .build();
+    }
+
+    private String mapLogMessage(UserInfo actor, TaskProperty taskProperty) {
+        final var actionDescription = switch (taskProperty) {
+            case TITLE -> "title";
+            case DESCRIPTION -> "description";
+            case DUE_DATE -> "due date";
+            case ASSIGNEE -> "assignee";
+            case STATUS -> "status";
+        };
+        return "%s updated %s".formatted(actor.fullName(), actionDescription);
     }
 
     private String format(Instant source) {

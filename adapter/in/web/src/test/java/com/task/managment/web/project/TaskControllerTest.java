@@ -6,10 +6,13 @@ import com.task.management.application.project.port.in.AssignTaskUseCase;
 import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
 import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
+import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.domain.common.model.UserId;
 import com.task.management.domain.project.model.*;
 import com.task.managment.web.WebTest;
+import com.task.managment.web.project.dto.TaskChangeLogDto;
+import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.request.AssignTaskRequest;
 import com.task.managment.web.project.dto.request.UpdateTaskRequest;
 import com.task.managment.web.project.dto.request.UpdateTaskStatusRequest;
@@ -25,8 +28,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.IntStream;
 
 import static com.task.managment.web.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -64,7 +70,7 @@ class TaskControllerTest {
         final var taskOwner = taskDetails.owner();
         final var assignee = taskDetails.assignee();
         doReturn(taskDetails).when(getTaskDetailsUseCase).getTaskDetails(eq(USER_ID), eq(taskDetails.id()));
-        mockMvc.perform(get("/api/tasks/{taskId}", taskDetails.id().value()))
+        final var responseBody = mockMvc.perform(get("/api/tasks/{taskId}", taskDetails.id().value()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(taskDetails.id().value()))
@@ -83,8 +89,12 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.assignee.id").value(assignee.id().value()))
                 .andExpect(jsonPath("$.assignee.email").value(assignee.email().value()))
                 .andExpect(jsonPath("$.assignee.firstName").value(assignee.firstName()))
-                .andExpect(jsonPath("$.assignee.lastName").value(assignee.lastName()));
-
+                .andExpect(jsonPath("$.assignee.lastName").value(assignee.lastName()))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        final var actual = objectMapper.readValue(responseBody, TaskDetailsDto.class);
+        assertMatches(taskDetails.changeLogs(), actual.getChangeLogs());
     }
 
     @MockUser
@@ -131,6 +141,18 @@ class TaskControllerTest {
                 .assignTask(eq(USER_ID), eq(givenTaskId), eq(new UserId(givenRequest.getAssigneeId())));
     }
 
+    private void assertMatches(List<TaskChangeLogView> expected, List<TaskChangeLogDto> actual) {
+        assertEquals(expected.size(), actual.size());
+        IntStream.range(0, expected.size()).forEach(index -> assertMatches(expected.get(index), actual.get(index)));
+    }
+
+    private void assertMatches(TaskChangeLogView expected, TaskChangeLogDto actual) {
+        assertEquals(expected.time(), actual.getOccurredAt());
+        assertEquals("%s updated title".formatted(expected.actor().fullName()), actual.getLogMessage());
+        assertEquals(expected.initialValue(), actual.getOldValue());
+        assertEquals(expected.newValue(), actual.getNewValue());
+    }
+
     private UpdateTaskRequest getUpdateTaskRequest() {
         final var request = new UpdateTaskRequest();
         request.setTitle("Updated title");
@@ -166,7 +188,20 @@ class TaskControllerTest {
                 .status(TaskStatus.IN_PROGRESS)
                 .assignee(randomUserInfo())
                 .owner(randomUserInfo())
+                .changeLogs(changeLogViews())
                 .build();
+    }
+
+    private List<TaskChangeLogView> changeLogViews() {
+        return List.of(
+                TaskChangeLogView.builder()
+                        .time(Instant.now())
+                        .actor(randomUserInfo())
+                        .targetProperty(TaskProperty.TITLE)
+                        .initialValue("Old title")
+                        .newValue("New value")
+                        .build()
+        );
     }
 
     private static TaskId randomTaskId() {

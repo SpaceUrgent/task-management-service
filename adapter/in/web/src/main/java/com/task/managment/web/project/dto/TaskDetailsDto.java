@@ -7,6 +7,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
@@ -25,6 +26,7 @@ public class TaskDetailsDto {
     private TaskStatus status;
     private UserInfoDto owner;
     private UserInfoDto assignee;
+    private List<TaskChangeLogDto> changeLogs;
 
     @Builder
     public TaskDetailsDto(Long id,
@@ -37,7 +39,8 @@ public class TaskDetailsDto {
                           String description,
                           TaskStatus status,
                           UserInfoDto owner,
-                          UserInfoDto assignee) {
+                          UserInfoDto assignee,
+                          List<TaskChangeLogDto> changeLogs) {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;
@@ -49,5 +52,6 @@ public class TaskDetailsDto {
         this.status = parameterRequired(status, "Status");
         this.owner = parameterRequired(owner, "Owner");
         this.assignee = parameterRequired(assignee, "Assignee");
+        this.changeLogs = changeLogs;
     }
 }
