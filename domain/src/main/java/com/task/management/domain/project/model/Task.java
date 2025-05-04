@@ -1,8 +1,13 @@
 package com.task.management.domain.project.model;
 
 import com.task.management.domain.common.model.DomainEventAggregate;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.event.*;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskId;
+import com.task.management.domain.project.model.objectvalue.TaskNumber;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
+
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,7 +34,7 @@ public class Task extends DomainEventAggregate {
     private final TaskNumber number;
     private String title;
     private String description;
-    private TaskStatus status;
+    private String status;
     private final UserId owner;
     private UserId assignee;
 
@@ -42,7 +47,7 @@ public class Task extends DomainEventAggregate {
                 TaskNumber number,
                 String title,
                 String description,
-                TaskStatus status,
+                String status,
                 UserId owner,
                 UserId assignee) {
         this.id = id;
@@ -53,7 +58,7 @@ public class Task extends DomainEventAggregate {
         this.number = number;
         this.title = notBlank(title, "Title");
         this.description = description;
-        this.status = parameterRequired(status, "Status");
+        this.status = notBlank(status, "Status");
         this.owner = parameterRequired(owner, "Owner");
         this.assignee = parameterRequired(assignee, "Assignee");
         this.validateSelf();
@@ -83,7 +88,7 @@ public class Task extends DomainEventAggregate {
         this.dueDate = presentOrFuture(dueDate, "Due date");
     }
 
-    public void updateStatus(UserId actor, TaskStatus status) {
+    public void updateStatus(UserId actor, String status) {
         actorIdRequired(actor);
         if (this.status.equals(status)) return;
         recordUpdateTime();

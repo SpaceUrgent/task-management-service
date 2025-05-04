@@ -1,14 +1,13 @@
 package com.task.management.domain.project.event;
 
-import com.task.management.domain.common.model.UserId;
-import com.task.management.domain.project.model.TaskId;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.TaskId;
 
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
-public class TaskStatusUpdatedEvent extends TaskUpdatedEvent<TaskStatus> {
+public class TaskStatusUpdatedEvent extends TaskUpdatedEvent<String> {
 
-    public TaskStatusUpdatedEvent(TaskId taskId, UserId actorId, TaskStatus initialValue, TaskStatus newValue) {
+    public TaskStatusUpdatedEvent(TaskId taskId, UserId actorId, String initialValue, String newValue) {
         super(
                 taskId,
                 actorId,

@@ -1,5 +1,7 @@
 package com.task.management.domain.common.model;
 
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import lombok.Builder;
 
 import static com.task.management.domain.common.validation.Validation.emailRequired;

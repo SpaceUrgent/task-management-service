@@ -1,7 +1,7 @@
 package com.task.management.application.project.projection;
 
 import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.project.model.TaskProperty;
+import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import lombok.Builder;
 
 import java.time.Instant;

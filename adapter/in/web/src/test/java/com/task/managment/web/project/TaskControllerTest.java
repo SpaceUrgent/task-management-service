@@ -8,8 +8,11 @@ import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
-import com.task.management.domain.common.model.UserId;
-import com.task.management.domain.project.model.*;
+import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.TaskId;
+import com.task.management.domain.project.model.objectvalue.TaskNumber;
+import com.task.management.domain.project.model.objectvalue.TaskProperty;
+import com.task.management.domain.project.model.objectvalue.TaskStatusOld;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.project.dto.TaskChangeLogDto;
 import com.task.managment.web.project.dto.TaskDetailsDto;
@@ -158,7 +161,7 @@ class TaskControllerTest {
         request.setTitle("Updated title");
         request.setDescription("Updated description");
         request.setAssigneeId(randomLong());
-        request.setStatus(TaskStatus.DONE);
+        request.setStatus(TaskStatusOld.DONE);
         request.setDueDate(LocalDate.now().plusYears(1));
         return request;
     }
@@ -171,7 +174,7 @@ class TaskControllerTest {
 
     private UpdateTaskStatusRequest getUpdateTaskStatusRequest() {
         final var request = new UpdateTaskStatusRequest();
-        request.setStatus(TaskStatus.DONE);
+        request.setStatus(TaskStatusOld.DONE);
         return request;
     }
 
@@ -185,7 +188,7 @@ class TaskControllerTest {
                 .number(new TaskNumber(randomLong()))
                 .title("Task title")
                 .description("Task description")
-                .status(TaskStatus.IN_PROGRESS)
+                .status(TaskStatusOld.IN_PROGRESS)
                 .assignee(randomUserInfo())
                 .owner(randomUserInfo())
                 .changeLogs(changeLogViews())

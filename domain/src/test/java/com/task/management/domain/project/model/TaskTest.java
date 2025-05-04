@@ -117,7 +117,7 @@ class TaskTest {
 
     @Test
     void updateStatus_shouldCreateEvent_whenValueChanged() {
-        final var givenValue = TaskStatus.DONE;
+        final var givenValue = "Done";
         final var givenActorId = randomUserId();
         final var task = randomTask();
         final var initialValue = task.getStatus();

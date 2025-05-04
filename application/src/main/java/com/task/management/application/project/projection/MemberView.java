@@ -1,8 +1,8 @@
 package com.task.management.application.project.projection;
 
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
-import com.task.management.domain.project.model.MemberRole;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.MemberRole;
 import lombok.Builder;
 
 import static com.task.management.domain.common.validation.Validation.emailRequired;

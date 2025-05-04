@@ -1,6 +1,6 @@
-package com.task.management.domain.project.model;
+package com.task.management.domain.project.model.objectvalue;
 
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import lombok.Builder;
 
 import java.time.Instant;

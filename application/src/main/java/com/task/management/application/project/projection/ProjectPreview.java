@@ -1,6 +1,6 @@
 package com.task.management.application.project.projection;
 
-import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
 import lombok.Builder;
 
 import static com.task.management.domain.common.validation.Validation.notBlank;

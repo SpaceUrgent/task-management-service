@@ -6,6 +6,7 @@ import com.task.management.application.common.annotation.UseCase;
 import com.task.management.application.common.port.out.DomainEventPublisherPort;
 import com.task.management.application.common.projection.Page;
 import com.task.management.application.common.validation.ValidationService;
+import com.task.management.application.project.UpdateTaskStatusException;
 import com.task.management.application.project.command.CreateTaskCommand;
 import com.task.management.application.project.command.UpdateTaskCommand;
 import com.task.management.application.project.port.in.*;
@@ -13,14 +14,19 @@ import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
-import com.task.management.domain.common.model.UserId;
-import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.Task;
-import com.task.management.domain.project.model.TaskId;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskId;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.task.management.domain.common.validation.Validation.actorIdRequired;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
@@ -29,10 +35,10 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 @RequiredArgsConstructor
 public class TaskService implements CreateTaskUseCase,
                                     UpdateTaskUseCase,
-        UpdateTaskStatusUseCase,
-        AssignTaskUseCase,
-        GetTaskDetailsUseCase,
-        FindTasksUseCase {
+                                    UpdateTaskStatusUseCase,
+                                    AssignTaskUseCase,
+                                    GetTaskDetailsUseCase,
+                                    FindTasksUseCase {
     private final ValidationService validationService;
     private final DomainEventPublisherPort eventPublisher;
     private final ProjectService projectService;
@@ -54,7 +60,7 @@ public class TaskService implements CreateTaskUseCase,
                 .project(projectId)
                 .title(command.title())
                 .description(command.description())
-                .status(TaskStatus.TO_DO)
+                .status(projectService.getInitialTaskStatus(projectId).name())
                 .owner(actorId)
                 .assignee(command.assigneeId())
                 .build();
@@ -71,10 +77,12 @@ public class TaskService implements CreateTaskUseCase,
         validationService.validate(command);
         var task = findOrThrow(taskId);
         projectService.checkIsMember(actorId, task.getProject());
+        final var statusName = command.taskStatus();
+        checkStatusIsAvailable(task.getProject(), statusName);
         task.updateTitle(actorId, command.title());
         task.updateDescription(actorId, command.description());
         task.updateDueDate(actorId, command.dueDate());
-        task.updateStatus(actorId, command.taskStatus());
+        task.updateStatus(actorId, statusName);
         task.assignTo(actorId, command.assigneeId());
         taskRepositoryPort.save(task);
         eventPublisher.publish(task.flushEvents());
@@ -84,13 +92,14 @@ public class TaskService implements CreateTaskUseCase,
     @Override
     public void updateStatus(final UserId actorId,
                              final TaskId taskId,
-                             final TaskStatus status) throws UseCaseException {
+                             final String statusName) throws UseCaseException {
         actorIdRequired(actorId);
         taskIdRequired(taskId);
-        parameterRequired(status, "Task status");
+        parameterRequired(statusName, "Task status");
         final var task = findOrThrow(taskId);
         projectService.checkIsMember(actorId, task.getProject());
-        task.updateStatus(actorId, status);
+        checkStatusIsAvailable(task.getProject(), statusName);
+        task.updateStatus(actorId, statusName);
         taskRepositoryPort.save(task);
         eventPublisher.publish(task.flushEvents());
     }
@@ -146,6 +155,14 @@ public class TaskService implements CreateTaskUseCase,
         if (!projectService.isMember(assigneeId, projectId)) {
             throw projectMemberNotFoundException();
         }
+    }
+
+    private void checkStatusIsAvailable(ProjectId projectId, String statusName) throws UpdateTaskStatusException {
+        parameterRequired(statusName, "Status name");
+        projectService.getAvailableTaskStatuses(projectId).stream()
+                .filter(taskStatus -> statusName.equalsIgnoreCase(taskStatus.name()))
+                .findFirst()
+                .orElseThrow(() -> new UpdateTaskStatusException("Project does not support task status with name '%s'".formatted(statusName)));
     }
 
     private static UseCaseException.IllegalAccessException projectMemberNotFoundException() {

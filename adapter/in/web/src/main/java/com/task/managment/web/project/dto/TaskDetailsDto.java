@@ -1,6 +1,6 @@
 package com.task.managment.web.project.dto;
 
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatusOld;
 import com.task.managment.web.common.dto.UserInfoDto;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +23,7 @@ public class TaskDetailsDto {
     private Long number;
     private String title;
     private String description;
-    private TaskStatus status;
+    private TaskStatusOld status;
     private UserInfoDto owner;
     private UserInfoDto assignee;
     private List<TaskChangeLogDto> changeLogs;
@@ -37,7 +37,7 @@ public class TaskDetailsDto {
                           Long number,
                           String title,
                           String description,
-                          TaskStatus status,
+                          TaskStatusOld status,
                           UserInfoDto owner,
                           UserInfoDto assignee,
                           List<TaskChangeLogDto> changeLogs) {

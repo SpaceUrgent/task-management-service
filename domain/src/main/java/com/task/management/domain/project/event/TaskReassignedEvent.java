@@ -1,7 +1,7 @@
 package com.task.management.domain.project.event;
 
-import com.task.management.domain.common.model.UserId;
-import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.TaskId;
 
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 

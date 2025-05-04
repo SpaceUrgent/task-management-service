@@ -1,12 +1,12 @@
 package com.task.management.application.iam.service;
 
 import com.task.management.application.common.UseCaseException;
-import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.management.application.common.validation.ValidationService;
 import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.iam.command.RegisterUserCommand;
 import com.task.management.domain.iam.model.User;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.application.iam.port.out.EncryptPasswordPort;
 import com.task.management.application.iam.port.out.UserCredentialsPort;

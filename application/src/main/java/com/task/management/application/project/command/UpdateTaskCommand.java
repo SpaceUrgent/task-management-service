@@ -1,7 +1,7 @@
 package com.task.management.application.project.command;
 
-import com.task.management.domain.common.model.UserId;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -13,7 +13,7 @@ public record UpdateTaskCommand(
         String title,
         String description,
         @NotNull(message = "Task status is required")
-        TaskStatus taskStatus,
+        String taskStatus,
         @NotNull
         UserId assigneeId,
         LocalDate dueDate

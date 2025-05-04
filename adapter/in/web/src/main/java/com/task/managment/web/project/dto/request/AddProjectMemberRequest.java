@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class AddProjectMemberRequest {
-    @Email(message = "Invalid email value", regexp = com.task.management.domain.common.model.Email.VALID_EMAIL_REGEXP)
+    @Email(message = "Invalid email value", regexp = com.task.management.domain.common.model.objectvalue.Email.VALID_EMAIL_REGEXP)
     @NotBlank(message = "Email is required")
     private String email;
 }

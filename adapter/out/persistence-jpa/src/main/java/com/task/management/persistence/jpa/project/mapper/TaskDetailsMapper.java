@@ -2,9 +2,9 @@ package com.task.management.persistence.jpa.project.mapper;
 
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.TaskId;
-import com.task.management.domain.project.model.TaskNumber;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskId;
+import com.task.management.domain.project.model.objectvalue.TaskNumber;
 import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;

@@ -1,9 +1,8 @@
 package com.task.management.application.project.projection;
 
 import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.project.model.TaskId;
-import com.task.management.domain.project.model.TaskNumber;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskId;
+import com.task.management.domain.project.model.objectvalue.TaskNumber;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -19,7 +18,7 @@ public record TaskPreview(
         Instant updatedAt,
         LocalDate dueDate,
         String title,
-        TaskStatus status,
+        String status,
         UserInfo assignee
 ) {
     @Builder

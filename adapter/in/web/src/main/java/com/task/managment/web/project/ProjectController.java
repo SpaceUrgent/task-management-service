@@ -8,10 +8,10 @@ import com.task.management.application.project.command.UpdateMemberRoleCommand;
 import com.task.management.application.project.command.UpdateProjectCommand;
 import com.task.management.application.project.port.in.*;
 import com.task.management.application.project.query.FindTasksQuery;
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskStatusOld;
 import com.task.managment.web.common.BaseController;
 import com.task.managment.web.common.dto.ListResponse;
 import com.task.managment.web.project.dto.ProjectPreviewDto;
@@ -162,14 +162,14 @@ public class ProjectController extends BaseController {
                 .toList();
     }
 
-    private Set<TaskStatus> toTaskStatusSet(Set<String> statusList) {
+    private Set<TaskStatusOld> toTaskStatusSet(Set<String> statusList) {
         if (statusList == null) return null;
-        Set<String> taskStatusNames = TaskStatus.all().stream()
+        Set<String> taskStatusNames = TaskStatusOld.all().stream()
                 .map(Enum::name)
                 .collect(Collectors.toSet());
         return statusList.stream()
                 .filter(taskStatusNames::contains)
-                .map(TaskStatus::valueOf)
+                .map(TaskStatusOld::valueOf)
                 .collect(Collectors.toSet());
     }
 }

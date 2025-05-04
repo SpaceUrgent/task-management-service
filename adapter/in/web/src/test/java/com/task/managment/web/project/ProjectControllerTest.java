@@ -14,10 +14,10 @@ import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.project.model.*;
+import com.task.management.domain.project.model.objectvalue.*;
 import com.task.managment.web.common.dto.ListResponse;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
@@ -206,7 +206,7 @@ class ProjectControllerTest {
     void getTasks_withCustomParams() throws Exception {
         final var givenProjectId = randomProjectId();
         final var givenAssigneeId = randomUserId();
-        final var givenTaskStatus = Set.of(TaskStatus.DONE, TaskStatus.IN_PROGRESS);
+        final var givenTaskStatus = Set.of(TaskStatusOld.DONE, TaskStatusOld.IN_PROGRESS);
         final var expectedQuery = FindTasksQuery.builder()
                 .pageNumber(2)
                 .pageSize(10)
@@ -228,7 +228,7 @@ class ProjectControllerTest {
                         .param("page", "2")
                         .param("size", "10")
                         .param("assigneeId", givenAssigneeId.value().toString())
-                        .param("status", givenTaskStatus.stream().map(TaskStatus::name).toList().toArray(new String[]{}))
+                        .param("status", givenTaskStatus.stream().map(TaskStatusOld::name).toList().toArray(new String[]{}))
                         .param("sortBy", "createdAt:ASC"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -403,7 +403,7 @@ class ProjectControllerTest {
                 .dueDate(LocalDate.now().plusDays(10))
                 .number(new TaskNumber(randomLong()))
                 .title("Task %d".formatted(idValue))
-                .status(TaskStatus.IN_PROGRESS)
+                .status(TaskStatusOld.IN_PROGRESS)
                 .assignee(randomUserInfo())
                 .build();
     }

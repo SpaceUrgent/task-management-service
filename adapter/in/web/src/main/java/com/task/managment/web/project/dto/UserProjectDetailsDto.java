@@ -1,6 +1,6 @@
 package com.task.managment.web.project.dto;
 
-import com.task.management.domain.project.model.MemberRole;
+import com.task.management.domain.project.model.objectvalue.MemberRole;
 import lombok.Builder;
 import lombok.Data;
 

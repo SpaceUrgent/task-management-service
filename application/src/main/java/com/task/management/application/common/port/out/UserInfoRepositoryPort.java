@@ -1,7 +1,7 @@
 package com.task.management.application.common.port.out;
 
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.common.model.UserInfo;
 
 import java.util.Optional;

@@ -4,10 +4,10 @@ import com.task.management.application.common.EventHandlingException;
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.common.port.out.UserInfoRepositoryPort;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.project.event.TaskReassignedEvent;
-import com.task.management.domain.project.model.TaskProperty;
+import com.task.management.domain.project.model.objectvalue.TaskProperty;
 
 @AppComponent
 public class TaskReassignedEventHandler extends TaskUpdatedEventHandler<TaskReassignedEvent, UserId> {

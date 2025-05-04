@@ -5,8 +5,9 @@ import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.*;
+import com.task.management.domain.project.model.objectvalue.*;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
@@ -65,7 +66,7 @@ class JpaTaskRepositoryAdapterTest {
                 .dueDate(LocalDate.now().plusWeeks(1))
                 .title("New task title")
                 .description("New task description")
-                .status(TaskStatus.TO_DO)
+                .status(TaskStatusOld.TO_DO)
                 .project(new ProjectId(projectEntity.getId()))
                 .owner(ownerId)
                 .assignee(ownerId)
@@ -98,7 +99,7 @@ class JpaTaskRepositoryAdapterTest {
                 .number(new TaskNumber(taskEntity.getNumber()))
                 .title("Updated task title")
                 .description("Update task description")
-                .status(TaskStatus.DONE)
+                .status(TaskStatusOld.DONE)
                 .project(new ProjectId(taskEntity.getProject().getId()))
                 .owner(new UserId(taskEntity.getOwner().getId()))
                 .assignee(newAssignee)
@@ -245,7 +246,7 @@ class JpaTaskRepositoryAdapterTest {
     void findProjectTasks_shouldReturnFilteredTaskPreviewPage_whenFiltersPassed() {
         final var projectId = getFirstProjectEntity().getId();
         final var givenAssigneeId = new UserId(getUserEntityByEmail("jsnow@mail.com").getId());
-        final var givenStatuses = Set.of(TaskStatus.TO_DO, TaskStatus.IN_PROGRESS);
+        final var givenStatuses = Set.of(TaskStatusOld.TO_DO, TaskStatusOld.IN_PROGRESS);
 
         final var expectedTaskEntities = taskEntityDao.findAll().stream()
                 .filter(entity -> Objects.equals(projectId, entity.getProject().getId()))

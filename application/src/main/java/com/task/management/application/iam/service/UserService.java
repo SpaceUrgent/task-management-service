@@ -10,7 +10,7 @@ import com.task.management.application.iam.port.in.GetUserProfileUseCase;
 import com.task.management.application.iam.port.in.RegisterUserUseCase;
 import com.task.management.application.iam.port.out.EncryptPasswordPort;
 import com.task.management.application.iam.port.out.UserRepositoryPort;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.iam.model.User;
 import lombok.RequiredArgsConstructor;

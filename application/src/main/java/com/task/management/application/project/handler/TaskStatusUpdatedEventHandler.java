@@ -3,11 +3,10 @@ package com.task.management.application.project.handler;
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.domain.project.event.TaskStatusUpdatedEvent;
-import com.task.management.domain.project.model.TaskProperty;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskProperty;
 
 @AppComponent
-public class TaskStatusUpdatedEventHandler extends TaskUpdatedEventHandler<TaskStatusUpdatedEvent, TaskStatus> {
+public class TaskStatusUpdatedEventHandler extends TaskUpdatedEventHandler<TaskStatusUpdatedEvent, String> {
 
     protected TaskStatusUpdatedEventHandler(TaskRepositoryPort taskRepositoryPort) {
         super(taskRepositoryPort);
@@ -24,7 +23,7 @@ public class TaskStatusUpdatedEventHandler extends TaskUpdatedEventHandler<TaskS
     }
 
     @Override
-    protected String mapToString(TaskStatus source) {
-        return source.name();
+    protected String mapToString(String source) {
+        return source;
     }
 }

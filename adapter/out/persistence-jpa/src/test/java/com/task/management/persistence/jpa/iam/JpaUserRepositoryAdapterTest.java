@@ -1,9 +1,9 @@
 package com.task.management.persistence.jpa.iam;
 
-import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.management.domain.iam.model.User;
-import com.task.management.domain.iam.model.UserCredentials;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.iam.model.objectvalue.UserCredentials;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.UserEntityDao;

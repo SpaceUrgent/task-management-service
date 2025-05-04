@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 public class RegisterUserRequest {
-    @Email(message = "Invalid email value", regexp = com.task.management.domain.common.model.Email.VALID_EMAIL_REGEXP)
+    @Email(message = "Invalid email value", regexp = com.task.management.domain.common.model.objectvalue.Email.VALID_EMAIL_REGEXP)
     @NotNull(message = "Email is required")
     private String email;
     @NotBlank(message = "First name is required")

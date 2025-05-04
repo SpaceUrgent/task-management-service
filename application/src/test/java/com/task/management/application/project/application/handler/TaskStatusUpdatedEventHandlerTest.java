@@ -1,11 +1,11 @@
 package com.task.management.application.project.application.handler;
 
 import com.task.management.application.common.EventHandlingException;
+import com.task.management.application.project.ProjectConstants;
 import com.task.management.domain.project.event.TaskStatusUpdatedEvent;
 import com.task.management.application.project.handler.TaskStatusUpdatedEventHandler;
-import com.task.management.domain.project.model.TaskProperty;
-import com.task.management.domain.project.model.TaskChangeLog;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskProperty;
+import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,16 +31,16 @@ class TaskStatusUpdatedEventHandlerTest {
         final var givenEvent = new TaskStatusUpdatedEvent(
                 randomTaskId(),
                 randomUserId(),
-                TaskStatus.TO_DO,
-                TaskStatus.IN_PROGRESS
+                ProjectConstants.DEFAULT_TASK_STATUSES.getFirst().name(),
+                ProjectConstants.DEFAULT_TASK_STATUSES.getLast().name()
         );
         final var expectedChangeLog = TaskChangeLog.builder()
                 .time(givenEvent.getOccurredAt())
                 .taskId(givenEvent.getEntityId())
                 .actorId(givenEvent.getActorId())
                 .targetProperty(TaskProperty.STATUS)
-                .initialValue(givenEvent.getInitialValue().name())
-                .newValue(givenEvent.getNewValue().name())
+                .initialValue(givenEvent.getInitialValue())
+                .newValue(givenEvent.getNewValue())
                 .build();
         handler.handle(givenEvent);
         Mockito.verify(taskRepositoryPort).save(eq(expectedChangeLog));

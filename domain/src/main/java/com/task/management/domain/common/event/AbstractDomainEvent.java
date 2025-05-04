@@ -1,6 +1,6 @@
 package com.task.management.domain.common.event;
 
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import lombok.Data;
 
 import java.time.Instant;

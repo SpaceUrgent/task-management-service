@@ -4,8 +4,8 @@ import com.task.management.application.common.EventHandlingException;
 import com.task.management.application.common.port.in.DomainEventHandlerPort;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.domain.project.event.TaskUpdatedEvent;
-import com.task.management.domain.project.model.TaskChangeLog;
-import com.task.management.domain.project.model.TaskProperty;
+import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
+import com.task.management.domain.project.model.objectvalue.TaskProperty;
 
 import static com.task.management.domain.common.validation.Validation.eventRequired;
 

@@ -1,7 +1,10 @@
 package com.task.management.domain.project;
 
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.*;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskId;
+import com.task.management.domain.project.model.objectvalue.TaskNumber;
 
 import java.time.Instant;
 import java.util.Random;
@@ -26,7 +29,7 @@ public final class ProjectTestUtils {
                 .number(randomTaskNumber())
                 .createdAt(Instant.now())
                 .project(randomProjectId())
-                .status(TaskStatus.IN_PROGRESS)
+                .status("In progress")
                 .title("Title")
                 .description("Description")
                 .owner(randomUserId())

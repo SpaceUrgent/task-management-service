@@ -5,8 +5,9 @@ import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.project.model.Task;
-import com.task.management.domain.project.model.TaskChangeLog;
-import com.task.management.domain.project.model.TaskId;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
+import com.task.management.domain.project.model.objectvalue.TaskId;
 
 import java.util.Optional;
 
@@ -20,4 +21,6 @@ public interface TaskRepositoryPort {
     Optional<TaskDetails> findTaskDetails(TaskId id);
 
     Page<TaskPreview> findProjectTasks(FindTasksQuery query);
+
+    boolean projectTaskWithStatusExists(ProjectId projectId, String statusName);
 }

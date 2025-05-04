@@ -5,7 +5,7 @@ import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.iam.command.RegisterUserCommand;
 import com.task.management.application.iam.port.in.GetUserProfileUseCase;
 import com.task.management.application.iam.port.in.RegisterUserUseCase;
-import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.managment.web.common.dto.UserInfoDto;
 import com.task.managment.web.common.mapper.UserInfoMapper;
 import com.task.managment.web.iam.dto.request.RegisterUserRequest;

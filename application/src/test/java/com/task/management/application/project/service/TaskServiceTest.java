@@ -8,11 +8,10 @@ import com.task.management.application.common.validation.ValidationService;
 import com.task.management.application.project.command.CreateTaskCommand;
 import com.task.management.application.project.command.UpdateTaskCommand;
 import com.task.management.domain.project.model.Task;
-import com.task.management.domain.project.model.TaskProperty;
+import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
-import com.task.management.domain.project.model.TaskStatus;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.application.project.query.FindTasksQuery;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import static com.task.management.application.project.ProjectConstants.DEFAULT_TASK_STATUSES;
 import static com.task.management.application.project.ProjectTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -67,6 +67,7 @@ class TaskServiceTest {
                 .build();
         final var taskCaptor = ArgumentCaptor.forClass(Task.class);
         doReturn(true).when(projectService).isMember(eq(givenCommand.assigneeId()), eq(givenProjectId));
+        doReturn(DEFAULT_TASK_STATUSES.getFirst()).when(projectService).getInitialTaskStatus(eq(givenProjectId));
         doAnswer(self(Task.class)).when(taskRepositoryPort).save(taskCaptor.capture());
         taskService.createTask(givenActorId, givenProjectId, givenCommand);
         final var created = taskCaptor.getValue();
@@ -76,6 +77,7 @@ class TaskServiceTest {
         assertEquals(givenActorId, created.getOwner());
         assertEquals(givenCommand.assigneeId(), created.getAssignee());
         assertEquals(givenCommand.dueDate(), created.getDueDate());
+        assertEquals(DEFAULT_TASK_STATUSES.getFirst().name(), created.getStatus());
     }
 
     @Test
@@ -125,10 +127,11 @@ class TaskServiceTest {
                 .description("Updated description")
                 .dueDate(LocalDate.now().plusWeeks(1))
                 .assigneeId(randomUserId())
-                .taskStatus(TaskStatus.DONE)
+                .taskStatus("Done")
                 .build();
 
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(task.getId()));
+        doReturn(DEFAULT_TASK_STATUSES).when(projectService).getAvailableTaskStatuses(eq(task.getProject()));
         ArgumentCaptor<List<DomainEvent>> eventsCaptor = ArgumentCaptor.captor();
         taskService.updateTask(givenActorId, task.getId(), givenCommand);
 
@@ -166,8 +169,9 @@ class TaskServiceTest {
         final var task = randomTask();
         final var givenActorId = task.getAssignee();
         final var givenTaskId = task.getId();
-        final var givenTaskStatus = TaskStatus.DONE;
+        final var givenTaskStatus = "Done";
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
+        doReturn(DEFAULT_TASK_STATUSES).when(projectService).getAvailableTaskStatuses(eq(task.getProject()));
         ArgumentCaptor<List<DomainEvent>> eventsCaptor = ArgumentCaptor.captor();
 
         taskService.updateStatus(givenActorId, givenTaskId, givenTaskStatus);
@@ -182,7 +186,7 @@ class TaskServiceTest {
     void updateStatus_shouldThrowEntityNotFoundException_whenTaskNotFound() {
         final var givenActorId = randomUserId();
         final var givenTaskId = randomTaskId();
-        final var givenTaskStatus = TaskStatus.DONE;
+        final var givenTaskStatus = "Done";
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
@@ -286,7 +290,7 @@ class TaskServiceTest {
                 .number(randomTaskNumber())
                 .createdAt(Instant.now())
                 .project(randomProjectId())
-                .status(TaskStatus.IN_PROGRESS)
+                .status("In progress")
                 .title("Title")
                 .description("Description")
                 .owner(randomUserId())
@@ -301,7 +305,7 @@ class TaskServiceTest {
                 .createdAt(Instant.now())
                 .dueDate(LocalDate.now().plusWeeks(1))
                 .projectId(randomProjectId())
-                .status(TaskStatus.IN_PROGRESS)
+                .status("Done")
                 .title("Title")
                 .description("Description")
                 .owner(randomUserInfo())
@@ -331,7 +335,7 @@ class TaskServiceTest {
                 .createdAt(Instant.now())
                 .dueDate(LocalDate.now().minusWeeks(1))
                 .title("Title")
-                .status(TaskStatus.IN_PROGRESS)
+                .status("To do")
                 .assignee(randomUserInfo())
                 .build();
     }

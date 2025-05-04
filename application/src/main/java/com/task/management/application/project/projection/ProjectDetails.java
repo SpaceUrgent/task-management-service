@@ -1,10 +1,11 @@
 package com.task.management.application.project.projection;
 
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 import static com.task.management.domain.common.validation.Validation.*;
@@ -16,21 +17,11 @@ public record ProjectDetails(
         String title,
         String description,
         MemberView owner,
-        Set<TaskStatus> taskStatuses,
+        List<TaskStatus> taskStatuses,
         Set<MemberView> members
 ) {
 
     @Builder
-    public ProjectDetails(ProjectId id,
-                          Instant createdAt,
-                          Instant updatedAt,
-                          String title,
-                          String description,
-                          MemberView owner,
-                          Set<MemberView> members) {
-        this(id, createdAt, updatedAt, title, description, owner, TaskStatus.all(), members);
-    }
-
     public ProjectDetails {
         parameterRequired(id, "Project id");
         parameterRequired(createdAt, "Created time");

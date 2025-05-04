@@ -1,7 +1,7 @@
 package com.task.management.persistence.jpa.common;
 
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;

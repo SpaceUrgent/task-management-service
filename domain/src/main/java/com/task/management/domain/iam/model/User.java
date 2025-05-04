@@ -1,7 +1,7 @@
 package com.task.management.domain.iam.model;
 
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import lombok.Builder;
 import lombok.Data;
 

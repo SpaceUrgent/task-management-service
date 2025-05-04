@@ -3,7 +3,7 @@ package com.task.management.application.common.service;
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.port.out.UserInfoRepositoryPort;
-import com.task.management.domain.common.model.Email;
+import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.management.domain.common.model.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 

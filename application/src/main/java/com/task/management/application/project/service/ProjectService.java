@@ -5,41 +5,49 @@ import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.common.annotation.UseCase;
 import com.task.management.application.common.service.UserInfoService;
 import com.task.management.application.common.validation.ValidationService;
+import com.task.management.application.project.RemoveTaskStatusException;
+import com.task.management.application.project.command.AddTaskStatusCommand;
 import com.task.management.application.project.command.CreateProjectCommand;
 import com.task.management.application.project.command.UpdateMemberRoleCommand;
 import com.task.management.application.project.command.UpdateProjectCommand;
 import com.task.management.application.project.port.in.*;
 import com.task.management.application.project.port.out.MemberRepositoryPort;
 import com.task.management.application.project.port.out.ProjectRepositoryPort;
+import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Member;
-import com.task.management.domain.project.model.MemberRole;
+import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.project.model.Project;
-import com.task.management.domain.project.model.ProjectId;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static com.task.management.application.project.ProjectConstants.DEFAULT_TASK_STATUSES;
 import static com.task.management.domain.common.validation.Validation.*;
 
 @Slf4j
 @AppComponent
 @RequiredArgsConstructor
 public class ProjectService implements CreateProjectUseCase,
-        AddProjectMemberUseCase,
-        UpdateMemberRoleUseCase,
+                                       AddProjectMemberUseCase,
+                                       UpdateMemberRoleUseCase,
                                        GetAvailableProjectsUseCase,
-        UpdateProjectUseCase,
-        GetProjectDetailsUseCase {
+                                       UpdateProjectUseCase,
+                                       GetProjectDetailsUseCase {
+
     private final ValidationService validationService;
     private final UserInfoService userService;
     private final ProjectRepositoryPort projectRepositoryPort;
+    private final TaskRepositoryPort taskRepositoryPort;
     private final MemberRepositoryPort memberRepositoryPort;
 
     @UseCase
@@ -59,6 +67,7 @@ public class ProjectService implements CreateProjectUseCase,
                 .title(command.title())
                 .description(command.description())
                 .ownerId(actorId)
+                .availableTaskStatuses(DEFAULT_TASK_STATUSES)
                 .build();
         projectRepositoryPort.save(project);
     }
@@ -69,14 +78,39 @@ public class ProjectService implements CreateProjectUseCase,
         actorIdRequired(actorId);
         projectIdRequired(projectId);
         validationService.validate(command);
-        final var actor = getActingMember(projectId, actorId);
-        final var project = findOrThrow(projectId);
-        if (!actor.isOwnerOrAdmin()) {
-            log.debug("User with id {} is not allowed to update project with id {}", actorId, projectId);
-            throw new UseCaseException.IllegalAccessException("Current user is not allowed to update project");
-        }
+        final var project = getProject(projectId);
+        checkActorHasAdminPrivileges(actorId, projectId);
         project.updateTitle(command.title());
         project.updateDescription(command.description());
+        projectRepositoryPort.save(project);
+    }
+
+    @Override
+    public void addTaskStatus(UserId actorId, ProjectId projectId, AddTaskStatusCommand command) throws UseCaseException {
+        actorIdRequired(actorId);
+        projectIdRequired(projectId);
+        validationService.validate(command);
+        final var project = getProject(projectId);
+        checkActorHasAdminPrivileges(actorId, projectId);
+        final var newTaskStatus = TaskStatus.builder()
+                .name(command.name())
+                .position(command.position())
+                .build();
+        project.addStatus(newTaskStatus);
+        projectRepositoryPort.save(project);
+    }
+
+    @Override
+    public void removeTaskStatus(UserId actorId, ProjectId projectId, String statusName) throws UseCaseException {
+        actorIdRequired(actorId);
+        projectIdRequired(projectId);
+        notBlank(statusName, "Status name");
+        final var project = getProject(projectId);
+        checkActorHasAdminPrivileges(actorId, projectId);
+        if (taskRepositoryPort.projectTaskWithStatusExists(projectId, statusName)) {
+            throw new RemoveTaskStatusException("Task status '%s' can not be removed. Project has task/s with indicated status".formatted(statusName));
+        }
+        project.removeStatus(statusName);
         projectRepositoryPort.save(project);
     }
 
@@ -119,7 +153,11 @@ public class ProjectService implements CreateProjectUseCase,
         actorIdRequired(actorId);
         projectIdRequired(projectId);
         checkIsMember(actorId, projectId);
-        return findProjectDetailsOrThrow(projectId);
+        return getProjectDetails(projectId);
+    }
+
+    public boolean isMember(UserId userId, ProjectId projectId) {
+        return memberRepositoryPort.find(projectId, userId).isPresent();
     }
 
     public void checkIsMember(UserId userId, ProjectId projectId) throws UseCaseException {
@@ -129,17 +167,31 @@ public class ProjectService implements CreateProjectUseCase,
         }
     }
 
-    public boolean isMember(UserId userId, ProjectId projectId) {
-        return memberRepositoryPort.find(projectId, userId).isPresent();
+    public TaskStatus getInitialTaskStatus(ProjectId projectId) throws UseCaseException {
+        return getAvailableTaskStatuses(projectId).stream()
+                .min(Comparator.comparing(TaskStatus::position))
+                .orElseThrow(() -> new IllegalStateException("Project does not have available status"));
     }
 
-    private ProjectDetails findProjectDetailsOrThrow(ProjectId projectId) throws UseCaseException.EntityNotFoundException {
-        return projectRepositoryPort.findProjectDetails(projectId)
+    public List<TaskStatus> getAvailableTaskStatuses(ProjectId projectId) {
+        return projectRepositoryPort.findAvailableTaskStatuses(projectId);
+    }
+
+    private Project getProject(ProjectId projectId) throws UseCaseException {
+        return projectRepositoryPort.find(projectId)
                 .orElseThrow(raiseProjectNotFound(projectId));
     }
 
-    private Project findOrThrow(ProjectId projectId) throws UseCaseException {
-        return projectRepositoryPort.find(projectId)
+    private void checkActorHasAdminPrivileges(UserId actorId, ProjectId projectId) throws UseCaseException.IllegalAccessException {
+        final var actor = getActingMember(projectId, actorId);
+        if (!actor.isOwnerOrAdmin()) {
+            log.debug("User with id {} is not allowed to update project with id {}", actorId, projectId);
+            throw new UseCaseException.IllegalAccessException("Current user is not allowed to update project");
+        }
+    }
+
+    private ProjectDetails getProjectDetails(ProjectId projectId) throws UseCaseException.EntityNotFoundException {
+        return projectRepositoryPort.findProjectDetails(projectId)
                 .orElseThrow(raiseProjectNotFound(projectId));
     }
 

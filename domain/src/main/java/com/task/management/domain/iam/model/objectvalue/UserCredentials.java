@@ -1,7 +1,7 @@
-package com.task.management.domain.iam.model;
+package com.task.management.domain.iam.model.objectvalue;
 
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
 
 import java.io.Serializable;
 

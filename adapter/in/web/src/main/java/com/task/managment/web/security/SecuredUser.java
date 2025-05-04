@@ -1,6 +1,6 @@
 package com.task.managment.web.security;
 
-import com.task.management.domain.iam.model.UserCredentials;
+import com.task.management.domain.iam.model.objectvalue.UserCredentials;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

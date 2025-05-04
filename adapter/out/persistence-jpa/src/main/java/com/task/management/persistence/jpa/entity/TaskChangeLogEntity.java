@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.entity;
 
-import com.task.management.domain.project.model.TaskProperty;
+import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;

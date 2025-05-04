@@ -1,8 +1,12 @@
 package com.task.management.application.project.service;
 
 import com.task.management.application.common.UseCaseException;
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.application.project.ProjectConstants;
+import com.task.management.application.project.RemoveTaskStatusException;
+import com.task.management.application.project.command.AddTaskStatusCommand;
+import com.task.management.application.project.port.out.TaskRepositoryPort;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.application.common.service.UserInfoService;
 import com.task.management.application.common.validation.ValidationService;
 import com.task.management.application.project.command.CreateProjectCommand;
@@ -12,6 +16,9 @@ import com.task.management.domain.project.model.*;
 import com.task.management.application.project.port.out.MemberRepositoryPort;
 import com.task.management.application.project.port.out.ProjectRepositoryPort;
 import com.task.management.application.project.projection.ProjectPreview;
+import com.task.management.domain.project.model.objectvalue.MemberRole;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,9 +32,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static com.task.management.application.project.ProjectTestUtils.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -42,6 +47,8 @@ class ProjectServiceTest {
     private UserInfoService userInfoService;
     @Mock
     private ProjectRepositoryPort projectRepositoryPort;
+    @Mock
+    private TaskRepositoryPort taskRepositoryPort;
     @Mock
     private MemberRepositoryPort memberRepositoryPort;
     @InjectMocks
@@ -116,6 +123,142 @@ class ProjectServiceTest {
                 () -> projectService.updateProject(givenActorId, project.getId(), givenCommand)
         );
         verify(projectRepositoryPort, times(0)).save(any());
+    }
+
+    @Test
+    void addTaskStatus_shouldAddNewTaskStatus_whenAllConditionsMet() throws UseCaseException {
+        final var project = randomProject();
+        final var givenCommand = addTaskStatusCommand();
+        final var givenActorId = randomUserId();
+        final var actor = Member.builder()
+                .id(givenActorId)
+                .projectId(project.getId())
+                .role(MemberRole.ADMIN)
+                .build();
+        final var initialStatusesSize = project.getAvailableTaskStatuses().size();
+        final var expectedStatus = TaskStatus.builder()
+                .name(givenCommand.name())
+                .position(givenCommand.position())
+                .build();
+        doReturn(Optional.of(project)).when(projectRepositoryPort).find(eq(project.getId()));
+        doReturn(Optional.of(actor)).when(memberRepositoryPort).find(eq(project.getId()), eq(givenActorId));
+
+        projectService.addTaskStatus(givenActorId, project.getId(), givenCommand);
+
+        assertEquals(initialStatusesSize + 1, project.getAvailableTaskStatuses().size());
+        assertTrue(project.getAvailableTaskStatuses().contains(expectedStatus));
+        verify(projectRepositoryPort).save(project);
+    }
+
+    @Test
+    void addTaskStatus_shouldThrowEntityNotFoundException_whenProjectProjectDoesNotExist() {
+        final var givenProjectId = randomProjectId();
+        final var givenActorId = randomUserId();
+        final var givenCommand = addTaskStatusCommand();
+
+        doReturn(Optional.empty()).when(projectRepositoryPort).find(eq(givenProjectId));
+
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> projectService.addTaskStatus(givenActorId, givenProjectId, givenCommand)
+        );
+    }
+
+    @Test
+    void addTaskStatus_shouldThrowIllegalAccessException_whenActorIsNotAdmin() {
+        final var project = randomProject();
+        final var givenActorId = randomUserId();
+        final var givenCommand = addTaskStatusCommand();
+        final var member = Member.create(givenActorId, project.getId());
+
+        doReturn(Optional.of(project)).when(projectRepositoryPort).find(eq(project.getId()));
+        doReturn(Optional.of(member)).when(memberRepositoryPort).find(eq(project.getId()), eq(givenActorId));
+
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> projectService.addTaskStatus(givenActorId, project.getId(), givenCommand)
+        );
+    }
+
+    @Test
+    void removeTaskStatus_shouldRemoveTaskStatus_whenAllConditionsMet() throws UseCaseException {
+        final var project = randomProject();
+        final var givenStatusName = project.getAvailableTaskStatuses().getLast().name();
+        final var givenActorId = randomUserId();
+        final var actor = Member.builder()
+                .id(givenActorId)
+                .projectId(project.getId())
+                .role(MemberRole.ADMIN)
+                .build();
+        final var initialStatusesSize = project.getAvailableTaskStatuses().size();
+
+        doReturn(Optional.of(project)).when(projectRepositoryPort).find(eq(project.getId()));
+        doReturn(Optional.of(actor)).when(memberRepositoryPort).find(eq(project.getId()), eq(givenActorId));
+
+        projectService.removeTaskStatus(givenActorId, project.getId(), givenStatusName);
+
+        assertEquals(initialStatusesSize - 1, project.getAvailableTaskStatuses().size());
+        assertFalse(project.getAvailableTaskStatuses().stream().anyMatch(taskStatus -> taskStatus.name().equalsIgnoreCase(givenStatusName)));
+        verify(projectRepositoryPort).save(project);
+    }
+
+    @Test
+    void removeTaskStatus_shouldThrowEntityNotFoundException_whenProjectDoesNotExist() throws UseCaseException {
+        final var givenProjectId = randomProjectId();
+        final var givenStatusName = "Done";
+        final var givenActorId = randomUserId();
+
+        doReturn(Optional.empty()).when(projectRepositoryPort).find(eq(givenProjectId));
+
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> projectService.removeTaskStatus(givenActorId, givenProjectId, givenStatusName)
+        );
+    }
+
+    @Test
+    void removeTaskStatus_shouldThrowIllegalAccessException_whenActorIsNotAdmin() {
+        final var project = randomProject();
+        final var givenStatusName = project.getAvailableTaskStatuses().getLast().name();
+        final var givenActorId = randomUserId();
+        final var actor = Member.builder()
+                .id(givenActorId)
+                .projectId(project.getId())
+                .build();
+
+        doReturn(Optional.of(project)).when(projectRepositoryPort).find(eq(project.getId()));
+        doReturn(Optional.of(actor)).when(memberRepositoryPort).find(eq(project.getId()), eq(givenActorId));
+
+
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> projectService.removeTaskStatus(givenActorId, project.getId(), givenStatusName)
+        );
+
+        verifyNoMoreInteractions(projectRepositoryPort);
+    }
+
+    @Test
+    void removeTaskStatus_shouldThrowRemoveTaskStatusException_whenProjectHasTasksWithGivenStatus() {
+        final var project = randomProject();
+        final var givenStatusName = project.getAvailableTaskStatuses().getLast().name();
+        final var givenActorId = randomUserId();
+        final var actor = Member.builder()
+                .id(givenActorId)
+                .projectId(project.getId())
+                .role(MemberRole.ADMIN)
+                .build();
+
+        doReturn(Optional.of(project)).when(projectRepositoryPort).find(eq(project.getId()));
+        doReturn(Optional.of(actor)).when(memberRepositoryPort).find(eq(project.getId()), eq(givenActorId));
+        doReturn(true).when(taskRepositoryPort).projectTaskWithStatusExists(eq(project.getId()), eq(givenStatusName));
+
+        assertThrows(
+                RemoveTaskStatusException.class,
+                () -> projectService.removeTaskStatus(givenActorId, project.getId(), givenStatusName)
+        );
+
+        verifyNoMoreInteractions(projectRepositoryPort);
     }
 
     @Test
@@ -310,6 +453,7 @@ class ProjectServiceTest {
                 .title("Title %d".formatted(projectId.value()))
                 .description("Description %d".formatted(projectId.value()))
                 .ownerId(randomUserId())
+                .availableTaskStatuses(ProjectConstants.DEFAULT_TASK_STATUSES)
                 .build();
     }
 
@@ -324,6 +468,13 @@ class ProjectServiceTest {
         return UpdateProjectCommand.builder()
                 .title("Update title")
                 .description("Updated description")
+                .build();
+    }
+
+    private static AddTaskStatusCommand addTaskStatusCommand() {
+        return AddTaskStatusCommand.builder()
+                .name("Review")
+                .position(2)
                 .build();
     }
 

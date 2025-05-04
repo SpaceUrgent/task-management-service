@@ -1,4 +1,4 @@
-package com.task.management.domain.project.model;
+package com.task.management.domain.project.model.objectvalue;
 
 import com.task.management.domain.common.validation.Validation;
 

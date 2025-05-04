@@ -3,7 +3,7 @@ package com.task.management.application.project.handler;
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.domain.project.event.TaskDueDateUpdatedEvent;
-import com.task.management.domain.project.model.TaskProperty;
+import com.task.management.domain.project.model.objectvalue.TaskProperty;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

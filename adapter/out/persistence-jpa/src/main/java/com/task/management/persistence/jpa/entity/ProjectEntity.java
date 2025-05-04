@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.entity;
 
-import com.task.management.domain.project.model.MemberRole;
+import com.task.management.domain.project.model.objectvalue.MemberRole;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;

@@ -1,8 +1,8 @@
 package com.task.management.domain.common.validation;
 
 import com.task.management.domain.common.event.DomainEvent;
-import com.task.management.domain.common.model.Email;
-import com.task.management.domain.common.model.UserId;
+import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.common.model.objectvalue.UserId;
 
 import java.time.LocalDate;
 import java.util.Collection;

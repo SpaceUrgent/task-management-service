@@ -1,6 +1,6 @@
 package com.task.managment.web.project.dto;
 
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatusOld;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,7 +21,7 @@ public class ProjectDetailsDto {
     private String title;
     private String description;
     private MemberDto owner;
-    private Set<TaskStatus> taskStatuses;
+    private Set<TaskStatusOld> taskStatuses;
     private Set<MemberDto> members;
 
     @Builder
@@ -31,7 +31,7 @@ public class ProjectDetailsDto {
                              String title,
                              String description,
                              MemberDto owner,
-                             Set<TaskStatus> taskStatuses,
+                             Set<TaskStatusOld> taskStatuses,
                              Set<MemberDto> members) {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");

@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.entity;
 
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatusOld;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
@@ -56,7 +56,7 @@ public class TaskEntity extends JpaEntity<Long> {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TaskStatus status;
+    private TaskStatusOld status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false, updatable = false)
@@ -88,7 +88,7 @@ public class TaskEntity extends JpaEntity<Long> {
                       Long number,
                       String title,
                       String description,
-                      TaskStatus status,
+                      TaskStatusOld status,
                       UserEntity owner,
                       UserEntity assignee,
                       ProjectEntity project) {

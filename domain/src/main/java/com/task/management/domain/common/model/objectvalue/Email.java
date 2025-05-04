@@ -1,4 +1,4 @@
-package com.task.management.domain.common.model;
+package com.task.management.domain.common.model.objectvalue;
 
 import com.task.management.domain.common.validation.ValidationException;
 

@@ -2,9 +2,8 @@ package com.task.management.application.project.query;
 
 import com.task.management.application.common.query.PagedQuery;
 import com.task.management.application.common.query.Sort;
-import com.task.management.domain.common.model.UserId;
-import com.task.management.domain.project.model.ProjectId;
-import com.task.management.domain.project.model.TaskStatus;
+import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -18,7 +17,7 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 @ToString(callSuper = true)
 public class FindTasksQuery extends PagedQuery {
     private final ProjectId projectId;
-    private final Set<TaskStatus> statuses;
+    private final Set<String> statuses;
     private final UserId assigneeId;
 
     private FindTasksQuery(Builder builder) {
@@ -38,7 +37,7 @@ public class FindTasksQuery extends PagedQuery {
 
     public static class Builder extends PagedQuery.PagedQueryBuilder<Builder, FindTasksQuery> {
         private ProjectId projectId;
-        private Set<TaskStatus> statuses;
+        private Set<String> statuses;
         private UserId assigneeId;
 
         @Override
@@ -56,7 +55,7 @@ public class FindTasksQuery extends PagedQuery {
             return this;
         }
 
-        public Builder statusIn(Set<TaskStatus> statuses) {
+        public Builder statusIn(Set<String> statuses) {
             this.statuses = statuses;
             return this;
         }
