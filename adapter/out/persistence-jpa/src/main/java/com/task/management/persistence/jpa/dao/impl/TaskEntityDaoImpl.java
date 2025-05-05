@@ -16,4 +16,17 @@ public class TaskEntityDaoImpl extends AbstractEntityDao<TaskEntity, Long> imple
     protected Class<TaskEntity> entityClass() {
         return TaskEntity.class;
     }
+
+    @Override
+    public boolean existsWithProjectIdAndStatus(Long projectId, String statusName) {
+        final var query = entityManager.createQuery("""
+                select count (*) > 0 from TaskEntity t\s
+                inner join t.project p\s
+                where p.id = :projectId\s
+                and t.status = :statusName
+                """, boolean.class);
+        query.setParameter("projectId", projectId);
+        query.setParameter("statusName", statusName);
+        return query.getSingleResult();
+    }
 }

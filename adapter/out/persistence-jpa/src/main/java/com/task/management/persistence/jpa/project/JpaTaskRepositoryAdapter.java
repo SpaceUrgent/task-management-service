@@ -7,20 +7,20 @@ import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.project.model.*;
+import com.task.management.domain.project.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
 import com.task.management.domain.project.model.objectvalue.TaskId;
 import com.task.management.domain.project.model.objectvalue.TaskNumber;
 import com.task.management.persistence.jpa.dao.*;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
-import com.task.management.persistence.jpa.project.mapper.TaskDetailsMapper;
 import com.task.management.persistence.jpa.project.mapper.TaskMapper;
-import com.task.management.persistence.jpa.project.mapper.TaskPreviewMapper;
 import com.task.management.persistence.jpa.query.FindTaskEntityPageQueryAdapter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
+import static com.task.management.domain.common.validation.Validation.notBlank;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 import static java.util.Objects.requireNonNull;
 
@@ -33,15 +33,13 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     private final ProjectEntityDao projectEntityDao;
     private final UserEntityDao userEntityDao;
     private final TaskMapper taskMapper = TaskMapper.INSTANCE;
-    private final TaskDetailsMapper taskDetailsMapper = TaskDetailsMapper.INSTANCE;
-    private final TaskPreviewMapper taskPreviewMapper = TaskPreviewMapper.INSTANCE;
 
     @Override
     public Task save(Task task) {
         taskRequired(task);
         var taskEntity = buildTaskEntity(task);
         taskEntity = taskEntityDao.save(taskEntity);
-        return taskMapper.toModel(taskEntity);
+        return taskMapper.toTask(taskEntity);
     }
 
     @Override
@@ -62,13 +60,13 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     @Override
     public Optional<Task> find(final TaskId id) {
         taskIdRequired(id);
-        return taskEntityDao.findById(id.value()).map(taskMapper::toModel);
+        return taskEntityDao.findById(id.value()).map(taskMapper::toTask);
     }
 
     @Override
     public Optional<TaskDetails> findTaskDetails(TaskId id) {
         taskIdRequired(id);
-        return taskEntityDao.findById(id.value(), "task-details").map(taskDetailsMapper::toModel);
+        return taskEntityDao.findById(id.value(), "task-details").map(taskMapper::toTaskDetails);
     }
 
     @Override
@@ -80,8 +78,15 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
                 .pageSize(query.getPageSize())
                 .total((int) taskEntityPage.total())
                 .totalPages(taskEntityPage.totalPages())
-                .content(taskEntityPage.stream().map(taskPreviewMapper::toModel).toList())
+                .content(taskEntityPage.stream().map(taskMapper::toTaskPreview).toList())
                 .build();
+    }
+
+    @Override
+    public boolean projectTaskWithStatusExists(ProjectId projectId, String statusName) {
+        parameterRequired(projectId, "Project id");
+        notBlank(statusName, "Status name");
+        return taskEntityDao.existsWithProjectIdAndStatus(projectId.value(), statusName);
     }
 
     private TaskEntity buildTaskEntity(Task task) {

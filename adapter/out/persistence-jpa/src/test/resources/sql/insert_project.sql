@@ -7,6 +7,12 @@ values (now(), 'bbtornton@mail.com', 'Bill', 'Tornton', 'encryptedPassword');
 insert into projects (created_at, title, description)
 values (now(), 'Project 1', 'Project description');
 
+insert into available_task_statuses (project_id, name, position)
+values ((select id from projects where title = 'Project 1'), 'To do', 1);
+
+insert into available_task_statuses (project_id, name, position)
+values ((select id from projects where title = 'Project 1'), 'Done', 2);
+
 insert into projects_members (project_id, member_id, role)
 values ((select id from projects where title = 'Project 1'), (select id from users where email = 'jdoe@mail.com'), 'OWNER');
 

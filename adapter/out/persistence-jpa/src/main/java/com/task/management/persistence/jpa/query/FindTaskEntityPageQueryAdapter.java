@@ -3,7 +3,6 @@ package com.task.management.persistence.jpa.query;
 import com.task.management.application.common.query.Sort;
 import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.project.model.objectvalue.TaskStatusOld;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -82,9 +81,7 @@ public class FindTaskEntityPageQueryAdapter implements FindPageQuery<TaskEntity>
     }
 
     private Set<String> statusIn() {
-        return Optional.ofNullable(this.query.getStatuses())
-                .map(statuses -> statuses.stream().map(TaskStatusOld::name).collect(Collectors.toSet()))
-                .orElse(null);
+        return this.query.getStatuses();
     }
 
     private Order[] ordersArray(CriteriaBuilder criteriaBuilder, Root<?> from) {

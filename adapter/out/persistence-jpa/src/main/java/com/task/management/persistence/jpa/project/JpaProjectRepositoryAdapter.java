@@ -8,17 +8,18 @@ import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.project.model.Project;
 import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
+import com.task.management.persistence.jpa.entity.AvailableTaskStatus;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.entity.TaskNumberSequence;
-import com.task.management.persistence.jpa.project.mapper.ProjectDetailsMapper;
 import com.task.management.persistence.jpa.project.mapper.ProjectMapper;
-import com.task.management.persistence.jpa.project.mapper.ProjectPreviewMapper;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
@@ -28,8 +29,6 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
     private final UserEntityDao userEntityDao;
     private final ProjectEntityDao projectEntityDao;
     private final ProjectMapper projectMapper = ProjectMapper.INSTANCE;
-    private final ProjectPreviewMapper projectPreviewMapper = ProjectPreviewMapper.INSTANCE;
-    private final ProjectDetailsMapper projectDetailsMapper = ProjectDetailsMapper.INSTANCE;
 
     @Override
     public Project save(Project project) {
@@ -39,27 +38,35 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
         final var owner = userEntityDao.getReference(project.getOwnerId().value());
         projectEntity.addMember(owner, MemberRole.OWNER);
         projectEntity = projectEntityDao.save(projectEntity);
-        return projectMapper.toModel(projectEntity);
+        return projectMapper.toProject(projectEntity);
     }
 
     @Override
     public Optional<Project> find(ProjectId id) {
         projectIdRequired(id);
-        return projectEntityDao.findById(id.value()).map(projectMapper::toModel);
+        return projectEntityDao.findById(id.value()).map(projectMapper::toProject);
     }
 
     @Override
     public List<ProjectPreview> findProjectsByMember(UserId memberId) {
         memberIdRequired(memberId);
         return projectEntityDao.findByMemberId(memberId.value())
-                .map(projectPreviewMapper::toModel)
+                .map(projectMapper::toProjectPreview)
                 .toList();
     }
 
     @Override
     public Optional<ProjectDetails> findProjectDetails(ProjectId projectId) {
         projectIdRequired(projectId);
-        return projectEntityDao.findById(projectId.value()).map(projectDetailsMapper::toModel);
+        return projectEntityDao.findById(projectId.value()).map(projectMapper::toProjectDetails);
+    }
+
+    @Override
+    public List<TaskStatus> findAvailableTaskStatuses(ProjectId projectId) {
+        projectIdRequired(projectId);
+        return projectEntityDao.findAvailableTaskStatuses(projectId.value()).stream()
+                .map(projectMapper::toTaskStatus)
+                .collect(Collectors.toList());
     }
 
     private ProjectEntity buildProjectEntity(Project project) {
@@ -69,7 +76,17 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
                 .updatedAt(project.getUpdatedAt())
                 .title(project.getTitle())
                 .description(project.getDescription())
+                .availableTaskStatuses(toAvailableTaskStatuses(project.getAvailableTaskStatuses()))
                 .build();
+    }
+
+    private List<AvailableTaskStatus> toAvailableTaskStatuses(List<TaskStatus> taskStatuses) {
+        return taskStatuses.stream()
+                .map(taskStatus -> AvailableTaskStatus.builder()
+                        .name(taskStatus.name())
+                        .position(taskStatus.position())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     private static void memberIdRequired(UserId memberId) {

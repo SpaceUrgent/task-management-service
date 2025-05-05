@@ -66,7 +66,7 @@ class JpaTaskRepositoryAdapterTest {
                 .dueDate(LocalDate.now().plusWeeks(1))
                 .title("New task title")
                 .description("New task description")
-                .status(TaskStatusOld.TO_DO)
+                .status("To do")
                 .project(new ProjectId(projectEntity.getId()))
                 .owner(ownerId)
                 .assignee(ownerId)
@@ -99,7 +99,7 @@ class JpaTaskRepositoryAdapterTest {
                 .number(new TaskNumber(taskEntity.getNumber()))
                 .title("Updated task title")
                 .description("Update task description")
-                .status(TaskStatusOld.DONE)
+                .status("Done")
                 .project(new ProjectId(taskEntity.getProject().getId()))
                 .owner(new UserId(taskEntity.getOwner().getId()))
                 .assignee(newAssignee)
@@ -246,7 +246,7 @@ class JpaTaskRepositoryAdapterTest {
     void findProjectTasks_shouldReturnFilteredTaskPreviewPage_whenFiltersPassed() {
         final var projectId = getFirstProjectEntity().getId();
         final var givenAssigneeId = new UserId(getUserEntityByEmail("jsnow@mail.com").getId());
-        final var givenStatuses = Set.of(TaskStatusOld.TO_DO, TaskStatusOld.IN_PROGRESS);
+        final var givenStatuses = Set.of("To Do", "In progress");
 
         final var expectedTaskEntities = taskEntityDao.findAll().stream()
                 .filter(entity -> Objects.equals(projectId, entity.getProject().getId()))
@@ -273,6 +273,26 @@ class JpaTaskRepositoryAdapterTest {
             assertMatches(expected, resultPage.content());
             currentPage++;
         }
+    }
+
+    @Sql(
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+            scripts = "classpath:sql/insert_tasks.sql"
+    )
+    @Test
+    void projectTaskWithStatusExists_shouldReturnTrue() {
+        final var taskEntity = getFirstTaskEntity();
+        assertTrue(taskRepositoryAdapter.projectTaskWithStatusExists(new ProjectId(taskEntity.getProject().getId()), taskEntity.getStatus()));
+    }
+
+    @Sql(
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+            scripts = "classpath:sql/insert_tasks.sql"
+    )
+    @Test
+    void projectTaskWithStatusExists_shouldReturnFalse() {
+        final var taskEntity = getFirstTaskEntity();
+        assertFalse(taskRepositoryAdapter.projectTaskWithStatusExists(new ProjectId(taskEntity.getProject().getId()), "Non-existing status"));
     }
 
     private ProjectEntity getFirstProjectEntity() {

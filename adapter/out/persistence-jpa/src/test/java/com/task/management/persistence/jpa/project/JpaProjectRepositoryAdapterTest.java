@@ -1,13 +1,16 @@
 package com.task.management.persistence.jpa.project;
 
+import com.task.management.application.project.ProjectConstants;
 import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Project;
 import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
+import com.task.management.persistence.jpa.entity.AvailableTaskStatus;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.entity.UserEntity;
 import org.hibernate.Hibernate;
@@ -19,6 +22,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,6 +51,7 @@ class JpaProjectRepositoryAdapterTest {
                 .title("Test")
                 .description("Description")
                 .ownerId(new UserId(userEntity.getId()))
+                .availableTaskStatuses(ProjectConstants.DEFAULT_TASK_STATUSES)
                 .build();
         final var added = projectRepositoryAdapter.save(givenProject);
         assertMatches(givenProject, added);
@@ -78,6 +83,7 @@ class JpaProjectRepositoryAdapterTest {
                 .title("Project updated title")
                 .description("Project updated description")
                 .ownerId(new UserId(newOwnerUserEntity.getId()))
+                .availableTaskStatuses(ProjectConstants.DEFAULT_TASK_STATUSES)
                 .build();
         final var updatedProject = projectRepositoryAdapter.save(givenProject);
         assertMatches(givenProject, updatedProject);
@@ -125,27 +131,20 @@ class JpaProjectRepositoryAdapterTest {
         assertMatches(memberProjectEntities, result);
     }
 
-//    @Sql(
-//            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
-//            scripts = {
-//                    "classpath:sql/insert_project.sql",
-//                    "classpath:sql/insert_users.sql"
-//            }
-//    )
-//    @Test
-//    void addMember_shouldAddNewMemberToProject() {
-//        final var projectEntity = getFirstProjectEntity();
-//        final var userEntities = userEntityDao.findAll();
-//        final var newMemberUserEntity = userEntities.stream()
-//                .filter(entity -> !projectEntity.getMembers().contains(entity))
-//                .findFirst()
-//                .orElseThrow(() -> new InvalidTestSetupException("At least 1 not project member user is expected in DB for test"));
-//        final var givenProjectId = new ProjectId(projectEntity.getId());
-//        final var givenMemberId = new UserId(newMemberUserEntity.getId());
-//        projectRepositoryAdapter.addMember(givenProjectId, givenMemberId);
-//        final var updatedProjectEntity = projectEntityDao.findById(projectEntity.getId()).orElseThrow();
-//        assertTrue(updatedProjectEntity.getMembers().contains(newMemberUserEntity));
-//    }
+    @Sql(
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+            scripts = "classpath:sql/insert_project.sql"
+    )
+    @Test
+    void findAvailableTaskStatuses_shouldReturn() {
+        final var projectEntity = getFirstProjectEntity();
+        final var expected = projectEntity.getAvailableTaskStatuses();
+        final var taskStatuses = projectRepositoryAdapter.findAvailableTaskStatuses(new ProjectId(projectEntity.getId()));
+        assertEquals(expected.size(), taskStatuses.size());
+        IntStream.range(0, expected.size()).forEach(index -> {
+            assertMatches(expected.get(index), taskStatuses.get(index));
+        });
+    }
 
     private UserEntity getFirstUserEntity() {
         return userEntityDao.findAll().stream()
@@ -180,6 +179,7 @@ class JpaProjectRepositoryAdapterTest {
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getOwnerId(), actual.getOwnerId());
+        assertEquals(expected.getAvailableTaskStatuses(), actual.getAvailableTaskStatuses());
     }
 
     private static void assertMatches(ProjectEntity expected, Project actual) {
@@ -188,6 +188,14 @@ class JpaProjectRepositoryAdapterTest {
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getOwner().getId().getMemberId(), actual.getOwnerId().value());
+        IntStream.range(0, expected.getAvailableTaskStatuses().size()).forEach(index -> {
+            assertMatches(expected.getAvailableTaskStatuses().get(index), actual.getAvailableTaskStatuses().get(index));
+        });
+    }
+
+    private static void assertMatches(AvailableTaskStatus expected, TaskStatus actual) {
+        assertEquals(expected.getName(), actual.name());
+        assertEquals(expected.getPosition(), actual.position());
     }
 
     private static void assertMatches(List<ProjectEntity> expected, List<ProjectPreview> actual) {
