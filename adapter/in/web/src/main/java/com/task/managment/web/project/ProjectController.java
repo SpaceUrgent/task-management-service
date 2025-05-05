@@ -2,17 +2,16 @@ package com.task.managment.web.project;
 
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.query.Sort;
-import com.task.management.application.project.command.CreateProjectCommand;
-import com.task.management.application.project.command.CreateTaskCommand;
-import com.task.management.application.project.command.UpdateMemberRoleCommand;
-import com.task.management.application.project.command.UpdateProjectCommand;
+import com.task.management.application.iam.EmailExistsException;
+import com.task.management.application.project.RemoveTaskStatusException;
+import com.task.management.application.project.command.*;
 import com.task.management.application.project.port.in.*;
 import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.ProjectId;
-import com.task.management.domain.project.model.objectvalue.TaskStatusOld;
 import com.task.managment.web.common.BaseController;
+import com.task.managment.web.common.dto.ErrorResponse;
 import com.task.managment.web.common.dto.ListResponse;
 import com.task.managment.web.project.dto.ProjectPreviewDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;
@@ -21,25 +20,17 @@ import com.task.managment.web.project.dto.request.*;
 import com.task.managment.web.common.dto.PagedResponse;
 import com.task.managment.web.project.mapper.ProjectMapper;
 import com.task.managment.web.project.mapper.TaskMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -110,6 +101,22 @@ public class ProjectController extends BaseController {
         updateMemberRoleUseCase.updateMemberRole(actor(), command);
     }
 
+    @PutMapping("/{projectId}/available-statuses")
+    public void addAvailableTaskStatus(@PathVariable Long projectId,
+                                       @RequestBody @Valid @NotNull AddTaskStatusRequest request) throws UseCaseException {
+        final var command = AddTaskStatusCommand.builder()
+                .name(request.getName())
+                .position(request.getPosition())
+                .build();
+        updateProjectUseCase.addTaskStatus(actor(), new ProjectId(projectId), command);
+    }
+
+    @DeleteMapping("/{projectId}/available-statuses/{statusName}")
+    public void removeAvailableTaskStatus(@PathVariable Long projectId,
+                                          @PathVariable String statusName) throws UseCaseException {
+        updateProjectUseCase.removeTaskStatus(actor(), new ProjectId(projectId), statusName);
+    }
+
     @GetMapping("/{projectId}/tasks")
     public PagedResponse<TaskPreviewDto> getTasks(@PathVariable Long projectId,
                                                   @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -117,14 +124,13 @@ public class ProjectController extends BaseController {
                                                   @RequestParam(name = "assigneeId", required = false) Long assigneeId,
                                                   @RequestParam(name = "status", required = false) Set<String> statusList,
                                                   @RequestParam(name = "sortBy", defaultValue = "createdAt:DESC") List<String> sortBy) throws UseCaseException {
-        final var statusIn = toTaskStatusSet(statusList);
         final var sortList = toSortList(sortBy);
         final var query = FindTasksQuery.builder()
                 .pageNumber(page)
                 .pageSize(size)
                 .projectId(new ProjectId(projectId))
                 .assigneeId(Optional.ofNullable(assigneeId).map(UserId::new).orElse(null))
-                .statusIn(statusIn)
+                .statusIn(statusList)
                 .sortBy(sortList)
                 .build();
         final var taskPreviewPage = findTasksUseCase.findTasks(actor(), query);
@@ -153,6 +159,16 @@ public class ProjectController extends BaseController {
         createTaskUseCase.createTask(actor(), new ProjectId(projectId), command);
     }
 
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(RemoveTaskStatusException.class)
+    public ErrorResponse handleRemoveTaskStatusException(RemoveTaskStatusException exception, HttpServletRequest request) {
+        return ErrorResponse.builder()
+                .reason("Conflict raised during request processing")
+                .message(exception.getMessage())
+                .request(request)
+                .build();
+    }
+
     private static List<Sort> toSortList(List<String> sortBy) {
         return sortBy.stream()
                 .map(String::trim)
@@ -160,16 +176,5 @@ public class ProjectController extends BaseController {
                 .filter(keyValueArray -> keyValueArray.length == 2)
                 .map(keyValueArray -> Sort.by(keyValueArray[0], Sort.Direction.valueOf(keyValueArray[1])))
                 .toList();
-    }
-
-    private Set<TaskStatusOld> toTaskStatusSet(Set<String> statusList) {
-        if (statusList == null) return null;
-        Set<String> taskStatusNames = TaskStatusOld.all().stream()
-                .map(Enum::name)
-                .collect(Collectors.toSet());
-        return statusList.stream()
-                .filter(taskStatusNames::contains)
-                .map(TaskStatusOld::valueOf)
-                .collect(Collectors.toSet());
     }
 }

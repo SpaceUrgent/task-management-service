@@ -12,7 +12,6 @@ import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.TaskId;
 import com.task.management.domain.project.model.objectvalue.TaskNumber;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
-import com.task.management.domain.project.model.objectvalue.TaskStatusOld;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.project.dto.TaskChangeLogDto;
 import com.task.managment.web.project.dto.TaskDetailsDto;
@@ -84,7 +83,7 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.projectId").value(taskDetails.projectId().value()))
                 .andExpect(jsonPath("$.title").value(taskDetails.title()))
                 .andExpect(jsonPath("$.description").value(taskDetails.description()))
-                .andExpect(jsonPath("$.status").value(taskDetails.status().name()))
+                .andExpect(jsonPath("$.status").value(taskDetails.status()))
                 .andExpect(jsonPath("$.owner.id").value(taskOwner.id().value()))
                 .andExpect(jsonPath("$.owner.email").value(taskOwner.email().value()))
                 .andExpect(jsonPath("$.owner.firstName").value(taskOwner.firstName()))
@@ -161,7 +160,7 @@ class TaskControllerTest {
         request.setTitle("Updated title");
         request.setDescription("Updated description");
         request.setAssigneeId(randomLong());
-        request.setStatus(TaskStatusOld.DONE);
+        request.setStatus("Done");
         request.setDueDate(LocalDate.now().plusYears(1));
         return request;
     }
@@ -174,7 +173,7 @@ class TaskControllerTest {
 
     private UpdateTaskStatusRequest getUpdateTaskStatusRequest() {
         final var request = new UpdateTaskStatusRequest();
-        request.setStatus(TaskStatusOld.DONE);
+        request.setStatus("Done");
         return request;
     }
 
@@ -188,7 +187,7 @@ class TaskControllerTest {
                 .number(new TaskNumber(randomLong()))
                 .title("Task title")
                 .description("Task description")
-                .status(TaskStatusOld.IN_PROGRESS)
+                .status("In progress")
                 .assignee(randomUserInfo())
                 .owner(randomUserInfo())
                 .changeLogs(changeLogViews())

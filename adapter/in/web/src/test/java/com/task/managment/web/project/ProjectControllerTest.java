@@ -4,10 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.management.application.common.projection.Page;
 import com.task.management.application.common.query.Sort;
-import com.task.management.application.project.command.CreateProjectCommand;
-import com.task.management.application.project.command.CreateTaskCommand;
-import com.task.management.application.project.command.UpdateMemberRoleCommand;
-import com.task.management.application.project.command.UpdateProjectCommand;
+import com.task.management.application.project.RemoveTaskStatusException;
+import com.task.management.application.project.command.*;
 import com.task.management.application.project.port.in.*;
 import com.task.management.application.project.projection.MemberView;
 import com.task.management.application.project.projection.ProjectDetails;
@@ -46,13 +44,10 @@ import static com.task.managment.web.security.MockUser.DEFAULT_USER_ID_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @ComponentScan(basePackages = {
         "com.task.managment.web.common.mapper",
@@ -172,6 +167,48 @@ class ProjectControllerTest {
         verify(updateMemberRoleUseCase).updateMemberRole(eq(USER_ID), eq(expectedCommand));
     }
 
+    @MockUser
+    @Test
+    void addAvailableTaskStatus() throws Exception {
+        final var givenRequest = getAddStatusRequest();
+        final var givenProjectId = randomProjectId();
+        final var expectedCommand = AddTaskStatusCommand.builder()
+                .name(givenRequest.getName())
+                .position(givenRequest.getPosition())
+                .build();
+        mockMvc.perform(put("/api/projects/{projectId}/available-statuses", givenProjectId.value())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(givenRequest)))
+                .andExpect(status().isOk());
+        verify(updateProjectUseCase).addTaskStatus(eq(USER_ID), eq(givenProjectId), eq(expectedCommand));
+    }
+
+    @MockUser
+    @Test
+    void removeAvailableTaskStatus_ok() throws Exception {
+        final var givenProjectId = randomProjectId();
+        final var givenStatusName = "Review";
+        mockMvc.perform(delete("/api/projects/{projectId}/available-statuses/{statusName}", givenProjectId.value(), givenStatusName))
+                .andExpect(status().isOk());
+        verify(updateProjectUseCase).removeTaskStatus(eq(USER_ID), eq(givenProjectId), eq(givenStatusName));
+    }
+
+    @MockUser
+    @Test
+    void removeAvailableTaskStatus_returnsConflict() throws Exception {
+        final var givenProjectId = randomProjectId();
+        final var givenStatusName = "Review";
+        final var exception = new RemoveTaskStatusException("Failed to remove status");
+        doThrow(exception).when(updateProjectUseCase).removeTaskStatus(eq(USER_ID), eq(givenProjectId), eq(givenStatusName));
+
+        mockMvc.perform(delete("/api/projects/{projectId}/available-statuses/{statusName}", givenProjectId.value(), givenStatusName))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Conflict raised during request processing"))
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").value("/api/projects/%d/available-statuses/%s".formatted(givenProjectId.value(), givenStatusName)));
+    }
 
     @MockUser
     @Test
@@ -206,7 +243,7 @@ class ProjectControllerTest {
     void getTasks_withCustomParams() throws Exception {
         final var givenProjectId = randomProjectId();
         final var givenAssigneeId = randomUserId();
-        final var givenTaskStatus = Set.of(TaskStatusOld.DONE, TaskStatusOld.IN_PROGRESS);
+        final var givenTaskStatus = Set.of("Done", "In progress");
         final var expectedQuery = FindTasksQuery.builder()
                 .pageNumber(2)
                 .pageSize(10)
@@ -228,7 +265,7 @@ class ProjectControllerTest {
                         .param("page", "2")
                         .param("size", "10")
                         .param("assigneeId", givenAssigneeId.value().toString())
-                        .param("status", givenTaskStatus.stream().map(TaskStatusOld::name).toList().toArray(new String[]{}))
+                        .param("status", givenTaskStatus.toArray(new String[]{}))
                         .param("sortBy", "createdAt:ASC"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -300,6 +337,13 @@ class ProjectControllerTest {
         return request;
     }
 
+    private AddTaskStatusRequest getAddStatusRequest() {
+        final var request = new AddTaskStatusRequest();
+        request.setName("Review");
+        request.setPosition(3);
+        return request;
+    }
+
     private ProjectDetails projectDetails() {
         return ProjectDetails.builder()
                 .id(randomProjectId())
@@ -309,6 +353,16 @@ class ProjectControllerTest {
                 .description("Project description")
                 .owner(actingMemberView())
                 .members(Set.of(actingMemberView()))
+                .taskStatuses(List.of(
+                        TaskStatus.builder()
+                                .name("To do")
+                                .position(1)
+                                .build(),
+                        TaskStatus.builder()
+                                .name("Done")
+                                .position(2)
+                                .build()
+                ))
                 .build();
     }
 
@@ -331,9 +385,20 @@ class ProjectControllerTest {
         assertEquals(expected.role(), actual.getRole());
     }
 
-    private void assertMatches(ProjectDetails projectDetails, UserProjectDetailsDto result) {
-        assertEquals(actingMemberView().role(), result.getRole());
-        assertMatches(projectDetails, result.getProjectDetails());
+    private void assertMatches(ProjectDetails expected, UserProjectDetailsDto actual) {
+        assertEquals(actingMemberView().role(), actual.getRole());
+        assertMatches(expected, actual.getProjectDetails());
+        final var expectedTaskStatuses = expected.taskStatuses();
+        final var actualTaskStatuses = actual.getProjectDetails().getTaskStatuses();
+        assertEquals(expectedTaskStatuses.size(), actualTaskStatuses.size());
+        IntStream.range(0, expectedTaskStatuses.size()).forEach(index -> {
+            assertMatches(expectedTaskStatuses.get(index), actualTaskStatuses.get(index));
+        });
+    }
+
+    private void assertMatches(TaskStatus expected, AvailableTaskStatusDto actual) {
+        assertEquals(expected.name(), actual.getName());
+        assertEquals(expected.position(), actual.getPosition());
     }
 
     private void assertMatches(ProjectDetails expected, ProjectDetailsDto actual) {
@@ -403,7 +468,7 @@ class ProjectControllerTest {
                 .dueDate(LocalDate.now().plusDays(10))
                 .number(new TaskNumber(randomLong()))
                 .title("Task %d".formatted(idValue))
-                .status(TaskStatusOld.IN_PROGRESS)
+                .status("In progress")
                 .assignee(randomUserInfo())
                 .build();
     }

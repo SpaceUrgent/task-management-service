@@ -1,6 +1,5 @@
 package com.task.managment.web.project.dto;
 
-import com.task.management.domain.project.model.objectvalue.TaskStatusOld;
 import com.task.managment.web.common.dto.UserInfoDto;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +23,7 @@ public class TaskPreviewDto {
     private LocalDate dueDate;
     private Long number;
     private String title;
-    private TaskStatusOld status;
+    private String status;
     private UserInfoDto assignee;
 
     @Builder
@@ -34,7 +33,7 @@ public class TaskPreviewDto {
                           LocalDate dueDate,
                           Long number,
                           String title,
-                          TaskStatusOld status,
+                          String status,
                           UserInfoDto assignee) {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");
