@@ -1,6 +1,7 @@
 package com.task.management.application.project.command;
 
 import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -13,6 +14,8 @@ public record UpdateTaskCommand(
         String description,
         @NotNull(message = "Task status is required")
         String taskStatus,
+        @NotNull(message = "Task priority is required")
+        TaskPriority priority,
         @NotNull
         UserId assigneeId,
         LocalDate dueDate

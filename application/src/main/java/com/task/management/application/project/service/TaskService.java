@@ -78,6 +78,7 @@ public class TaskService implements CreateTaskUseCase,
         task.updateDescription(actorId, command.description());
         task.updateDueDate(actorId, command.dueDate());
         task.updateStatus(actorId, statusName);
+        task.updatePriority(actorId, command.priority());
         task.assignTo(actorId, command.assigneeId());
         taskRepositoryPort.save(task);
         eventPublisher.publish(task.flushEvents());

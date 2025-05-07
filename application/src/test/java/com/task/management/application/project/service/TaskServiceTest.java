@@ -131,6 +131,7 @@ class TaskServiceTest {
                 .dueDate(LocalDate.now().plusWeeks(1))
                 .assigneeId(randomUserId())
                 .taskStatus("Done")
+                .priority(TaskPriority.HIGHEST)
                 .build();
 
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(task.getId()));
@@ -143,12 +144,13 @@ class TaskServiceTest {
         assertEquals(givenCommand.taskStatus(), task.getStatus());
         assertEquals(givenCommand.assigneeId(), task.getAssignee());
         assertEquals(givenCommand.dueDate(), task.getDueDate());
+        assertEquals(givenCommand.priority(), task.getPriority());
 
         verify(taskRepositoryPort).save(eq(task));
         verify(eventPublisher).publish(eventsCaptor.capture());
 
         List<DomainEvent> events = eventsCaptor.getValue();
-        assertEquals(5, events.size());
+        assertEquals(6, events.size());
     }
 
     @Test
