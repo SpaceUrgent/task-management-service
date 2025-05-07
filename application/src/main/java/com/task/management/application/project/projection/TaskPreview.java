@@ -3,6 +3,7 @@ package com.task.management.application.project.projection;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.project.model.objectvalue.TaskId;
 import com.task.management.domain.project.model.objectvalue.TaskNumber;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -19,6 +20,7 @@ public record TaskPreview(
         LocalDate dueDate,
         String title,
         String status,
+        TaskPriority priority,
         UserInfo assignee
 ) {
     @Builder
@@ -28,6 +30,7 @@ public record TaskPreview(
         parameterRequired(createdAt, "Created time");
         notBlank(title, "Title");
         parameterRequired(status, "Status");
+        parameterRequired(priority, "Priority");
         parameterRequired(assignee, "Assignee");
     }
 }

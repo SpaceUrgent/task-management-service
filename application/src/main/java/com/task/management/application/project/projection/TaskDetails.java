@@ -1,10 +1,7 @@
 package com.task.management.application.project.projection;
 
 import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.project.model.objectvalue.ProjectId;
-import com.task.management.domain.project.model.objectvalue.TaskId;
-import com.task.management.domain.project.model.objectvalue.TaskNumber;
-import com.task.management.domain.project.model.objectvalue.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.*;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -26,6 +23,7 @@ public record TaskDetails(
         String title,
         String description,
         String status,
+        TaskPriority priority,
         UserInfo owner,
         UserInfo assignee,
         List<TaskChangeLogView> changeLogs
@@ -38,6 +36,7 @@ public record TaskDetails(
         parameterRequired(projectId, "Project id");
         notBlank(title, "Title");
         notBlank(status, "Status");
+        parameterRequired(priority, "Priority");
         parameterRequired(owner, "owner");
         parameterRequired(assignee, "assignee");
         Optional.ofNullable(changeLogs).orElseGet(ArrayList::new);
