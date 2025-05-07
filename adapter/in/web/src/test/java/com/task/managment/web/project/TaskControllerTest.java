@@ -2,20 +2,20 @@ package com.task.managment.web.project;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.management.application.project.command.UpdateTaskCommand;
-import com.task.management.application.project.port.in.AssignTaskUseCase;
 import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
-import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.TaskId;
 import com.task.management.domain.project.model.objectvalue.TaskNumber;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.project.dto.TaskChangeLogDto;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.request.AssignTaskRequest;
+import com.task.managment.web.project.dto.request.UpdateTaskPriorityRequest;
 import com.task.managment.web.project.dto.request.UpdateTaskRequest;
 import com.task.managment.web.project.dto.request.UpdateTaskStatusRequest;
 import com.task.managment.web.security.MockUser;
@@ -57,13 +57,9 @@ class TaskControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private AssignTaskUseCase assignTaskUseCase;
-    @MockBean
     private GetTaskDetailsUseCase getTaskDetailsUseCase;
     @MockBean
     private UpdateTaskUseCase updateTaskUseCase;
-    @MockBean
-    private UpdateTaskStatusUseCase updateTaskStatusUseCase;
 
     @MockUser
     @Test
@@ -84,6 +80,7 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.title").value(taskDetails.title()))
                 .andExpect(jsonPath("$.description").value(taskDetails.description()))
                 .andExpect(jsonPath("$.status").value(taskDetails.status()))
+                .andExpect(jsonPath("$.priority").value(taskDetails.priority().name()))
                 .andExpect(jsonPath("$.owner.id").value(taskOwner.id().value()))
                 .andExpect(jsonPath("$.owner.email").value(taskOwner.email().value()))
                 .andExpect(jsonPath("$.owner.firstName").value(taskOwner.firstName()))
@@ -109,6 +106,7 @@ class TaskControllerTest {
                 .description(request.getDescription())
                 .assigneeId(new UserId(request.getAssigneeId()))
                 .taskStatus(request.getStatus())
+                .priority(request.getPriority())
                 .dueDate(request.getDueDate())
                 .build();
         mockMvc.perform(put("/api/tasks/{taskId}", givenTaskId.value())
@@ -127,7 +125,7 @@ class TaskControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
-        verify(updateTaskStatusUseCase).updateStatus(eq(USER_ID), eq(givenTaskId), eq(request.getStatus()));
+        verify(updateTaskUseCase).updateStatus(eq(USER_ID), eq(givenTaskId), eq(request.getStatus()));
     }
 
     @MockUser
@@ -139,8 +137,21 @@ class TaskControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(givenRequest)))
                         .andExpect(status().isOk());
-        verify(assignTaskUseCase)
+        verify(updateTaskUseCase)
                 .assignTask(eq(USER_ID), eq(givenTaskId), eq(new UserId(givenRequest.getAssigneeId())));
+    }
+
+    @MockUser
+    @Test
+    void updatePriority() throws Exception {
+        final var givenRequest = getUpdatePriorityRequest();
+        final var givenTaskId = randomTaskId();
+        mockMvc.perform(patch("/api/tasks/{taskId}/priority", givenTaskId.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(givenRequest)))
+                .andExpect(status().isOk());
+        verify(updateTaskUseCase)
+                .updatePriority(eq(USER_ID), eq(givenTaskId), eq(givenRequest.getPriority()));
     }
 
     private void assertMatches(List<TaskChangeLogView> expected, List<TaskChangeLogDto> actual) {
@@ -161,6 +172,7 @@ class TaskControllerTest {
         request.setDescription("Updated description");
         request.setAssigneeId(randomLong());
         request.setStatus("Done");
+        request.setPriority(TaskPriority.HIGHEST);
         request.setDueDate(LocalDate.now().plusYears(1));
         return request;
     }
@@ -177,6 +189,12 @@ class TaskControllerTest {
         return request;
     }
 
+    private UpdateTaskPriorityRequest getUpdatePriorityRequest() {
+        final var request = new UpdateTaskPriorityRequest();
+        request.setPriority(TaskPriority.HIGHEST);
+        return request;
+    }
+
     private TaskDetails randomTaskDetails() {
         return TaskDetails.builder()
                 .id(randomTaskId())
@@ -188,6 +206,7 @@ class TaskControllerTest {
                 .title("Task title")
                 .description("Task description")
                 .status("In progress")
+                .priority(TaskPriority.MEDIUM)
                 .assignee(randomUserInfo())
                 .owner(randomUserInfo())
                 .changeLogs(changeLogViews())

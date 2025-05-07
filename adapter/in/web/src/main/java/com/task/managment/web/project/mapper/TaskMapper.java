@@ -33,6 +33,7 @@ public class TaskMapper {
                 .number(taskPreview.number().value())
                 .title(taskPreview.title())
                 .status(taskPreview.status())
+                .priority(taskPreview.priority())
                 .assignee(userInfoMapper.toDto(taskPreview.assignee()))
                 .build();
     }
@@ -48,6 +49,7 @@ public class TaskMapper {
                 .description(taskDetails.description())
                 .projectId(taskDetails.projectId().value())
                 .status(taskDetails.status())
+                .priority(taskDetails.priority())
                 .assignee(userInfoMapper.toDto(taskDetails.assignee()))
                 .owner(userInfoMapper.toDto(taskDetails.owner()))
                 .changeLogs(toDtos(taskDetails.changeLogs()))
@@ -76,6 +78,7 @@ public class TaskMapper {
             case DUE_DATE -> "due date";
             case ASSIGNEE -> "assignee";
             case STATUS -> "status";
+            case PRIORITY -> "priority";
         };
         return "%s updated %s".formatted(actor.fullName(), actionDescription);
     }

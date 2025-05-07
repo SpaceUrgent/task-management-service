@@ -2,15 +2,14 @@ package com.task.managment.web.project;
 
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.project.command.UpdateTaskCommand;
-import com.task.management.application.project.port.in.AssignTaskUseCase;
 import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
-import com.task.management.application.project.port.in.UpdateTaskStatusUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.TaskId;
 import com.task.managment.web.common.BaseController;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.request.AssignTaskRequest;
+import com.task.managment.web.project.dto.request.UpdateTaskPriorityRequest;
 import com.task.managment.web.project.dto.request.UpdateTaskRequest;
 import com.task.managment.web.project.dto.request.UpdateTaskStatusRequest;
 import com.task.managment.web.project.mapper.TaskMapper;
@@ -31,8 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class TaskController extends BaseController {
     private final GetTaskDetailsUseCase getTaskDetailsUseCase;
     private final UpdateTaskUseCase updateTaskUseCase;
-    private final UpdateTaskStatusUseCase updateTaskStatusUseCase;
-    private final AssignTaskUseCase assignTaskUseCase;
     private final TaskMapper taskDetailsDtoMapper;
 
     @GetMapping("/{taskId}")
@@ -49,6 +46,7 @@ public class TaskController extends BaseController {
                 .description(request.getDescription())
                 .assigneeId(new UserId(request.getAssigneeId()))
                 .taskStatus(request.getStatus())
+                .priority(request.getPriority())
                 .dueDate(request.getDueDate())
                 .build();
         updateTaskUseCase.updateTask(actor(), new TaskId(taskId), command);
@@ -57,12 +55,18 @@ public class TaskController extends BaseController {
     @PatchMapping("/{taskId}/status")
     public void updateStatus(@PathVariable Long taskId,
                              @RequestBody @Valid @NotNull UpdateTaskStatusRequest request) throws UseCaseException {
-        updateTaskStatusUseCase.updateStatus(actor(), new TaskId(taskId), request.getStatus());
+        updateTaskUseCase.updateStatus(actor(), new TaskId(taskId), request.getStatus());
     }
 
     @PatchMapping("/{taskId}/assign")
     public void assignTask(@PathVariable Long taskId,
                            @RequestBody @Valid @NotNull AssignTaskRequest request) throws UseCaseException {
-        assignTaskUseCase.assignTask(actor(), new TaskId(taskId), new UserId(request.getAssigneeId()));
+        updateTaskUseCase.assignTask(actor(), new TaskId(taskId), new UserId(request.getAssigneeId()));
+    }
+
+    @PatchMapping("/{taskId}/priority")
+    public void updatePriority(@PathVariable Long taskId,
+                               @RequestBody @Valid @NotNull UpdateTaskPriorityRequest request) throws UseCaseException {
+        updateTaskUseCase.updatePriority(actor(), new TaskId(taskId), request.getPriority());
     }
 }

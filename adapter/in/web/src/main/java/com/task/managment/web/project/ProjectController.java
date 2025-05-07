@@ -155,6 +155,7 @@ public class ProjectController extends BaseController {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .dueDate(request.getDueDate())
+                .priority(request.getPriority())
                 .build();
         createTaskUseCase.createTask(actor(), new ProjectId(projectId), command);
     }

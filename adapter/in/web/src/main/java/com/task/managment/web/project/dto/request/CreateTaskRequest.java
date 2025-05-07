@@ -1,5 +1,6 @@
 package com.task.managment.web.project.dto.request;
 
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,4 +17,6 @@ public class CreateTaskRequest {
     private Long assigneeId;
     @FutureOrPresent(message = "Due date must be present or future date")
     private LocalDate dueDate;
+    @NotNull(message = "Priority required")
+    private TaskPriority priority;
 }

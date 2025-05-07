@@ -1,5 +1,6 @@
 package com.task.managment.web.project.dto;
 
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.managment.web.common.dto.UserInfoDto;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class TaskDetailsDto {
     private String title;
     private String description;
     private String status;
+    private TaskPriority priority;
     private UserInfoDto owner;
     private UserInfoDto assignee;
     private List<TaskChangeLogDto> changeLogs;
@@ -37,6 +39,7 @@ public class TaskDetailsDto {
                           String title,
                           String description,
                           String status,
+                          TaskPriority priority,
                           UserInfoDto owner,
                           UserInfoDto assignee,
                           List<TaskChangeLogDto> changeLogs) {
@@ -49,6 +52,7 @@ public class TaskDetailsDto {
         this.title = notBlank(title, "Title");
         this.description = description;
         this.status = parameterRequired(status, "Status");
+        this.priority = parameterRequired(priority, "Priority");
         this.owner = parameterRequired(owner, "Owner");
         this.assignee = parameterRequired(assignee, "Assignee");
         this.changeLogs = changeLogs;
