@@ -4,7 +4,6 @@ import com.task.management.application.project.projection.MemberView;
 import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.persistence.jpa.entity.MemberEntity;
-import com.task.management.persistence.jpa.entity.UserEntity;
 
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
@@ -13,15 +12,6 @@ public class MemberViewMapper {
     public static MemberViewMapper INSTANCE = new MemberViewMapper();
 
     private MemberViewMapper() {
-    }
-
-    public MemberView toModel(UserEntity entity) {
-        parameterRequired(entity, "User entity");
-        return MemberView.builder()
-                .id(new UserId(entity.getId()))
-                .email(new Email(entity.getEmail()))
-                .fullName("%s %s".formatted(entity.getFirstName(), entity.getLastName()))
-                .build();
     }
 
     public MemberView toModel(MemberEntity entity) {
