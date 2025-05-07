@@ -103,6 +103,7 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
                 .title(task.getTitle())
                 .description(task.getDescription())
                 .status(task.getStatus())
+                .priority(task.getPriority().order())
                 .owner(ownerReference)
                 .assignee(assigneeReference)
                 .project(projectReference)

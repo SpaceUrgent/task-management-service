@@ -56,6 +56,9 @@ public class TaskEntity extends JpaEntity<Long> {
     @Column(nullable = false)
     private String status;
 
+    @Column(nullable = false)
+    private Integer priority;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false, updatable = false)
     private ProjectEntity project;
@@ -87,6 +90,7 @@ public class TaskEntity extends JpaEntity<Long> {
                       String title,
                       String description,
                       String status,
+                      Integer priority,
                       UserEntity owner,
                       UserEntity assignee,
                       ProjectEntity project) {
@@ -98,6 +102,7 @@ public class TaskEntity extends JpaEntity<Long> {
         this.title = notBlank(title, "Title");
         this.description = description;
         this.status = notBlank(status, "Status");
+        this.priority = parameterRequired(priority, "Priority");
         this.owner = parameterRequired(owner, "Owner");
         this.assignee = parameterRequired(assignee, "Assignee");
         this.project = parameterRequired(project, "Project");

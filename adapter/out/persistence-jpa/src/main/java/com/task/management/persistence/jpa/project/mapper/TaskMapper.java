@@ -8,12 +8,14 @@ import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskId;
 import com.task.management.domain.project.model.objectvalue.TaskNumber;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import java.util.List;
 
+import static com.task.management.domain.project.model.objectvalue.TaskPriority.withOrder;
 import static java.util.Objects.requireNonNull;
 
 public class TaskMapper {
@@ -37,6 +39,7 @@ public class TaskMapper {
                 .description(entity.getDescription())
                 .status(entity.getStatus())
                 .project(getProjectId(entity))
+                .priority(withOrder(entity.getPriority()))
                 .owner(new UserId(entity.getOwner().getId()))
                 .assignee(new UserId(entity.getAssignee().getId()))
                 .build();
@@ -52,6 +55,7 @@ public class TaskMapper {
                 .number(new TaskNumber(entity.getNumber()))
                 .title(entity.getTitle())
                 .status(entity.getStatus())
+                .priority(withOrder(entity.getPriority()))
                 .assignee(userInfoMapper.toModel(entity.getAssignee()))
                 .build();
     }
@@ -67,6 +71,7 @@ public class TaskMapper {
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .status(entity.getStatus())
+                .priority(withOrder(entity.getPriority()))
                 .projectId(new ProjectId(entity.getProject().getId()))
                 .owner(userInfoMapper.toModel(entity.getOwner()))
                 .assignee(userInfoMapper.toModel(entity.getAssignee()))

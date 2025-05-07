@@ -68,6 +68,7 @@ class JpaTaskRepositoryAdapterTest {
                 .description("New task description")
                 .status("To do")
                 .project(new ProjectId(projectEntity.getId()))
+                .priority(TaskPriority.MEDIUM)
                 .owner(ownerId)
                 .assignee(ownerId)
                 .build();
@@ -100,6 +101,7 @@ class JpaTaskRepositoryAdapterTest {
                 .title("Updated task title")
                 .description("Update task description")
                 .status("Done")
+                .priority(TaskPriority.HIGHEST)
                 .project(new ProjectId(taskEntity.getProject().getId()))
                 .owner(new UserId(taskEntity.getOwner().getId()))
                 .assignee(newAssignee)
@@ -336,6 +338,7 @@ class JpaTaskRepositoryAdapterTest {
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getStatus(), actual.getStatus());
+        assertEquals(expected.getPriority(), actual.getPriority());
         assertEquals(expected.getOwner(), actual.getOwner());
         assertEquals(expected.getAssignee(), actual.getAssignee());
     }
@@ -352,6 +355,7 @@ class JpaTaskRepositoryAdapterTest {
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getStatus(), actual.getStatus());
+        assertEquals(expected.getPriority().order(), actual.getPriority());
         assertEquals(expected.getOwner().value(), actual.getOwner().getId());
         assertEquals(expected.getAssignee().value(), actual.getAssignee().getId());
     }
