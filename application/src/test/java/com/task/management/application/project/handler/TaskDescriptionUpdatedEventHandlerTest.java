@@ -1,8 +1,8 @@
-package com.task.management.application.project.application.handler;
+package com.task.management.application.project.handler;
 
 import com.task.management.application.common.EventHandlingException;
-import com.task.management.domain.project.event.TaskTitleUpdatedEvent;
-import com.task.management.application.project.handler.TaskTitleUpdatedEventHandler;
+import com.task.management.domain.project.event.TaskDescriptionUpdatedEvent;
+import com.task.management.application.project.handler.TaskDescriptionUpdatedEventHandler;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
@@ -18,31 +18,30 @@ import static com.task.management.application.project.ProjectTestUtils.randomUse
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
-class TaskTitleUpdatedEventHandlerTest {
+class TaskDescriptionUpdatedEventHandlerTest {
 
     @Mock
     private TaskRepositoryPort taskRepositoryPort;
     @InjectMocks
-    private TaskTitleUpdatedEventHandler handler;
+    private TaskDescriptionUpdatedEventHandler handler;
 
     @Test
     void handle() throws EventHandlingException {
-        final var givenEvent = new TaskTitleUpdatedEvent(
+        final var givenEvent = new TaskDescriptionUpdatedEvent(
                 randomTaskId(),
                 randomUserId(),
-                "Initial title",
-                "New title"
+                "Initial Description",
+                "New Description"
         );
         final var expectedChangeLog = TaskChangeLog.builder()
                 .time(givenEvent.getOccurredAt())
                 .taskId(givenEvent.getEntityId())
                 .actorId(givenEvent.getActorId())
-                .targetProperty(TaskProperty.TITLE)
+                .targetProperty(TaskProperty.DESCRIPTION)
                 .initialValue(givenEvent.getInitialValue())
                 .newValue(givenEvent.getNewValue())
                 .build();
         handler.handle(givenEvent);
         Mockito.verify(taskRepositoryPort).save(eq(expectedChangeLog));
     }
-
 }

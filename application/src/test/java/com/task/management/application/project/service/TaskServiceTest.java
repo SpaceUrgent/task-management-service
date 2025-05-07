@@ -8,6 +8,7 @@ import com.task.management.application.common.validation.ValidationService;
 import com.task.management.application.project.command.CreateTaskCommand;
 import com.task.management.application.project.command.UpdateTaskCommand;
 import com.task.management.domain.project.model.Task;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
@@ -63,6 +64,7 @@ class TaskServiceTest {
                 .title("New task title")
                 .description("New task description")
                 .assigneeId(assignee.id())
+                .priority(TaskPriority.MEDIUM)
                 .dueDate(LocalDate.now().plusMonths(1))
                 .build();
         final var taskCaptor = ArgumentCaptor.forClass(Task.class);
@@ -76,6 +78,7 @@ class TaskServiceTest {
         assertEquals(givenCommand.description(), created.getDescription());
         assertEquals(givenActorId, created.getOwner());
         assertEquals(givenCommand.assigneeId(), created.getAssignee());
+        assertEquals(givenCommand.priority(), created.getPriority());
         assertEquals(givenCommand.dueDate(), created.getDueDate());
         assertEquals(DEFAULT_TASK_STATUSES.getFirst().name(), created.getStatus());
     }
@@ -197,6 +200,38 @@ class TaskServiceTest {
     }
 
     @Test
+    void updatePriority_shouldUpdateTask_whenAllConditionsMet() throws UseCaseException {
+        final var givenActorId = randomUserId();
+        final var task = randomTask();
+        final var givenPriority = TaskPriority.HIGH;
+        final var eventsCaptor = ArgumentCaptor.forClass(List.class);
+        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(task.getId()));
+
+        taskService.updatePriority(givenActorId, task.getId(), givenPriority);
+
+        assertEquals(givenPriority, task.getPriority());
+        verify(taskRepositoryPort).save(eq(task));
+        verify(eventPublisher).publish(eventsCaptor.capture());
+        assertEquals(1, eventsCaptor.getAllValues().size());
+    }
+
+    @Test
+    void updatePriority_shouldThrowEntityNotFoundException_whenTaskDoesNotExist() throws UseCaseException {
+        final var givenActorId = randomUserId();
+        final var givenTaskId = randomTaskId();
+        final var givenPriority = TaskPriority.HIGH;
+        doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
+
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> taskService.updatePriority(givenActorId, givenTaskId, givenPriority)
+        );
+
+        verify(taskRepositoryPort, times(0)).save(any(Task.class));
+        verifyNoMoreInteractions(eventPublisher);
+    }
+
+    @Test
     void assignTask_shouldSaveUpdatedTask_whenAllConditionsMet() throws UseCaseException {
         final var task = randomTask();
         final var assignee = randomMemberView();
@@ -294,6 +329,7 @@ class TaskServiceTest {
                 .title("Title")
                 .description("Description")
                 .owner(randomUserId())
+                .priority(TaskPriority.LOWEST)
                 .assignee(randomUserId())
                 .build();
     }

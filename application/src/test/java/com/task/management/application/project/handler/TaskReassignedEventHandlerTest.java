@@ -1,4 +1,4 @@
-package com.task.management.application.project.application.handler;
+package com.task.management.application.project.handler;
 
 import com.task.management.application.common.EventHandlingException;
 import com.task.management.application.common.port.out.UserInfoRepositoryPort;

@@ -1,7 +1,6 @@
 package com.task.management.application.project.command;
 
 import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

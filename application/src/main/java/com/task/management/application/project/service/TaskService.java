@@ -18,15 +18,11 @@ import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.Task;
 import com.task.management.domain.project.model.objectvalue.TaskId;
-import com.task.management.domain.project.model.objectvalue.TaskStatus;
-import jakarta.validation.constraints.NotNull;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.task.management.domain.common.validation.Validation.actorIdRequired;
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
@@ -35,8 +31,6 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 @RequiredArgsConstructor
 public class TaskService implements CreateTaskUseCase,
                                     UpdateTaskUseCase,
-                                    UpdateTaskStatusUseCase,
-                                    AssignTaskUseCase,
                                     GetTaskDetailsUseCase,
                                     FindTasksUseCase {
     private final ValidationService validationService;
@@ -63,6 +57,7 @@ public class TaskService implements CreateTaskUseCase,
                 .status(projectService.getInitialTaskStatus(projectId).name())
                 .owner(actorId)
                 .assignee(command.assigneeId())
+                .priority(command.priority())
                 .build();
         taskRepositoryPort.save(task);
     }
@@ -100,6 +95,20 @@ public class TaskService implements CreateTaskUseCase,
         projectService.checkIsMember(actorId, task.getProject());
         checkStatusIsAvailable(task.getProject(), statusName);
         task.updateStatus(actorId, statusName);
+        taskRepositoryPort.save(task);
+        eventPublisher.publish(task.flushEvents());
+    }
+
+    @Override
+    public void updatePriority(final UserId actorId,
+                               final TaskId taskId,
+                               final TaskPriority priority) throws UseCaseException {
+        actorIdRequired(actorId);
+        taskIdRequired(taskId);
+        parameterRequired(priority, "Task priority");
+        final var task = findOrThrow(taskId);
+        projectService.checkIsMember(actorId, task.getProject());
+        task.updatePriority(actorId, priority);
         taskRepositoryPort.save(task);
         eventPublisher.publish(task.flushEvents());
     }

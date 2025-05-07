@@ -10,13 +10,13 @@
     </parent>
 
     <artifactId>application</artifactId>
-    <version>1.0.0-SNAPHSOT</version>
+    <version>1.0.1-SNAPHSOT</version>
 
     <dependencies>
         <dependency>
             <groupId>io.spaceurgent.taskmanagement</groupId>
             <artifactId>domain</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
+            <version>1.1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
