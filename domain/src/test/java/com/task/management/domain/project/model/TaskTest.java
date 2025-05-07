@@ -1,6 +1,7 @@
 package com.task.management.domain.project.model;
 
 import com.task.management.domain.project.event.*;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -148,6 +149,41 @@ class TaskTest {
 
         assertTrue(task.flushEvents().isEmpty());
     }
+
+    @Test
+    void updatePriority_shouldCreateEvent_whenValueChanged() {
+        final var givenValue = TaskPriority.HIGHEST;
+        final var givenActorId = randomUserId();
+        final var task = randomTask();
+        final var initialValue = task.getPriority();
+        final var initialUpdatedTime = task.getUpdatedAt();
+
+        task.updatePriority(givenActorId, givenValue);
+
+        assertNotEquals(initialUpdatedTime, task.getUpdatedAt());
+        final var domainEvents = task.flushEvents();
+        assertEquals(1, domainEvents.size());
+        var event  = assertInstanceOf(TaskPriorityUpdatedEvent.class, domainEvents.getFirst());
+        assertNotNull(event.getOccurredAt());
+        assertEquals(givenActorId, event.getActorId());
+        assertEquals(task.getId(), event.getEntityId());
+        assertEquals(initialValue, event.getInitialValue());
+        assertEquals(givenValue, event.getNewValue());
+    }
+
+    @Test
+    void updatePriority_shouldDoNothing_whenValueWasNotChanged() {
+        final var givenActorId = randomUserId();
+        final var task = randomTask();
+        final var givenValue = task.getPriority();
+        final var initialUpdatedTime = task.getUpdatedAt();
+
+        task.updatePriority(givenActorId, givenValue);
+        assertEquals(initialUpdatedTime, task.getUpdatedAt());
+
+        assertTrue(task.flushEvents().isEmpty());
+    }
+
 
     @Test
     void assignTo_shouldCreateEvent_whenValueChanged() {

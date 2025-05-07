@@ -3,10 +3,7 @@ package com.task.management.domain.project.model;
 import com.task.management.domain.common.model.DomainEventAggregate;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.event.*;
-import com.task.management.domain.project.model.objectvalue.ProjectId;
-import com.task.management.domain.project.model.objectvalue.TaskId;
-import com.task.management.domain.project.model.objectvalue.TaskNumber;
-import com.task.management.domain.project.model.objectvalue.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.*;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -18,8 +15,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import static com.task.management.domain.common.validation.Validation.*;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static java.util.Objects.*;
 
 @Getter
 @ToString
@@ -35,6 +31,7 @@ public class Task extends DomainEventAggregate {
     private String title;
     private String description;
     private String status;
+    private TaskPriority priority;
     private final UserId owner;
     private UserId assignee;
 
@@ -48,6 +45,7 @@ public class Task extends DomainEventAggregate {
                 String title,
                 String description,
                 String status,
+                TaskPriority priority,
                 UserId owner,
                 UserId assignee) {
         this.id = id;
@@ -59,6 +57,7 @@ public class Task extends DomainEventAggregate {
         this.title = notBlank(title, "Title");
         this.description = description;
         this.status = notBlank(status, "Status");
+        this.priority = requireNonNull(priority, "Priority");
         this.owner = parameterRequired(owner, "Owner");
         this.assignee = parameterRequired(assignee, "Assignee");
         this.validateSelf();
@@ -94,6 +93,14 @@ public class Task extends DomainEventAggregate {
         recordUpdateTime();
         this.add(new TaskStatusUpdatedEvent(this.id, actor, this.status, status));
         this.status = parameterRequired(status, "Status");
+    }
+
+    public void updatePriority(UserId actor, TaskPriority priority) {
+        actorIdRequired(actor);
+        if (this.priority == priority) return;
+        recordUpdateTime();
+        this.add(new TaskPriorityUpdatedEvent(this.id, actor, this.priority, priority));
+        this.priority = parameterRequired(priority, "Priority");
     }
 
     public void assignTo(UserId actor, UserId assignee) {
