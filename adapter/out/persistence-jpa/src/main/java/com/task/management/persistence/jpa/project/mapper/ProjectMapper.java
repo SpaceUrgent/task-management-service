@@ -60,6 +60,7 @@ public class ProjectMapper {
                 .description(entity.getDescription())
                 .owner(memberViewMapper.toModel(entity.getOwner()))
                 .members(toMembers(members))
+                .taskStatuses(toAvailableTaskStatuses(entity.getAvailableTaskStatuses()))
                 .build();
     }
 

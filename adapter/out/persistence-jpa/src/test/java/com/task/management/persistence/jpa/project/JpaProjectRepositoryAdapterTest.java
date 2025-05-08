@@ -1,6 +1,8 @@
 package com.task.management.persistence.jpa.project;
 
 import com.task.management.application.project.ProjectConstants;
+import com.task.management.application.project.projection.MemberView;
+import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Project;
@@ -11,6 +13,7 @@ import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.AvailableTaskStatus;
+import com.task.management.persistence.jpa.entity.MemberEntity;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.entity.UserEntity;
 import org.hibernate.Hibernate;
@@ -19,15 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Sql(
-        executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD,
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
         scripts = "classpath:sql/clear.sql"
 )
 @PersistenceTest
@@ -129,6 +130,51 @@ class JpaProjectRepositoryAdapterTest {
         final var givenMemberId = new UserId(userEntity.getId());
         final var result = projectRepositoryAdapter.findProjectsByMember(givenMemberId);
         assertMatches(memberProjectEntities, result);
+    }
+
+    @Sql(
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+            scripts = "classpath:sql/insert_project.sql"
+    )
+    @Test
+    void findProjectDetails_shouldReturnOptionalEmpty_whenProjectDoesNotExist() {
+        final var givenProjectId = new ProjectId(new Random().nextLong());
+        assertTrue(projectRepositoryAdapter.findProjectDetails(givenProjectId).isEmpty());
+    }
+
+    @Sql(
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+            scripts = "classpath:sql/insert_project.sql"
+    )
+    @Test
+    void findProjectDetails_shouldReturnOptionalOfProjectDetails_whenProjectExists() {
+        final var projectEntity = getFirstProjectEntity();
+        final var projectDetails = projectRepositoryAdapter.findProjectDetails(new ProjectId(projectEntity.getId())).orElse(null);
+        assertNotNull(projectDetails);
+        assertMatches(projectEntity, projectDetails);
+    }
+
+    private void assertMatches(ProjectEntity expected, ProjectDetails actual) {
+        assertEquals(expected.getId(), actual.id().value());
+        assertEquals(expected.getCreatedAt(), actual.createdAt());
+        assertEquals(expected.getUpdatedAt(), actual.updatedAt());
+        assertEquals(expected.getTitle(), actual.title());
+        assertEquals(expected.getDescription(), actual.description());
+        final var projectEntityMembers = expected.getMembers();
+        final var projectDetailsMembers = new ArrayList<>(actual.members());
+        assertEquals(projectEntityMembers.size(), projectDetailsMembers.size());
+        IntStream.range(0, projectEntityMembers.size()).forEach(index -> {
+            assertMatches(projectEntityMembers.get(index), projectDetailsMembers.get(index));
+        });
+    }
+
+    private void assertMatches(MemberEntity expected, MemberView actual) {
+        final var expectedUser = expected.getUser();
+        assertEquals(expectedUser.getId(), actual.id().value());
+        assertEquals(expectedUser.getEmail(), actual.email().value());
+        final var expectedFullName = "%s %s".formatted(expectedUser.getFirstName(), expectedUser.getLastName());
+        assertEquals(expectedFullName, actual.fullName());
+        assertEquals(expected.getRole(), actual.role());
     }
 
     @Sql(
