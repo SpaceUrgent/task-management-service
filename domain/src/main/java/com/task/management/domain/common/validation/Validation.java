@@ -7,6 +7,7 @@ import com.task.management.domain.common.model.objectvalue.UserId;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class Validation {
     private Validation() {
@@ -28,12 +29,13 @@ public final class Validation {
         throw new ValidationException("%s must be not blank".formatted(argumentName));
     }
 
-    public static LocalDate presentOrFuture(LocalDate localDate, String argumentName) {
-        parameterRequired(localDate, argumentName);
-        if (LocalDate.now().isAfter(localDate)) {
-            throw new ValidationException("%s must be present or future date".formatted(argumentName));
-        }
-        return localDate;
+    public static LocalDate presentOrFuture(LocalDate argument, String argumentName) {
+        Optional.ofNullable(argument).ifPresent(date -> {
+            if (LocalDate.now().isAfter(argument)) {
+                throw new ValidationException("%s must be present or future date".formatted(argumentName));
+            }
+        });
+        return argument;
     }
 
     public static Email emailRequired(Email email) {
