@@ -21,8 +21,15 @@ export class ProjectClient {
                 if ((error.response?.status === 401 || error.response?.status === 403)
                         && this.onUnauthorized) {
                     this.onUnauthorized();
+                    return Promise.reject(error);
                 }
-                return Promise.resolve(error);
+                const status = error.response?.status;
+                const message = error.response?.data?.message;
+                console.log('error: ', error.response.data);
+                if (status >= 400 && status < 500) {
+                    throw new ProjectClientError(message);
+                }
+                throw new ServerError();
             }
         )
     }
@@ -41,6 +48,24 @@ export class ProjectClient {
     async createProject(request : CreateProjectRequest): Promise<void> {
         const response = await this.axiosInstance.post('/projects', request);
         if (response.status === 201) return;
+        this.validateApiResponse(response);
+    }
+
+    async updateProjectInfo(projectId: number, request : UpdateProjectInfoRequest): Promise<void> {
+        const response = await this.axiosInstance.put(`/projects/${projectId}`, request);
+        if (response.status === 200) return;
+        this.validateApiResponse(response);
+    }
+
+    async addTaskStatus(projectId: number, request : AddTaskStatusRequest): Promise<void> {
+        const response = await this.axiosInstance.put(`/projects/${projectId}/available-statuses`, request);
+        if (response.status === 200) return;
+        this.validateApiResponse(response);
+    }
+
+    async removeTaskStatus(projectId: number, status: string): Promise<void> {
+        const response = await this.axiosInstance.delete(`/projects/${projectId}/available-statuses/${status}`);
+        if (response.status === 200) return;
         this.validateApiResponse(response);
     }
 
@@ -128,11 +153,10 @@ export class ProjectClient {
     private validateApiResponse(response: AxiosResponse<any, any>) {
         const statusCode = response.status;
         if (statusCode === 401 || statusCode === 403) {
-            console.log('handle unauthorized response');
             this.onUnauthorized();
             return;
         }
-        if (statusCode === 400 || statusCode === 404) {
+        if (statusCode >= 400 && statusCode < 500) {
             throw new ProjectClientError(response.data?.message);
         }
         throw new ServerError();
@@ -143,11 +167,25 @@ interface ApiResponse<T> {
     data: T;
 }
 
+interface ErrorResponse {
+    message: string;
+}
+
 interface Page<T> extends ApiResponse<T[]> {
     currentPage: number;
     pageSize: number;
     total: number;
     totalPages: number;
+}
+
+interface UpdateProjectInfoRequest {
+    title: string;
+    description: string;
+}
+
+interface AddTaskStatusRequest {
+    name: string;
+    position: number;
 }
 
 interface CreateProjectRequest {
@@ -159,6 +197,8 @@ interface CreateTaskRequest {
     title: string;
     description: string;
     assigneeId: number;
+    priority: string;
+    dueDate: string;
 }
 
 interface UpdateTaskRequest {
@@ -167,15 +207,6 @@ interface UpdateTaskRequest {
     assigneeId: number;
     status: string;
 }
-
-interface UpdateTaskStatusRequest {
-    status: string;
-}
-
-interface AssignTaskRequest {
-    assigneeId: number;
-}
-
 interface ProjectPreview {
     id: number;
     title: string;
@@ -218,8 +249,19 @@ interface ProjectDetails {
     title: string;
     description: string;
     owner: User;
-    taskStatuses: string[];
+    taskStatuses: AvailableTaskStatus[];
+    taskPriorities: TaskPriority[];
     members: User[];
+}
+
+interface AvailableTaskStatus {
+    name: string;
+    position: number;
+}
+
+interface TaskPriority {
+    name: string;
+    order: number;
 }
 
 interface User {
