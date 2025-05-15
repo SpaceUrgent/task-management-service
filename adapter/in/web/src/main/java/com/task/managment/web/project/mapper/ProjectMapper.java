@@ -5,11 +5,9 @@ import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.management.domain.project.model.objectvalue.TaskStatus;
-import com.task.managment.web.project.dto.AvailableTaskStatusDto;
-import com.task.managment.web.project.dto.ProjectDetailsDto;
-import com.task.managment.web.project.dto.ProjectPreviewDto;
-import com.task.managment.web.project.dto.UserProjectDetailsDto;
+import com.task.managment.web.project.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +46,7 @@ public class ProjectMapper {
                 .title(model.title())
                 .description(model.description())
                 .taskStatuses(model.taskStatuses().stream().map(this::toDto).toList())
+                .taskPriorities(model.taskPriorities().stream().map(this::toDto).toList())
                 .owner(projectUserDtoMapper.toDto(model.owner()))
                 .members(model.members().stream().map(projectUserDtoMapper::toDto).collect(Collectors.toSet()))
                 .build();
@@ -60,11 +59,18 @@ public class ProjectMapper {
                 .build();
     }
 
+    private TaskPriorityDto toDto(TaskPriority priority) {
+        return TaskPriorityDto.builder()
+                .name(priority.name())
+                .order(priority.order())
+                .build();
+    }
+
     private MemberRole getActorRole(UserId actorId, ProjectDetails projectDetails) {
         return projectDetails.members().stream()
                 .filter(member -> Objects.equals(actorId, member.id()))
                 .findFirst()
                 .map(MemberView::role)
-                .orElseThrow(() -> new IllegalArgumentException("Actor role not found"));
+                .orElse(null);
     }
 }

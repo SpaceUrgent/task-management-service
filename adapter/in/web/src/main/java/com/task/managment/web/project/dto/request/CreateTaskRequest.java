@@ -5,6 +5,7 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -15,6 +16,7 @@ public class CreateTaskRequest {
     private String description;
     @NotNull(message = "Assignee id is required")
     private Long assigneeId;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @FutureOrPresent(message = "Due date must be present or future date")
     private LocalDate dueDate;
     @NotNull(message = "Priority required")

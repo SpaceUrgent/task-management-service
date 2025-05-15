@@ -22,6 +22,7 @@ public class ProjectDetailsDto {
     private String description;
     private MemberDto owner;
     private List<AvailableTaskStatusDto> taskStatuses;
+    private List<TaskPriorityDto> taskPriorities;
     private Set<MemberDto> members;
 
     @Builder
@@ -32,6 +33,7 @@ public class ProjectDetailsDto {
                              String description,
                              MemberDto owner,
                              List<AvailableTaskStatusDto> taskStatuses,
+                             List<TaskPriorityDto> taskPriorities,
                              Set<MemberDto> members) {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");
@@ -40,6 +42,7 @@ public class ProjectDetailsDto {
         this.description = description;
         this.owner = parameterRequired(owner, "Owner");
         this.taskStatuses = parameterRequired(taskStatuses, "Status set");
+        this.taskPriorities = parameterRequired(taskPriorities, "Task priorities");
         this.members = parameterRequired(members, "Member set");
     }
 }
