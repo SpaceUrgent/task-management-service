@@ -19,6 +19,15 @@ export default function CreateTaskModal({onClose, onSubmit}) {
     const [assigneeIdIsValid, setAssigneeIdIsValid] = useState(false);
     const [showAssigneeError, setShowAssigneeError] = useState(false);
 
+    const [priority, setPriority] = useState(null);
+    const [priorityIsValid, setPriorityIsValid] = useState(false);
+    const [showPriorityError, setShowPriorityError] = useState(false);
+
+    const [dueDate, setDueDate] = useState(null);
+    const [dueDateIsValid, setDueDateIsValid] = useState(true);
+    const [showDueDateError, setShowDueDateError] = useState(false);
+
+
     const [description, setDescription] = useState("");
 
     const [submitError, setSubmitError] = useState("");
@@ -31,12 +40,35 @@ export default function CreateTaskModal({onClose, onSubmit}) {
         setAssigneeIdIsValid(!!assigneeId);
     }, [assigneeId]);
 
+    useEffect(() => {
+        setPriorityIsValid(!!priority);
+    }, [priority]);
+
+    useEffect(() => {
+        const isValidDueDate = () => {
+            if (!dueDate) return true;
+            let selectedDate = new Date(dueDate);
+            const today = new Date();
+            selectedDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            return selectedDate >= today;
+        }
+        console.log(dueDate);
+        setDueDateIsValid(isValidDueDate);
+    }, [dueDate])
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!titleIsValid || !assigneeIdIsValid) {
+        if (!titleIsValid
+            || !assigneeIdIsValid
+            || !priorityIsValid
+            || !dueDateIsValid
+        ) {
             setShowAssigneeError(true);
             setShowTitleError(true);
+            setShowPriorityError(true);
+            setShowDueDateError(true);
             return;
         }
 
@@ -45,6 +77,8 @@ export default function CreateTaskModal({onClose, onSubmit}) {
                 title: title,
                 description: description,
                 assigneeId: assigneeId,
+                priority: priority,
+                dueDate: dueDate
             }
             await projectClient.createTask(projectId, request);
             onSubmit();
@@ -100,6 +134,46 @@ export default function CreateTaskModal({onClose, onSubmit}) {
                                     <span className="text-danger span-warning">Please select assignee</span>
                                 }
                             </div>
+
+
+                            <div className="mb-1 text-start">
+                                <label className="label form-label mb-0" htmlFor="Priority">Priority</label>
+                                <select
+                                    className="form-select"
+                                    onBlur={() => setShowPriorityError(true)}
+                                    onChange={(e) => {
+                                        setPriority(e.target.value)
+                                    }}
+                                >
+                                    <option value="">Select Priority</option>
+                                    {
+                                        project?.taskPriorities.map((priority) => (
+                                            <option key={priority.name} value={priority.name}>{priority.name}</option>
+                                        ))
+                                    }
+                                </select>
+                                {showPriorityError && !priorityIsValid &&
+                                    <span className="text-danger span-warning">Please select priority</span>
+                                }
+                            </div>
+
+
+                            <div className="mb-1 text-start">
+                                <label className="label form-label mb-0" htmlFor="dueDate">Due date</label>
+                                <input
+                                    id="dueDate"
+                                    type="date"
+                                    className="form-select"
+                                    onBlur={() => setShowDueDateError(true)}
+                                    onChange={(e) => {
+                                        setDueDate(e.target.value)
+                                    }}
+                                />
+                                {showDueDateError && !dueDateIsValid &&
+                                    <span className="text-danger span-warning">Due date must be present or future</span>
+                                }
+                            </div>
+
                             <TextArea
                                 id="description"
                                 name="Description"

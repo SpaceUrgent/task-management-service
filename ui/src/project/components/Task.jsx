@@ -131,7 +131,7 @@ export default function Task() {
                                 value={task.status}
                                 onChange={handleChangeStatus}
                                 options={project?.taskStatuses.map(status => ({
-                                    value: status, label: status
+                                    value: status.name, label: status.name
                                 }))}
                             />
                         </div>

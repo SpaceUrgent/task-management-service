@@ -32,7 +32,7 @@ export default function EditableDescription({
     return (
         <div className="row mt-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
-                <label className="form-label m-0">Description</label>
+                <h6 className="form-label m-0">Description</h6>
                 {!isEditing ? (
                     <button
                         className="btn btn-outline-secondary btn-sm"
@@ -57,6 +57,7 @@ export default function EditableDescription({
                     </div>
                 )}
             </div>
+            <hr/>
             <textarea
                 className="form-control"
                 style={{ resize: "none" }}

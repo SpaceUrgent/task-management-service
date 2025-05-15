@@ -97,9 +97,11 @@ export default function ProjectTasks() {
                         onChange={(value) => setChosenStatus(value)}
                         options={[
                             { value: "", label: "All" },
-                            ...project?.taskStatuses.map(status => ({
-                                value: status, label: status
-                            }))
+                            ...project?.taskStatuses
+                                .sort((a, b) => a.position - b.position)
+                                .map(status => ({
+                                    value: status.name, label: status.name
+                                }))
                         ]}
                     />
                 </div>
