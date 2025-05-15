@@ -85,6 +85,7 @@ public class ProjectService implements CreateProjectUseCase,
         projectRepositoryPort.save(project);
     }
 
+    @UseCase
     @Override
     public void addTaskStatus(UserId actorId, ProjectId projectId, AddTaskStatusCommand command) throws UseCaseException {
         actorIdRequired(actorId);
@@ -100,6 +101,7 @@ public class ProjectService implements CreateProjectUseCase,
         projectRepositoryPort.save(project);
     }
 
+    @UseCase
     @Override
     public void removeTaskStatus(UserId actorId, ProjectId projectId, String statusName) throws UseCaseException {
         actorIdRequired(actorId);
