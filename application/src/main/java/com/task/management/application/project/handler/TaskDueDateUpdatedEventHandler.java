@@ -7,6 +7,7 @@ import com.task.management.domain.project.model.objectvalue.TaskProperty;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @AppComponent
 public class TaskDueDateUpdatedEventHandler extends TaskUpdatedEventHandler<TaskDueDateUpdatedEvent, LocalDate> {
@@ -27,6 +28,8 @@ public class TaskDueDateUpdatedEventHandler extends TaskUpdatedEventHandler<Task
 
     @Override
     protected String mapToString(LocalDate source) {
-        return source.format(DateTimeFormatter.ISO_DATE);
+        return Optional.ofNullable(source)
+                .map(date -> date.format(DateTimeFormatter.ISO_DATE))
+                .orElse(null);
     }
 }
