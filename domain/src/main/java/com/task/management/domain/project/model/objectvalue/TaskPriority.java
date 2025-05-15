@@ -3,6 +3,8 @@ package com.task.management.domain.project.model.objectvalue;
 import com.task.management.domain.common.validation.ValidationException;
 
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
@@ -29,5 +31,11 @@ public enum TaskPriority {
                 .filter(priority -> order.equals(priority.order))
                 .findFirst()
                 .orElseThrow(() -> new ValidationException("Unknown task priority order value - %d".formatted(order)));
+    }
+
+    public static List<TaskPriority> orderedList() {
+        return Arrays.stream(TaskPriority.values())
+                .sorted(Comparator.comparing(TaskPriority::order))
+                .toList();
     }
 }
