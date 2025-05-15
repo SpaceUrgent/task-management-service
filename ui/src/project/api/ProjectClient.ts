@@ -204,7 +204,9 @@ interface CreateTaskRequest {
 interface UpdateTaskRequest {
     title: string;
     description: string;
+    dueDate: string;
     assigneeId: number;
+    priority: string;
     status: string;
 }
 interface ProjectPreview {
@@ -228,6 +230,8 @@ interface TaskDetails {
     projectId: number;
     title: string;
     description: string;
+    dueDate: string;
+    priority: string;
     status: string;
     assignee: User;
     owner: User;

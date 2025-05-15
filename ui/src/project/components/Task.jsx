@@ -40,6 +40,8 @@ export default function Task() {
             title: value,
             description: task.description,
             assigneeId: task.assignee.id,
+            dueDate: task.dueDate,
+            priority: task.priority,
             status: task.status
         });
         fetchTask();
@@ -53,6 +55,21 @@ export default function Task() {
             title: task.title,
             description: value,
             assigneeId: task.assignee.id,
+            dueDate: task.dueDate,
+            priority: task.priority,
+            status: task.status
+        })
+        fetchTask();
+    }
+
+    const handleChangePriority = async (value) => {
+        if (!value || value === task.priority) return;
+        await projectClient.updateTask(task.id, {
+            title: task.title,
+            description: task.description,
+            assigneeId: task.assignee.id,
+            dueDate: task.dueDate,
+            priority: value,
             status: task.status
         })
         fetchTask();
@@ -60,7 +77,6 @@ export default function Task() {
 
     const handleChangeAssignee = async (value) => {
         if (value === task.assignee.id) return;
-        console.log("assignee", value);
         await projectClient.assignTask(task.id, value);
         fetchTask();
     }
@@ -125,6 +141,16 @@ export default function Task() {
                         </div>
                     </div>
                     <div className="row mt-3">
+                        <div className="col-md-3">
+                            <LabeledSelector
+                                label="Priority"
+                                value={task.priority}
+                                onChange={handleChangePriority}
+                                options={project?.taskPriorities.map(priority => ({
+                                    value: priority.name, label: priority.name
+                                }))}
+                            />
+                        </div>
                         <div className="col-md-3">
                             <LabeledSelector
                                 label="Status"
