@@ -8,6 +8,7 @@ import LabeledSelector from "../../common/components/selectors/LabeledSelector";
 import EditableTitle from "./EditableTitle";
 import EditableDescription from "../EditableDescription";
 import DateSelector from "../../common/components/selectors/DateSelector";
+import TaskChangeLogs from "./TaskChangeLogs";
 
 export default function Task() {
 
@@ -203,6 +204,7 @@ export default function Task() {
                         initialValue={task.description}
                         onSave={handleUpdateDescription}
                     />
+                    <TaskChangeLogs task={task}/>
                 </div>
             </div>
         </div>

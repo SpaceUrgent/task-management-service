@@ -235,6 +235,14 @@ interface TaskDetails {
     status: string;
     assignee: User;
     owner: User;
+    changeLogs: TaskChangeLog[];
+}
+
+interface TaskChangeLog {
+    occurredAt: string;
+    logMessage: string;
+    oldValue: string;
+    newValue: string;
 }
 
 interface UserProjectDetails {
