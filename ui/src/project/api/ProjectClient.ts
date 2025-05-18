@@ -286,7 +286,7 @@ interface GetTaskPreviewsOptions {
     page?: number;
     size?: number;
     assigneeId?: number;
-    status?: string;
+    status?: string[];
     sortBy?: string;
 }
 

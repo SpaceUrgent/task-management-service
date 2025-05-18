@@ -7,6 +7,7 @@ import PaginationPanel from "./PaginationPanel";
 import Selector from "../../common/components/selectors/Selector";
 import LoadingSpinner from "../../common/components/LoadingSpinner";
 import Alert from "../../common/components/Alert";
+import MultiStatusSelector from "./selector/MultiStatusSelector";
 
 export default function ProjectTasks() {
     const { project, members } = useProjectContext();
@@ -19,7 +20,7 @@ export default function ProjectTasks() {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState("createdAt:DESC");
     const [chosenAssigneeId, setChosenAssigneeId] = useState(null);
-    const [chosenStatus, setChosenStatus] = useState(null);
+    const [chosenStatuses, setChosenStatuses] = useState([]);
 
     const [tasksPage, setTasksPage] = useState({});
     const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
@@ -32,7 +33,7 @@ export default function ProjectTasks() {
                 page: currentPage,
                 sortBy: sortBy,
                 assigneeId: chosenAssigneeId,
-                status: chosenStatus,
+                status: chosenStatuses,
             }
             const data = await projectClient.getTaskPreviews(project?.id, options);
             setTasksPage(data);
@@ -49,8 +50,15 @@ export default function ProjectTasks() {
     }, [])
 
     useEffect(() => {
+        if (project?.taskStatuses) {
+            setChosenStatuses(project.taskStatuses.map(status => status.name));
+        }
+    }, [project?.taskStatuses]);
+
+    useEffect(() => {
         fetchTaskPage();
-    }, [pageSize, currentPage, sortBy, chosenAssigneeId, chosenStatus]);
+        console.log('fetch task page');
+    }, [pageSize, currentPage, sortBy, chosenAssigneeId, chosenStatuses]);
 
     const handleSubmitCreateTask = () => {
         setShowCreateTaskModal(false);
@@ -96,18 +104,27 @@ export default function ProjectTasks() {
                     />
                 </div>
                 <div className="col-auto">
-                    <Selector
-                        value={chosenStatus}
-                        onChange={(value) => setChosenStatus(value)}
-                        options={[
-                            { value: "", label: "All" },
-                            ...project?.taskStatuses
-                                .sort((a, b) => a.position - b.position)
-                                .map(status => ({
-                                    value: status.name, label: status.name
-                                }))
-                        ]}
-                    />
+                    {/*<Selector*/}
+                    {/*    value={chosenStatuses}*/}
+                    {/*    onChange={(value) => setChosenStatuses(value)}*/}
+                    {/*    options={[*/}
+                    {/*        { value: "", label: "All" },*/}
+                    {/*        ...project?.taskStatuses*/}
+                    {/*            .sort((a, b) => a.position - b.position)*/}
+                    {/*            .map(status => ({*/}
+                    {/*                value: status.name, label: status.name*/}
+                    {/*            }))*/}
+                    {/*    ]}*/}
+                    {/*/>*/}
+                        <MultiStatusSelector
+                            statuses={project?.taskStatuses.map(s => s.name) || []}
+                            selected={chosenStatuses}
+                            onChange={(statuses) =>
+                            {
+                                console.log('selected: ', statuses);
+                                setChosenStatuses(statuses)
+                            }}
+                        />
                 </div>
                 <div className="col-auto">
                     <Selector
