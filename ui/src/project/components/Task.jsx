@@ -7,6 +7,7 @@ import Alert from "../../common/components/Alert";
 import LabeledSelector from "../../common/components/selectors/LabeledSelector";
 import EditableTitle from "./EditableTitle";
 import EditableDescription from "../EditableDescription";
+import DateSelector from "../../common/components/selectors/DateSelector";
 
 export default function Task() {
 
@@ -87,6 +88,20 @@ export default function Task() {
         fetchTask();
     }
 
+    const handleDueDateChange = async (value) => {
+        if (value === task.dueDate) return;
+        if (value && new Date(value) < new Date()) return;
+        await projectClient.updateTask(task.id, {
+            title: task.title,
+            description: task.description,
+            assigneeId: task.assignee.id,
+            dueDate: value,
+            priority: task.priority,
+            status: task.status
+        })
+        fetchTask();
+    }
+
     if (isLoading) {
         return (
             <LoadingSpinner/>
@@ -142,6 +157,9 @@ export default function Task() {
                     </div>
                     <div className="row mt-3">
                         <div className="col-md-3">
+                            <DateSelector onChange={handleDueDateChange}/>
+                        </div>
+                        <div className="col-md-3">
                             <LabeledSelector
                                 label="Priority"
                                 value={task.priority}
@@ -151,6 +169,8 @@ export default function Task() {
                                 }))}
                             />
                         </div>
+                    </div>
+                    <div className="row mt-3">
                         <div className="col-md-3">
                             <LabeledSelector
                                 label="Status"

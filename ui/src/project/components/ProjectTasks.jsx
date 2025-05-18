@@ -88,6 +88,10 @@ export default function ProjectTasks() {
                         options={[
                             { value: "createdAt:DESC", label: "Sort by create time desc" },
                             { value: "createdAt:ASC", label: "Sort by create time asc" },
+                            { value: "priority:DESC", label: "High priority first" },
+                            { value: "priority:ASC", label: "Low priority first" },
+                            // { value: "dueDate:DESC", label: "Due date desc" },
+                            // { value: "dueDate:ASC", label: "Due date asc" },
                         ]}
                     />
                 </div>

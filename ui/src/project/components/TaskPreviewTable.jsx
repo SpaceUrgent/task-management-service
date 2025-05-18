@@ -17,6 +17,7 @@ export default function TaskPreviewTable({taskPreviews = []}) {
                     <th scope="col">#</th>
                     <th scope="col">Created</th>
                     <th scope="col">Title</th>
+                    <th scope="col">Due date</th>
                     <th scope="col">Priority</th>
                     <th scope="col">Status</th>
                     <th scope="col">Assignee</th>
@@ -29,6 +30,7 @@ export default function TaskPreviewTable({taskPreviews = []}) {
                         <td>{task.number}</td>
                         <td>{new Date(task.createdAt).toLocaleDateString()}</td>
                         <td>{task.title}</td>
+                        <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : ''}</td>
                         <td>{task.priority}</td>
                         <td>
                             <span className="badge bg-secondary">{task.status}</span>
