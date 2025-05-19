@@ -37,7 +37,7 @@ export default function EditableTaskStatuses() {
             refreshData();
         } catch (error) {
             setDeleteError(error.message ? error.message : "Failed to delete status");
-            setTimeout(() => setDeleteError(null), 5000); 
+            setTimeout(() => setDeleteError(null), 5000);
         }
     }
 
@@ -122,7 +122,7 @@ export default function EditableTaskStatuses() {
             }
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h6 className="form-label m-0">Task statuses</h6>
-                {currentUserRole === "ADMIN" || currentUserRole === "OWNER" &&
+                {(currentUserRole === "ADMIN" || currentUserRole === "OWNER") &&
                     editingButton()
                 }
             </div>
