@@ -122,7 +122,7 @@ export default function EditableTaskStatuses() {
             }
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h6 className="form-label m-0">Task statuses</h6>
-                {(currentUserRole === "ADMIN" || currentUserRole === "OWNER") &&
+                {(currentUserRole === "Admin" || currentUserRole === "Owner") &&
                     editingButton()
                 }
             </div>

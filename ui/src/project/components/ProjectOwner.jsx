@@ -23,7 +23,7 @@ export default function ProjectOwner({}) {
             }
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h6 className="form-label m-0">Project owner</h6>
-                {currentUserRole === "OWNER" &&
+                {currentUserRole === "Owner" &&
                     <button
                         className="btn btn-outline-secondary btn-sm"
                         onClick={() => setOpenChangeOwnerModal(true)}

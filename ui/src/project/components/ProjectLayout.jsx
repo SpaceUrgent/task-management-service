@@ -18,7 +18,7 @@ export default function ProjectLayout({}) {
     }
 
     const title = () => {
-        if (currentUserRole === "ADMIN" || currentUserRole === "OWNER") {
+        if (currentUserRole === "Owner") {
             return <EditableTitle initialValue={project.title} onSave={handleUpdateProjectTitle}/>
         }
         return <h4 className="m-0">{project?.title}</h4>;

@@ -19,7 +19,7 @@ export default function ProjectOverview() {
     }
 
     const description = () => {
-        if (currentUserRole === "ADMIN" || currentUserRole === "OWNER") {
+        if (currentUserRole === "Admin" || currentUserRole === "Owner") {
             return <EditableDescription initialValue={project?.description} onSave={handleUpdateDescription}/>
         }
 

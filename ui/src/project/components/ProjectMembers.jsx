@@ -89,13 +89,13 @@ export default function ProjectMembers() {
                             <div className="d-flex flex-column">
                                 <div className="d-flex align-items-center">
                                     <strong className="me-2">{member.fullName}</strong>
-                                    <span className="badge bg-secondary text-uppercase">
+                                    <span className="badge bg-secondary">
                                         {member.role}
                                     </span>
                                 </div>
                                 <small className="text-muted">{member.email}</small>
                             </div>
-                            {!member.role && currentUserRole === 'OWNER' &&
+                            {!member.role && currentUserRole === 'Owner' &&
                                 <button
                                     className="btn btn-sm btn-outline-primary"
                                     onClick={() => selectPromotedMember(member)}
@@ -103,7 +103,7 @@ export default function ProjectMembers() {
                                     Promote to Admin
                                 </button>
                             }
-                            {member.role === "ADMIN" && currentUserRole === 'OWNER' &&
+                            {member.role === "Admin" && currentUserRole === 'Owner' &&
                                 <button
                                     className="btn btn-sm btn-outline-danger"
                                     onClick={() => handleRevokeAdmin(member)}
