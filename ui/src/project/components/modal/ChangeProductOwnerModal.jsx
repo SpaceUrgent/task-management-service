@@ -16,7 +16,7 @@ export default function ChangeProductOwnerModal({ onClose }) {
         if (!selectedOwnerId || !isConfirmed) return;
         if (selectedOwnerId === project.owner.id) return;
         try {
-            await projectClient.updateMemberRole(project.id, selectedOwnerId, 'OWNER');
+            await projectClient.updateMemberRole(project.id, selectedOwnerId, 'Owner');
             onClose();
         } catch (error) {
             setSubmitError('Failed to update owner');

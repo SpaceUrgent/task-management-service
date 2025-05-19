@@ -259,7 +259,7 @@ interface UserProjectDetails {
 }
 
 enum MemberRole {
-    OWNER, ADMIN
+    Owner, Admin
 }
 
 interface ProjectDetails {

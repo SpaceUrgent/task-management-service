@@ -29,7 +29,7 @@ export default function ProjectMembers() {
     const handlePromoteMember = async () => {
         if (!promotedMember) return;
         try {
-            await projectClient.updateMemberRole(project.id, promotedMember.id, 'ADMIN');
+            await projectClient.updateMemberRole(project.id, promotedMember.id, 'Admin');
             refreshData();
         } catch (error) {
             setAlert("Failed to update promote member");
