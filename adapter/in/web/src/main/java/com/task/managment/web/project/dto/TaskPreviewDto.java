@@ -25,7 +25,7 @@ public class TaskPreviewDto {
     private Long number;
     private String title;
     private String status;
-    private TaskPriority priority;
+    private String priority;
     private UserInfoDto assignee;
 
     @Builder
@@ -36,7 +36,7 @@ public class TaskPreviewDto {
                           Long number,
                           String title,
                           String status,
-                          TaskPriority priority,
+                          String priority,
                           UserInfoDto assignee) {
         this.id = parameterRequired(id, "Id");
         this.createdAt = parameterRequired(createdAt, "Created at");

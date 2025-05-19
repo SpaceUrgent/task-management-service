@@ -10,6 +10,7 @@ import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.managment.web.common.BaseController;
 import com.task.managment.web.common.dto.ErrorResponse;
 import com.task.managment.web.common.dto.ListResponse;
@@ -155,7 +156,7 @@ public class ProjectController extends BaseController {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .dueDate(request.getDueDate())
-                .priority(request.getPriority())
+                .priority(TaskPriority.withPriorityName(request.getPriority()))
                 .build();
         createTaskUseCase.createTask(actor(), new ProjectId(projectId), command);
     }

@@ -6,6 +6,7 @@ import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.TaskId;
+import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.managment.web.common.BaseController;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.request.AssignTaskRequest;
@@ -46,7 +47,7 @@ public class TaskController extends BaseController {
                 .description(request.getDescription())
                 .assigneeId(new UserId(request.getAssigneeId()))
                 .taskStatus(request.getStatus())
-                .priority(request.getPriority())
+                .priority(TaskPriority.withPriorityName(request.getPriority()))
                 .dueDate(request.getDueDate())
                 .build();
         updateTaskUseCase.updateTask(actor(), new TaskId(taskId), command);
@@ -67,6 +68,6 @@ public class TaskController extends BaseController {
     @PatchMapping("/{taskId}/priority")
     public void updatePriority(@PathVariable Long taskId,
                                @RequestBody @Valid @NotNull UpdateTaskPriorityRequest request) throws UseCaseException {
-        updateTaskUseCase.updatePriority(actor(), new TaskId(taskId), request.getPriority());
+        updateTaskUseCase.updatePriority(actor(), new TaskId(taskId), TaskPriority.withPriorityName(request.getPriority()));
     }
 }

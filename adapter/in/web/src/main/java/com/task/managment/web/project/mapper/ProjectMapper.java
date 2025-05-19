@@ -60,7 +60,7 @@ public class ProjectMapper {
 
     private TaskPriorityDto toDto(TaskPriority priority) {
         return TaskPriorityDto.builder()
-                .name(priority.name())
+                .name(priority.priorityName())
                 .order(priority.order())
                 .build();
     }

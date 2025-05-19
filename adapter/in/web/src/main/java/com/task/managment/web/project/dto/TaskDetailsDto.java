@@ -24,7 +24,7 @@ public class TaskDetailsDto {
     private String title;
     private String description;
     private String status;
-    private TaskPriority priority;
+    private String priority;
     private UserInfoDto owner;
     private UserInfoDto assignee;
     private List<TaskChangeLogDto> changeLogs;
@@ -39,7 +39,7 @@ public class TaskDetailsDto {
                           String title,
                           String description,
                           String status,
-                          TaskPriority priority,
+                          String priority,
                           UserInfoDto owner,
                           UserInfoDto assignee,
                           List<TaskChangeLogDto> changeLogs) {

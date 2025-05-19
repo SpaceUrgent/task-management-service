@@ -33,7 +33,7 @@ public class TaskMapper {
                 .number(taskPreview.number().value())
                 .title(taskPreview.title())
                 .status(taskPreview.status())
-                .priority(taskPreview.priority())
+                .priority(taskPreview.priority().priorityName())
                 .assignee(userInfoMapper.toDto(taskPreview.assignee()))
                 .build();
     }
@@ -49,7 +49,7 @@ public class TaskMapper {
                 .description(taskDetails.description())
                 .projectId(taskDetails.projectId().value())
                 .status(taskDetails.status())
-                .priority(taskDetails.priority())
+                .priority(taskDetails.priority().priorityName())
                 .assignee(userInfoMapper.toDto(taskDetails.assignee()))
                 .owner(userInfoMapper.toDto(taskDetails.owner()))
                 .changeLogs(toDtos(taskDetails.changeLogs()))

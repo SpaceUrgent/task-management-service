@@ -80,7 +80,7 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.title").value(taskDetails.title()))
                 .andExpect(jsonPath("$.description").value(taskDetails.description()))
                 .andExpect(jsonPath("$.status").value(taskDetails.status()))
-                .andExpect(jsonPath("$.priority").value(taskDetails.priority().name()))
+                .andExpect(jsonPath("$.priority").value(taskDetails.priority().priorityName()))
                 .andExpect(jsonPath("$.owner.id").value(taskOwner.id().value()))
                 .andExpect(jsonPath("$.owner.email").value(taskOwner.email().value()))
                 .andExpect(jsonPath("$.owner.firstName").value(taskOwner.firstName()))
@@ -106,7 +106,7 @@ class TaskControllerTest {
                 .description(request.getDescription())
                 .assigneeId(new UserId(request.getAssigneeId()))
                 .taskStatus(request.getStatus())
-                .priority(request.getPriority())
+                .priority(TaskPriority.withPriorityName(request.getPriority()))
                 .dueDate(request.getDueDate())
                 .build();
         mockMvc.perform(put("/api/tasks/{taskId}", givenTaskId.value())
@@ -151,7 +151,7 @@ class TaskControllerTest {
                         .content(objectMapper.writeValueAsString(givenRequest)))
                 .andExpect(status().isOk());
         verify(updateTaskUseCase)
-                .updatePriority(eq(USER_ID), eq(givenTaskId), eq(givenRequest.getPriority()));
+                .updatePriority(eq(USER_ID), eq(givenTaskId), eq(TaskPriority.withPriorityName(givenRequest.getPriority())));
     }
 
     private void assertMatches(List<TaskChangeLogView> expected, List<TaskChangeLogDto> actual) {
@@ -172,7 +172,7 @@ class TaskControllerTest {
         request.setDescription("Updated description");
         request.setAssigneeId(randomLong());
         request.setStatus("Done");
-        request.setPriority(TaskPriority.HIGHEST);
+        request.setPriority(TaskPriority.HIGHEST.priorityName());
         request.setDueDate(LocalDate.now().plusYears(1));
         return request;
     }
@@ -191,7 +191,7 @@ class TaskControllerTest {
 
     private UpdateTaskPriorityRequest getUpdatePriorityRequest() {
         final var request = new UpdateTaskPriorityRequest();
-        request.setPriority(TaskPriority.HIGHEST);
+        request.setPriority(TaskPriority.HIGHEST.priorityName());
         return request;
     }
 

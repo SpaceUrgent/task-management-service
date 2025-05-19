@@ -286,7 +286,7 @@ class ProjectControllerTest {
                 .description(givenRequest.getDescription())
                 .assigneeId(new UserId(givenRequest.getAssigneeId()))
                 .dueDate(givenRequest.getDueDate())
-                .priority(givenRequest.getPriority())
+                .priority(TaskPriority.withPriorityName(givenRequest.getPriority()))
                 .build();
 
         mockMvc.perform(post("/api/projects/{projectId}/tasks", givenProjectId.value())
@@ -315,7 +315,7 @@ class ProjectControllerTest {
         assertEquals(expected.number().value(), actual.getNumber());
         assertEquals(expected.title(), actual.getTitle());
         assertEquals(expected.status(), actual.getStatus());
-        assertEquals(expected.priority(), actual.getPriority());
+        assertEquals(expected.priority().priorityName(), actual.getPriority());
         assertMatches(expected.assignee(), actual.getAssignee());
     }
 
@@ -336,7 +336,7 @@ class ProjectControllerTest {
         request.setDescription("New task description");
         request.setAssigneeId(randomLong());
         request.setDueDate(LocalDate.now().plusDays(1));
-        request.setPriority(TaskPriority.LOWEST);
+        request.setPriority(TaskPriority.LOWEST.priorityName());
         return request;
     }
 

@@ -1,11 +1,10 @@
 package com.task.managment.web.project.dto.request;
 
-import com.task.management.domain.project.model.objectvalue.TaskPriority;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class UpdateTaskPriorityRequest {
-    @NotNull(message = "Task priority is required")
-    private TaskPriority priority;
+    @NotBlank(message = "Task priority is required")
+    private String priority;
 }
