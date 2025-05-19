@@ -32,7 +32,7 @@ public class ProjectEntity extends JpaEntity<Long> {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
     private TaskNumberSequence taskNumberSequence;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<MemberEntity> members = new ArrayList<>();
 
     @ElementCollection
