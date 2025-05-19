@@ -139,6 +139,14 @@ export class ProjectClient {
         this.validateApiResponse(response);
     }
 
+    async updateMemberRole(projectId: number, memberId: number, role: MemberRole): Promise<void> {
+        const request = {
+            memberId: memberId,
+            role: role,
+        };
+        await this.axiosInstance.put(`/projects/${projectId}/members`, request);
+    }
+
     private buildQueryParams(options: GetTaskPreviewsOptions): string {
         if (!options) return '';
         const params = new URLSearchParams();
@@ -280,6 +288,11 @@ interface User {
     id: number;
     email: string;
     fullName: string;
+}
+
+interface UpdateMemberRoleRequest {
+    memberId: number;
+    role: MemberRole;
 }
 
 interface GetTaskPreviewsOptions {
