@@ -158,7 +158,7 @@ class ProjectControllerTest {
         final var expectedCommand = UpdateMemberRoleCommand.builder()
                 .projectId(givenProjectId)
                 .memberId(new UserId(givenRequest.getMemberId()))
-                .role(givenRequest.getRole())
+                .role(MemberRole.withRoleName(givenRequest.getRole()))
                 .build();
         mockMvc.perform(put("/api/projects/{projectId}/members", givenProjectId.value())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -385,11 +385,11 @@ class ProjectControllerTest {
         assertEquals(expected.id().value(), actual.getId());
         assertEquals(expected.email().value(), actual.getEmail());
         assertEquals(expected.fullName(), actual.getFullName());
-        assertEquals(expected.role(), actual.getRole());
+        assertEquals(expected.role().roleName(), actual.getRole());
     }
 
     private void assertMatches(ProjectDetails expected, UserProjectDetailsDto actual) {
-        assertEquals(actingMemberView().role(), actual.getRole());
+        assertEquals(actingMemberView().role().roleName(), actual.getRole());
         assertMatches(expected, actual.getProjectDetails());
         final var expectedTaskStatuses = expected.taskStatuses();
         final var actualTaskStatuses = actual.getProjectDetails().getTaskStatuses();
@@ -437,7 +437,7 @@ class ProjectControllerTest {
     private UpdateMemberRoleRequest getUpdateMemberRequest() {
         final var request = new UpdateMemberRoleRequest();
         request.setMemberId(randomLong());
-        request.setRole(MemberRole.ADMIN);
+        request.setRole(MemberRole.ADMIN.roleName());
         return request;
     }
 

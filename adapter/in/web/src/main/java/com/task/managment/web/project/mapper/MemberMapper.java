@@ -12,7 +12,7 @@ public class MemberMapper {
                 .id(model.id().value())
                 .email(model.email().value())
                 .fullName(model.fullName())
-                .role(model.role())
+                .role(model.role().roleName())
                 .build();
     }
 }

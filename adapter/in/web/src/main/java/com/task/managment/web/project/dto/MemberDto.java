@@ -1,6 +1,5 @@
 package com.task.managment.web.project.dto;
 
-import com.task.management.domain.project.model.objectvalue.MemberRole;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,5 +9,5 @@ public class MemberDto {
     private Long id;
     private String email;
     private String fullName;
-    private MemberRole role;
+    private String role;
 }

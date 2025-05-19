@@ -2,13 +2,13 @@ package com.task.managment.web.project;
 
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.query.Sort;
-import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.project.RemoveTaskStatusException;
 import com.task.management.application.project.command.*;
 import com.task.management.application.project.port.in.*;
 import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.project.model.objectvalue.ProjectId;
 import com.task.managment.web.common.BaseController;
 import com.task.managment.web.common.dto.ErrorResponse;
@@ -96,7 +96,7 @@ public class ProjectController extends BaseController {
         final var command = UpdateMemberRoleCommand.builder()
                 .projectId(new ProjectId(projectId))
                 .memberId(new UserId(request.getMemberId()))
-                .role(request.getRole())
+                .role(MemberRole.withRoleName(request.getRole()))
                 .build();
         updateMemberRoleUseCase.updateMemberRole(actor(), command);
     }

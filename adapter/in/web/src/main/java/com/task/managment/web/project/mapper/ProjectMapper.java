@@ -11,7 +11,6 @@ import com.task.managment.web.project.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -66,11 +65,12 @@ public class ProjectMapper {
                 .build();
     }
 
-    private MemberRole getActorRole(UserId actorId, ProjectDetails projectDetails) {
+    private String getActorRole(UserId actorId, ProjectDetails projectDetails) {
         return projectDetails.members().stream()
                 .filter(member -> Objects.equals(actorId, member.id()))
                 .findFirst()
                 .map(MemberView::role)
+                .map(MemberRole::roleName)
                 .orElse(null);
     }
 }

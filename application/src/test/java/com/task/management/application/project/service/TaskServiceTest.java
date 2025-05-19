@@ -346,6 +346,7 @@ class TaskServiceTest {
                 .status("Done")
                 .title("Title")
                 .description("Description")
+                .priority(TaskPriority.MEDIUM)
                 .owner(randomUserInfo())
                 .assignee(randomUserInfo())
                 .changeLogs(List.of(
@@ -374,6 +375,7 @@ class TaskServiceTest {
                 .dueDate(LocalDate.now().minusWeeks(1))
                 .title("Title")
                 .status("To do")
+                .priority(TaskPriority.MEDIUM)
                 .assignee(randomUserInfo())
                 .build();
     }
