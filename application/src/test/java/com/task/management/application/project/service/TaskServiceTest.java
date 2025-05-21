@@ -1,6 +1,7 @@
 package com.task.management.application.project.service;
 
 import com.task.management.application.common.UseCaseException;
+import com.task.management.application.project.port.out.TaskCommentRepositoryPort;
 import com.task.management.domain.common.event.DomainEvent;
 import com.task.management.application.common.port.out.DomainEventPublisherPort;
 import com.task.management.application.common.projection.Page;
@@ -51,6 +52,8 @@ class TaskServiceTest {
     private ProjectService projectService;
     @Mock
     private TaskRepositoryPort taskRepositoryPort;
+    @Mock
+    private TaskCommentRepositoryPort taskCommentRepositoryPort;
     @InjectMocks
     private TaskService taskService;
 
@@ -280,6 +283,36 @@ class TaskServiceTest {
         );
         verify(taskRepositoryPort, times(0)).save(any(Task.class));
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void addComment_shouldSaveNewComment_whenAllConditionsMet() throws UseCaseException {
+        final var task = randomTask();
+        final var givenActorId = randomUserId();
+        final var givenTaskId = task.getId();
+        final var givenComment = "Please, help!";
+        doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
+        taskService.addComment(givenActorId, givenTaskId, givenComment);
+        verify(taskCommentRepositoryPort).save(argThat(taskComment -> {
+            assertNotNull(taskComment.getCreatedAt());
+            assertEquals(givenTaskId, taskComment.getTask());
+            assertEquals(givenActorId, taskComment.getAuthor());
+            assertEquals(givenComment, taskComment.getContent());
+            return true;
+        }));
+    }
+
+    @Test
+    void addComment_shouldThrowEntityNotFoundException_whenDoesNotExist() {
+        final var givenActorId = randomUserId();
+        final var givenTaskId = randomTaskId();
+        final var givenComment = "Please, help!";
+        doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> taskService.addComment(givenActorId, givenTaskId, givenComment)
+        );
+        verify(taskCommentRepositoryPort, times(0)).save(any());
     }
 
     @Test

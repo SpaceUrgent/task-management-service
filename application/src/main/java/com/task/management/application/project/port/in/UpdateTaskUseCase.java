@@ -14,4 +14,6 @@ public interface UpdateTaskUseCase {
     void updatePriority(UserId actorId, TaskId taskId, TaskPriority priority) throws UseCaseException;
 
     void assignTask(UserId actorId, TaskId taskId, UserId assigneeId) throws UseCaseException;
+
+    void addComment(UserId actorId, TaskId taskId, String comment) throws UseCaseException;
 }

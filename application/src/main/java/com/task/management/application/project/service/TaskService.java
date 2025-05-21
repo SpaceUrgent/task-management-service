@@ -10,11 +10,13 @@ import com.task.management.application.project.UpdateTaskStatusException;
 import com.task.management.application.project.command.CreateTaskCommand;
 import com.task.management.application.project.command.UpdateTaskCommand;
 import com.task.management.application.project.port.in.*;
+import com.task.management.application.project.port.out.TaskCommentRepositoryPort;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.project.model.TaskComment;
 import com.task.management.domain.project.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.Task;
 import com.task.management.domain.project.model.objectvalue.TaskId;
@@ -22,10 +24,8 @@ import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
-import java.util.Optional;
 
-import static com.task.management.domain.common.validation.Validation.actorIdRequired;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.common.validation.Validation.*;
 
 @AppComponent
 @RequiredArgsConstructor
@@ -37,6 +37,7 @@ public class TaskService implements CreateTaskUseCase,
     private final DomainEventPublisherPort eventPublisher;
     private final ProjectService projectService;
     private final TaskRepositoryPort taskRepositoryPort;
+    private final TaskCommentRepositoryPort taskCommentRepositoryPort;
 
     @UseCase
     @Override
@@ -128,6 +129,22 @@ public class TaskService implements CreateTaskUseCase,
         task.assignTo(actorId, assigneeId);
         taskRepositoryPort.save(task);
         eventPublisher.publish(task.flushEvents());
+    }
+
+    @Override
+    public void addComment(UserId actorId, TaskId taskId, String comment) throws UseCaseException {
+        actorIdRequired(actorId);
+        taskIdRequired(taskId);
+        notBlank(comment, "Comment");
+        final var task = findOrThrow(taskId);
+        projectService.checkIsMember(actorId, task.getProject());
+        final var taskComment = TaskComment.builder()
+                .createdAt(Instant.now())
+                .author(actorId)
+                .task(task.getId())
+                .content(comment)
+                .build();
+        taskCommentRepositoryPort.save(taskComment);
     }
 
     @UseCase
