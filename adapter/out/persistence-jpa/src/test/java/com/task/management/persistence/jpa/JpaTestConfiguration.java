@@ -5,6 +5,7 @@ import com.task.management.persistence.jpa.dao.*;
 import com.task.management.persistence.jpa.dao.impl.*;
 import com.task.management.persistence.jpa.iam.JpaUserRepositoryAdapter;
 import com.task.management.persistence.jpa.project.JpaProjectRepositoryAdapter;
+import com.task.management.persistence.jpa.project.JpaTaskCommentRepositoryAdapter;
 import com.task.management.persistence.jpa.project.JpaTaskRepositoryAdapter;
 import jakarta.persistence.EntityManager;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -55,6 +56,17 @@ public class JpaTestConfiguration {
     }
 
     @Bean
+    public JpaTaskCommentRepositoryAdapter jpaTaskCommentRepositoryAdapter(TaskCommentEntityDao taskCommentEntityDao,
+                                                                           TaskEntityDao taskEntityDao,
+                                                                           UserEntityDao userEntityDao) {
+        return new JpaTaskCommentRepositoryAdapter(
+                taskCommentEntityDao,
+                taskEntityDao,
+                userEntityDao
+        );
+    }
+
+    @Bean
     public JpaUserInfoRepositoryAdapter jpaUserInfoRepositoryAdapter(UserEntityDao userEntityDao) {
         return new JpaUserInfoRepositoryAdapter(userEntityDao);
     }
@@ -82,6 +94,11 @@ public class JpaTestConfiguration {
     @Bean
     public TaskNumberSequenceDao taskNumberSequenceDao(EntityManager entityManager) {
         return new TaskNumberSequenceDaoImpl(entityManager);
+    }
+
+    @Bean
+    public TaskCommentEntityDao taskCommentEntityDao(EntityManager entityManager) {
+        return new TaskCommentEntityDaoImpl(entityManager);
     }
 
     @Bean
