@@ -1,6 +1,5 @@
 package com.task.management.persistence.jpa.entity;
 
-import com.task.management.domain.common.validation.Validation;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
@@ -19,11 +18,15 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 @Table(name = "task_comments")
 public class TaskCommentEntity extends JpaEntity<Long> {
 
-    @ManyToOne
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     private UserEntity author;
 
-    @ManyToOne
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", nullable = false, updatable = false)
     private TaskEntity task;
 

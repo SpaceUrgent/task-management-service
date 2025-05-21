@@ -19,13 +19,20 @@ import static com.task.management.domain.common.validation.Validation.parameterR
         attributeNodes = {
                 @NamedAttributeNode("description"),
                 @NamedAttributeNode("project"),
-                @NamedAttributeNode(value = "changeLogs", subgraph = "change-log-actor")
+                @NamedAttributeNode(value = "changeLogs", subgraph = "change-log-actor"),
+                @NamedAttributeNode(value = "comments", subgraph = "comment-author")
         },
         subgraphs = {
                 @NamedSubgraph(
                         name = "change-log-actor",
                         attributeNodes = {
                                 @NamedAttributeNode("actor")
+                        }
+                ),
+                @NamedSubgraph(
+                        name = "comment-author",
+                        attributeNodes = {
+                                @NamedAttributeNode("author")
                         }
                 )
         }
@@ -77,6 +84,13 @@ public class TaskEntity extends JpaEntity<Long> {
             mappedBy = "task"
     )
     private List<TaskChangeLogEntity> changeLogs = new ArrayList<>();
+
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            mappedBy = "task"
+    )
+    private List<TaskCommentEntity> comments = new ArrayList<>();
 
     protected TaskEntity() {
     }

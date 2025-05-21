@@ -52,3 +52,11 @@ values (
         'Old title',
         'New title'
 );
+
+insert into task_comments (created_at, task_id, author_id, content)
+values (
+        now(),
+        (select id from tasks where title = 'New task'),
+        (select id from users where email = 'jsnow@mail.com'),
+        'Please, help to solve this!'
+)

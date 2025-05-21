@@ -8,7 +8,6 @@ import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskId;
 import com.task.management.domain.project.model.objectvalue.TaskNumber;
-import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
@@ -19,12 +18,15 @@ import static com.task.management.domain.project.model.objectvalue.TaskPriority.
 import static java.util.Objects.requireNonNull;
 
 public class TaskMapper {
-    public static final TaskMapper INSTANCE = new TaskMapper(UserInfoMapper.INSTANCE);
+    public static final TaskMapper INSTANCE = new TaskMapper(UserInfoMapper.INSTANCE, TaskCommentMapper.INSTANCE);
 
     private final UserInfoMapper userInfoMapper;
+    private final TaskCommentMapper taskCommentMapper;
 
-    private TaskMapper(UserInfoMapper userInfoMapper) {
+    private TaskMapper(UserInfoMapper userInfoMapper,
+                       TaskCommentMapper taskCommentMapper) {
         this.userInfoMapper = userInfoMapper;
+        this.taskCommentMapper = taskCommentMapper;
     }
 
     public Task toTask(TaskEntity entity) {
@@ -76,6 +78,7 @@ public class TaskMapper {
                 .owner(userInfoMapper.toModel(entity.getOwner()))
                 .assignee(userInfoMapper.toModel(entity.getAssignee()))
                 .changeLogs(toListModel(entity.getChangeLogs()))
+                .comments(taskCommentMapper.toTaskCommentViews(entity.getComments()))
                 .build();
     }
 

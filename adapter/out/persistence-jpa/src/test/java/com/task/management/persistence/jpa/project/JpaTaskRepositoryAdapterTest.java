@@ -2,6 +2,7 @@ package com.task.management.persistence.jpa.project;
 
 import com.task.management.application.common.query.Sort;
 import com.task.management.application.project.projection.TaskChangeLogView;
+import com.task.management.application.project.projection.TaskCommentView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
@@ -14,10 +15,7 @@ import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.TaskChangeLogEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
-import com.task.management.persistence.jpa.entity.ProjectEntity;
-import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
-import com.task.management.persistence.jpa.entity.TaskEntity;
-import com.task.management.persistence.jpa.entity.UserEntity;
+import com.task.management.persistence.jpa.entity.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -330,6 +328,11 @@ class JpaTaskRepositoryAdapterTest {
         IntStream.range(0, expectedChangeLogs.size()).forEach(index -> {
             assertMatches(expectedChangeLogs.get(index), actualChangeLogs.get(index));
         });
+        final var expectedComments = expected.getComments();
+        final var actualComments = actual.comments();
+        IntStream.range(0, expectedChangeLogs.size()).forEach(index -> {
+            assertMatches(expectedComments.get(index), actualComments.get(index));
+        });
     }
 
     private void assertMatches(Task expected, Task actual) {
@@ -388,6 +391,13 @@ class JpaTaskRepositoryAdapterTest {
         assertEquals(expected.getTaskProperty(), actual.targetProperty());
         assertEquals(expected.getOldValue(), actual.initialValue());
         assertEquals(expected.getNewValue(), actual.newValue());
+    }
+
+    private void assertMatches(TaskCommentEntity expected, TaskCommentView actual) {
+        assertEquals(expected.getId(), actual.id().value());
+        assertEquals(expected.getCreatedAt(), actual.createdAt());
+        assertEquals(expected.getAuthor().getId(), actual.author().id().value());
+        assertEquals(expected.getContent(), actual.content());
     }
 
     public static class FindTasksQueryWithSortByTitleBuilder extends FindTasksQuery.Builder {
