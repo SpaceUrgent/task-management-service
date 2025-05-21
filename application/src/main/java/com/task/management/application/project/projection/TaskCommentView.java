@@ -1,5 +1,6 @@
 package com.task.management.application.project.projection;
 
+import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.project.model.objectvalue.TaskCommentId;
 import lombok.Builder;
 
@@ -10,7 +11,7 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 public record TaskCommentView(
         TaskCommentId id,
         Instant createdAt,
-        MemberView author,
+        UserInfo author,
         String content
 ) {
 
