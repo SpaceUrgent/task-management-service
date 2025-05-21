@@ -26,7 +26,8 @@ public record TaskDetails(
         TaskPriority priority,
         UserInfo owner,
         UserInfo assignee,
-        List<TaskChangeLogView> changeLogs
+        List<TaskChangeLogView> changeLogs,
+        List<TaskCommentView> comments
 ) {
     @Builder
     public TaskDetails {
@@ -40,5 +41,6 @@ public record TaskDetails(
         parameterRequired(owner, "owner");
         parameterRequired(assignee, "assignee");
         Optional.ofNullable(changeLogs).orElseGet(ArrayList::new);
+        Optional.ofNullable(comments).orElseGet(ArrayList::new);
     }
 }
