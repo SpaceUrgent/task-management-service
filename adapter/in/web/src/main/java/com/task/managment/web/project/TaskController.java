@@ -9,21 +9,12 @@ import com.task.management.domain.project.model.objectvalue.TaskId;
 import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.managment.web.common.BaseController;
 import com.task.managment.web.project.dto.TaskDetailsDto;
-import com.task.managment.web.project.dto.request.AssignTaskRequest;
-import com.task.managment.web.project.dto.request.UpdateTaskPriorityRequest;
-import com.task.managment.web.project.dto.request.UpdateTaskRequest;
-import com.task.managment.web.project.dto.request.UpdateTaskStatusRequest;
+import com.task.managment.web.project.dto.request.*;
 import com.task.managment.web.project.mapper.TaskMapper;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -69,5 +60,11 @@ public class TaskController extends BaseController {
     public void updatePriority(@PathVariable Long taskId,
                                @RequestBody @Valid @NotNull UpdateTaskPriorityRequest request) throws UseCaseException {
         updateTaskUseCase.updatePriority(actor(), new TaskId(taskId), TaskPriority.withPriorityName(request.getPriority()));
+    }
+
+    @PostMapping("/{taskId}/comments")
+    public void addComment(@PathVariable Long taskId,
+                           @RequestBody @Valid @NotNull AddCommentRequest request) throws UseCaseException {
+        updateTaskUseCase.addComment(actor(), new TaskId(taskId), request.getComment());
     }
 }

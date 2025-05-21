@@ -1,12 +1,14 @@
 package com.task.managment.web.project.mapper;
 
 import com.task.management.application.project.projection.TaskChangeLogView;
+import com.task.management.application.project.projection.TaskCommentView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import com.task.managment.web.common.mapper.UserInfoMapper;
 import com.task.managment.web.project.dto.TaskChangeLogDto;
+import com.task.managment.web.project.dto.TaskCommentDto;
 import com.task.managment.web.project.dto.TaskDetailsDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +55,7 @@ public class TaskMapper {
                 .assignee(userInfoMapper.toDto(taskDetails.assignee()))
                 .owner(userInfoMapper.toDto(taskDetails.owner()))
                 .changeLogs(toDtos(taskDetails.changeLogs()))
+                .comments(toDto(taskDetails.comments()))
                 .build();
     }
 
@@ -68,6 +71,21 @@ public class TaskMapper {
                 .logMessage(mapLogMessage(changeLog.actor(), changeLog.targetProperty()))
                 .oldValue(changeLog.initialValue())
                 .newValue(changeLog.newValue())
+                .build();
+    }
+
+    private List<TaskCommentDto> toDto(List<TaskCommentView> comments) {
+        return comments.stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    private TaskCommentDto toDto(TaskCommentView comment) {
+        return TaskCommentDto.builder()
+                .id(comment.id().value())
+                .createdAt(comment.createdAt())
+                .author(userInfoMapper.toDto(comment.author()))
+                .content(comment.content())
                 .build();
     }
 

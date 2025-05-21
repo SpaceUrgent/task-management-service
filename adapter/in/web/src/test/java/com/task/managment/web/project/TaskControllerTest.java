@@ -5,19 +5,15 @@ import com.task.management.application.project.command.UpdateTaskCommand;
 import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
 import com.task.management.application.project.port.in.UpdateTaskUseCase;
 import com.task.management.application.project.projection.TaskChangeLogView;
+import com.task.management.application.project.projection.TaskCommentView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.project.model.objectvalue.TaskId;
-import com.task.management.domain.project.model.objectvalue.TaskNumber;
-import com.task.management.domain.project.model.objectvalue.TaskPriority;
-import com.task.management.domain.project.model.objectvalue.TaskProperty;
+import com.task.management.domain.project.model.objectvalue.*;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.project.dto.TaskChangeLogDto;
+import com.task.managment.web.project.dto.TaskCommentDto;
 import com.task.managment.web.project.dto.TaskDetailsDto;
-import com.task.managment.web.project.dto.request.AssignTaskRequest;
-import com.task.managment.web.project.dto.request.UpdateTaskPriorityRequest;
-import com.task.managment.web.project.dto.request.UpdateTaskRequest;
-import com.task.managment.web.project.dto.request.UpdateTaskStatusRequest;
+import com.task.managment.web.project.dto.request.*;
 import com.task.managment.web.security.MockUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -94,6 +88,11 @@ class TaskControllerTest {
                 .getContentAsString();
         final var actual = objectMapper.readValue(responseBody, TaskDetailsDto.class);
         assertMatches(taskDetails.changeLogs(), actual.getChangeLogs());
+        final var expectedComments = taskDetails.comments();
+        final var actualComments = actual.getComments();
+        IntStream.range(0, expectedComments.size()).forEach(index ->
+                assertMatches(expectedComments.get(index), actualComments.get(index))
+        );
     }
 
     @MockUser
@@ -154,6 +153,19 @@ class TaskControllerTest {
                 .updatePriority(eq(USER_ID), eq(givenTaskId), eq(TaskPriority.withPriorityName(givenRequest.getPriority())));
     }
 
+    @MockUser
+    @Test
+    void addComment() throws Exception {
+        final var givenRequest = getAddCommentRequest();
+        final var givenTaskId = randomTaskId();
+        mockMvc.perform(post("/api/tasks/{taskId}/comments", givenTaskId.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(givenRequest)))
+                .andExpect(status().isOk());
+        verify(updateTaskUseCase)
+                .addComment(eq(USER_ID), eq(givenTaskId), eq(givenRequest.getComment()));
+    }
+
     private void assertMatches(List<TaskChangeLogView> expected, List<TaskChangeLogDto> actual) {
         assertEquals(expected.size(), actual.size());
         IntStream.range(0, expected.size()).forEach(index -> assertMatches(expected.get(index), actual.get(index)));
@@ -195,6 +207,12 @@ class TaskControllerTest {
         return request;
     }
 
+    private static AddCommentRequest getAddCommentRequest() {
+        final var request = new AddCommentRequest();
+        request.setComment("Some meaningful comment");
+        return request;
+    }
+
     private TaskDetails randomTaskDetails() {
         return TaskDetails.builder()
                 .id(randomTaskId())
@@ -210,7 +228,14 @@ class TaskControllerTest {
                 .assignee(randomUserInfo())
                 .owner(randomUserInfo())
                 .changeLogs(changeLogViews())
+                .comments(commentViews())
                 .build();
+    }
+
+    private void assertMatches(TaskCommentView expected, TaskCommentDto actual) {
+        assertEquals(expected.id().value(), actual.getId());
+        assertEquals(expected.createdAt(), actual.getCreatedAt());
+        assertEquals(expected.content(), actual.getContent());
     }
 
     private List<TaskChangeLogView> changeLogViews() {
@@ -221,6 +246,17 @@ class TaskControllerTest {
                         .targetProperty(TaskProperty.TITLE)
                         .initialValue("Old title")
                         .newValue("New value")
+                        .build()
+        );
+    }
+
+    private List<TaskCommentView> commentViews() {
+        return List.of(
+                TaskCommentView.builder()
+                        .id(new TaskCommentId(randomLong()))
+                        .createdAt(Instant.now())
+                        .author(randomUserInfo())
+                        .content("Comment value")
                         .build()
         );
     }
