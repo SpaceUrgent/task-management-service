@@ -139,6 +139,13 @@ export class ProjectClient {
         this.validateApiResponse(response);
     }
 
+    async addTaskComment(taskId: number, comment: string): Promise<void> {
+        const request = {comment: comment};
+        const response = await this.axiosInstance.post(`/tasks/${taskId}/comments`, request);
+        if (response.status === 200) return;
+        this.validateApiResponse(response);
+    }
+
     async updateMemberRole(projectId: number, memberId: number, role: MemberRole): Promise<void> {
         const request = {
             memberId: memberId,
@@ -217,6 +224,11 @@ interface UpdateTaskRequest {
     priority: string;
     status: string;
 }
+
+interface AddCommentRequest {
+    comment: string;
+}
+
 interface ProjectPreview {
     id: number;
     title: string;
@@ -244,6 +256,7 @@ interface TaskDetails {
     assignee: User;
     owner: User;
     changeLogs: TaskChangeLog[];
+    comments: TaskComment[];
 }
 
 interface TaskChangeLog {
@@ -251,6 +264,13 @@ interface TaskChangeLog {
     logMessage: string;
     oldValue: string;
     newValue: string;
+}
+
+interface TaskComment {
+    id: number;
+    createdAt: Date;
+    author: User;
+    content: string;
 }
 
 interface UserProjectDetails {

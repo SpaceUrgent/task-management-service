@@ -9,6 +9,8 @@ import EditableTitle from "./EditableTitle";
 import EditableDescription from "../EditableDescription";
 import DateSelector from "../../common/components/selectors/DateSelector";
 import TaskChangeLogs from "./TaskChangeLogs";
+import TaskComments from "./TaskComments";
+import {c} from "react/compiler-runtime";
 
 export default function Task() {
 
@@ -100,6 +102,12 @@ export default function Task() {
             priority: task.priority,
             status: task.status
         })
+        fetchTask();
+    }
+
+    const handleAddComment = async (value) => {
+        if (value === task.comment) return;
+        await projectClient.addTaskComment(task.id, value);
         fetchTask();
     }
 
@@ -203,6 +211,18 @@ export default function Task() {
                     <EditableDescription
                         initialValue={task.description}
                         onSave={handleUpdateDescription}
+                    />
+                    <TaskComments
+                        comments={task.comments}
+                        onAddComment={handleAddComment}
+                        // onAddComment={async (content) => {
+                        //     try {
+                        //         await projectClient.addComment(task.id, content);
+                        //         fetchTask(); // reload comments
+                        //     } catch (e) {
+                        //         console.error("Failed to add comment", e);
+                        //     }
+                        // }}
                     />
                     <TaskChangeLogs task={task}/>
                 </div>
