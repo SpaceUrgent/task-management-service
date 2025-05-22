@@ -131,6 +131,7 @@ public class TaskService implements CreateTaskUseCase,
         eventPublisher.publish(task.flushEvents());
     }
 
+    @UseCase
     @Override
     public void addComment(UserId actorId, TaskId taskId, String comment) throws UseCaseException {
         actorIdRequired(actorId);
