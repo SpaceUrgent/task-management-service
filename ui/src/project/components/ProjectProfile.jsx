@@ -18,36 +18,21 @@ export default function ProjectProfile() {
         refreshData();
     }
 
-    const description = () => {
-        if (currentUserRole === "Admin" || currentUserRole === "Owner") {
-            return <EditableDescription initialValue={project?.description} onSave={handleUpdateDescription}/>
-        }
-
-        return(
-            <div className="mb-3">
-                <h6>Description</h6>
-                <hr/>
-                <div
-                    className="flex-grow-1 text-black p-2 overflow-auto rounded shadow-sm"
-                    style={{height: "300px"}}
-                >
-                    <p>{project?.description}</p>
-                </div>
-            </div>
-        );
-    }
-
     return(
         <div className="container p-3">
             <div className="col">
-                <div className="row">
-                    <ProjectOwner/>
+                <div className="row mb-4">
+                    <ProjectOwner allowChangeOwner={currentUserRole === "Owner"}/>
                 </div>
-                <div className="row">
+                <div className="row mb-4">
                     <EditableTaskStatuses/>
                 </div>
                 <div className="row">
-                    {description()}
+                    <EditableDescription
+                        initialValue={project?.description}
+                        onSave={handleUpdateDescription}
+                        allowEdit={currentUserRole === "Admin" || currentUserRole === "Owner"}
+                    />
                 </div>
             </div>
         </div>

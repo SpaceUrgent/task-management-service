@@ -1,9 +1,10 @@
 import React, {useState} from "react";
 import {useProjectContext} from "../contexts/ProjectContext";
-import ChangeProductOwnerModal from "./modal/ChangeProductOwnerModal";
+import ChangeProjectOwnerModal from "./modal/ChangeProjectOwnerModal";
+import LabeledValue from "../../common/components/LabeledValue";
 
-export default function ProjectOwner({}) {
-    const {project, currentUserRole, refreshData} = useProjectContext();
+export default function ProjectOwner({ allowChangeOwner = false }) {
+    const {project, refreshData} = useProjectContext();
 
     const [openChangeOwnerModal, setOpenChangeOwnerModal] = useState(false);
     const [newStatusPosition] = useState(null);
@@ -16,14 +17,14 @@ export default function ProjectOwner({}) {
     return(
         <div className="row">
             {openChangeOwnerModal &&
-                <ChangeProductOwnerModal
+                <ChangeProjectOwnerModal
                     statusPosition={newStatusPosition}
                     onClose={handleChangeOwner}
                 />
             }
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h6 className="form-label m-0">Project owner</h6>
-                {currentUserRole === "Owner" &&
+                {allowChangeOwner &&
                     <button
                         className="btn btn-outline-secondary btn-sm"
                         onClick={() => setOpenChangeOwnerModal(true)}
@@ -33,12 +34,12 @@ export default function ProjectOwner({}) {
                 }
             </div>
             <hr/>
-            <div className="row mb-3">
+            <div className="row">
                 <div className="col">
-                    <a>Name: {project.owner?.fullName}</a>
+                    <LabeledValue label="Name" value={project.owner?.fullName}/>
                 </div>
                 <div className="col">
-                    <a>Email: {project.owner?.email}</a>
+                    <LabeledValue label="Email" value={project.owner?.email}/>
                 </div>
             </div>
         </div>

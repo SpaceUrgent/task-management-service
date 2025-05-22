@@ -95,6 +95,7 @@ export default function EditableTaskStatuses() {
             return(
                 <button
                     className="btn btn-outline-secondary btn-sm"
+                    style={{width : "65px"}}
                     onClick={() => setIsEditing(false)}
                 >
                     Finish
@@ -104,6 +105,7 @@ export default function EditableTaskStatuses() {
             return (
                 <button
                     className="btn btn-outline-secondary btn-sm"
+                    style={{width : "65px"}}
                     onClick={() => setIsEditing(true)}
                 >
                     Edit
