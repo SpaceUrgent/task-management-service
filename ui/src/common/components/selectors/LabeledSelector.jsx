@@ -2,7 +2,7 @@ import React from "react";
 
 export default function LabeledSelector({ label, value, onChange, options }) {
     return(
-        <div className="input-group">
+        <div className="input-group input-group-sm">
             <label className="input-group-text" htmlFor={label}>{label}</label>
             <select className="form-select"
                     id={label}
@@ -10,7 +10,7 @@ export default function LabeledSelector({ label, value, onChange, options }) {
                     value={value}
             >
                 {options.map((option) => (
-                    <option value={option.value} key={option.value}>{option.label}</option>
+                    <option value={option.value} key={option.value}>{option.label ? option.label : option.value}</option>
                 ))}
             </select>
         </div>

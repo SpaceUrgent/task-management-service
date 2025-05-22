@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 
-export default function MultiStatusSelector({ statuses, selected, onChange }) {
+export default function MultiValueSelector({ values, selected, onChange }) {
 
     const [tempSelected, setTempSelected] = useState(selected);
     const dropdownRef = useRef(null);
@@ -19,7 +19,7 @@ export default function MultiStatusSelector({ statuses, selected, onChange }) {
 
         const handleDropdownHide = () => {
             if (tempSelected.length === 0) {
-                onChange(statuses); // select all if none selected
+                onChange(values);
             } else {
                 onChange(tempSelected);
             }
@@ -38,17 +38,17 @@ export default function MultiStatusSelector({ statuses, selected, onChange }) {
     return (
         <div className="btn-group" ref={dropdownRef}>
             <button
-                className="btn btn-outline-secondary dropdown-toggle"
+                className="btn btn-sm btn-outline-secondary dropdown-toggle"
                 type="button"
                 id="statusDropdown"
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
                 aria-expanded="false"
             >
-                {selected.length === statuses.length
-                    ? "All Statuses"
+                {selected.length === values.length
+                    ? "All selected"
                     : selected.length === 0
-                        ? "None Selected"
+                        ? "None selected"
                         : `${selected.length} selected`}
             </button>
             <ul
@@ -56,17 +56,17 @@ export default function MultiStatusSelector({ statuses, selected, onChange }) {
                 aria-labelledby="statusDropdown"
                 style={{ minWidth: '250px' }}
             >
-                {statuses.map(status => (
-                    <li key={status} className="form-check">
+                {values.map(value => (
+                    <li key={value} className="form-check">
                         <input
                             className="form-check-input"
                             type="checkbox"
-                            id={`status-${status}`}
-                            checked={tempSelected.includes(status)}
-                            onChange={() => toggleStatus(status)}
+                            id={value}
+                            checked={tempSelected.includes(value)}
+                            onChange={() => toggleStatus(value)}
                         />
-                        <label className="form-check-label ms-1" htmlFor={`status-${status}`}>
-                            {status}
+                        <label className="form-check-label ms-1" htmlFor={value}>
+                            {value}
                         </label>
                     </li>
                 ))}

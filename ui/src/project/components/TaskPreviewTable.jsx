@@ -31,7 +31,9 @@ export default function TaskPreviewTable({taskPreviews = []}) {
                         <td>{new Date(task.createdAt).toLocaleDateString()}</td>
                         <td>{task.title}</td>
                         <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : ''}</td>
-                        <td>{task.priority}</td>
+                        <td>
+                            <span className="badge bg-secondary">{task.priority}</span>
+                        </td>
                         <td>
                             <span className="badge bg-secondary">{task.status}</span>
                         </td>

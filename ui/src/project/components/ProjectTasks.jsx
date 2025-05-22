@@ -7,7 +7,8 @@ import PaginationPanel from "./PaginationPanel";
 import Selector from "../../common/components/selectors/Selector";
 import LoadingSpinner from "../../common/components/LoadingSpinner";
 import Alert from "../../common/components/Alert";
-import MultiStatusSelector from "./selector/MultiStatusSelector";
+import LabeledSelector from "../../common/components/selectors/LabeledSelector";
+import LabeledMultiValueSelector from "../../common/components/selectors/LabeledMultiValueSelector";
 
 export default function ProjectTasks() {
     const { project, members } = useProjectContext();
@@ -57,7 +58,6 @@ export default function ProjectTasks() {
 
     useEffect(() => {
         fetchTaskPage();
-        console.log('fetch task page');
     }, [pageSize, currentPage, sortBy, chosenAssigneeId, chosenStatuses]);
 
     const handleSubmitCreateTask = () => {
@@ -85,12 +85,13 @@ export default function ProjectTasks() {
             }
             <div className="row g-2 align-items-center mb-3">
                 <div className="col-auto">
-                    <button className="btn btn-primary" onClick={() => setShowCreateTaskModal(true)}>
+                    <button className="btn btn-sm btn-primary" onClick={() => setShowCreateTaskModal(true)}>
                         Add Task
                     </button>
                 </div>
                 <div className="col-auto">
-                    <Selector
+                    <LabeledSelector
+                        label="Sort"
                         value={sortBy}
                         onChange={(value) => setSortBy(value)}
                         options={[
@@ -104,30 +105,16 @@ export default function ProjectTasks() {
                     />
                 </div>
                 <div className="col-auto">
-                    {/*<Selector*/}
-                    {/*    value={chosenStatuses}*/}
-                    {/*    onChange={(value) => setChosenStatuses(value)}*/}
-                    {/*    options={[*/}
-                    {/*        { value: "", label: "All" },*/}
-                    {/*        ...project?.taskStatuses*/}
-                    {/*            .sort((a, b) => a.position - b.position)*/}
-                    {/*            .map(status => ({*/}
-                    {/*                value: status.name, label: status.name*/}
-                    {/*            }))*/}
-                    {/*    ]}*/}
-                    {/*/>*/}
-                        <MultiStatusSelector
-                            statuses={project?.taskStatuses.map(s => s.name) || []}
-                            selected={chosenStatuses}
-                            onChange={(statuses) =>
-                            {
-                                console.log('selected: ', statuses);
-                                setChosenStatuses(statuses)
-                            }}
-                        />
+                    <LabeledMultiValueSelector
+                        label="Status"
+                        values={project?.taskStatuses.map(s => s.name) || []}
+                        selected={chosenStatuses}
+                        onChange={(statuses) => setChosenStatuses(statuses)}
+                    />
                 </div>
                 <div className="col-auto">
-                    <Selector
+                    <LabeledSelector
+                        label="Assignee"
                         value={chosenAssigneeId}
                         onChange={(value) => setChosenAssigneeId(value)}
                         options={[
@@ -140,7 +127,8 @@ export default function ProjectTasks() {
                     />
                 </div>
                 <div className="col-auto">
-                    <Selector
+                    <LabeledSelector
+                        label="Size"
                         value={pageSize}
                         onChange={(value) => setPageSize(value)}
                         options={[
@@ -149,9 +137,7 @@ export default function ProjectTasks() {
                     />
                 </div>
             </div>
-
             <TaskPreviewTable taskPreviews={tasksPage?.data} />
-
             <PaginationPanel
                 currentPage={currentPage}
                 totalPages={tasksPage?.totalPages}
