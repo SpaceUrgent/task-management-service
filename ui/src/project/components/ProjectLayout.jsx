@@ -17,13 +17,6 @@ export default function ProjectLayout({}) {
         return location.pathname === `/projects/${projectId}/${tabName}`;
     }
 
-    const title = () => {
-        if (currentUserRole === "Owner") {
-            return <EditableTitle initialValue={project.title} onSave={handleUpdateProjectTitle}/>
-        }
-        return <h4 className="m-0">{project?.title}</h4>;
-    }
-
     const handleUpdateProjectTitle = async (value) => {
         if (!value || project.title === value) return;
         await projectClient.updateProjectInfo(projectId, {
@@ -35,14 +28,18 @@ export default function ProjectLayout({}) {
 
     return (
         <div className="container-fluid h-100 d-flex flex-column">
-            {title()}
-            <ul className="nav nav-tabs mt-2">
+            <EditableTitle
+                initialValue={project.title}
+                onSave={handleUpdateProjectTitle}
+                editable={currentUserRole === "Owner"}
+            />
+            <ul className="nav nav-tabs mt-1">
                 <li className="nav-item">
                     <button
-                        className={`nav-link ${isActiveTab("overview") || !subComponentUriPath() ? "active" : ""}`}
-                        onClick={() => navigate(`/projects/${projectId}/overview`)}
+                        className={`nav-link ${isActiveTab("profile") || !subComponentUriPath() ? "active" : ""}`}
+                        onClick={() => navigate(`/projects/${projectId}/profile`)}
                     >
-                        Overview
+                        Profile
                     </button>
                 </li>
                 <li className="nav-item">

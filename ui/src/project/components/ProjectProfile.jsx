@@ -5,7 +5,7 @@ import {ProjectClient} from "../api/ProjectClient.ts";
 import EditableTaskStatuses from "./EditableTaskStatuses";
 import ProjectOwner from "./ProjectOwner";
 
-export default function ProjectOverview() {
+export default function ProjectProfile() {
     const projectClient  = ProjectClient.getInstance();
     const { project, currentUserRole, refreshData } = useProjectContext();
 

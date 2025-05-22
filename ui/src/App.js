@@ -8,7 +8,7 @@ import PublicRoute from "./routes/PublicRoute";
 import ProjectLayout from "./project/components/ProjectLayout";
 import ProjectTasks from "./project/components/ProjectTasks";
 import ProjectMembers from "./project/components/ProjectMembers";
-import ProjectOverview from "./project/components/ProjectOverview";
+import ProjectProfile from "./project/components/ProjectProfile";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ProjectContextLayout from "./project/components/ProjectContextLayout";
 import Task from "./project/components/Task";
@@ -25,8 +25,8 @@ function App() {
                         <Route path="/projects" element={<AvailableProjects />}/>
                         <Route element={<ProjectContextLayout/>}>
                             <Route path="/projects/:projectId" element={<ProjectLayout/>}>
-                                <Route path="/projects/:projectId/overview" element={<ProjectOverview/>}/>
-                                <Route path="/projects/:projectId" element={<ProjectOverview/>}/>
+                                <Route path="/projects/:projectId/profile" element={<ProjectProfile/>}/>
+                                <Route path="/projects/:projectId" element={<ProjectProfile/>}/>
                                 <Route path="/projects/:projectId/tasks" element={<ProjectTasks/>}/>
                                 <Route path="/projects/:projectId/members" element={<ProjectMembers/>}/>
                             </Route>
