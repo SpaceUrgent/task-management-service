@@ -51,8 +51,8 @@ export default function AvailableProjects() {
                     />
                 }
             <div className="d-flex justify-content-between align-items-center m-3">
-                <h2>Available Projects</h2>
-                <button className="btn btn-primary"
+                <h5>Available Projects</h5>
+                <button className="btn btn-sm btn-primary"
                         onClick={() => setCreateNewModalIsOpen(true)}
                 >
                     Create New

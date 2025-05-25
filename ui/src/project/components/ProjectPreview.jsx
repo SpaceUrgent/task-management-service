@@ -7,7 +7,7 @@ export default function ProjectPreview({ projectPreview }) {
         <li key={projectPreview.id} className="list-group-item">
             <div className="card col m-2">
                 <div className="card-header">
-                    <h3>{projectPreview.title}</h3>
+                    <h6>{projectPreview.title}</h6>
                 </div>
                 <div className="card-body">
                     <div className="row">
