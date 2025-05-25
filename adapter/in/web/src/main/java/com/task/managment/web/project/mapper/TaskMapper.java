@@ -43,8 +43,8 @@ public class TaskMapper {
     public TaskDetailsDto toDto(TaskDetails taskDetails) {
         return TaskDetailsDto.builder()
                 .id(taskDetails.id().value())
-                .createdAt(format(taskDetails.createdAt()))
-                .updatedAt(format(taskDetails.updatedAt()))
+                .createdAt(taskDetails.createdAt())
+                .updatedAt(taskDetails.updatedAt())
                 .dueDate(taskDetails.dueDate())
                 .number(taskDetails.number().value())
                 .title(taskDetails.title())

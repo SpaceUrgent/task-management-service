@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -14,8 +15,10 @@ import static com.task.management.domain.common.validation.Validation.parameterR
 @Data
 public class TaskDetailsDto {
     private Long id;
-    private String createdAt;
-    private String updatedAt;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant createdAt;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant updatedAt;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dueDate;
     private Long projectId;
@@ -31,8 +34,8 @@ public class TaskDetailsDto {
 
     @Builder
     public TaskDetailsDto(Long id,
-                          String createdAt,
-                          String updatedAt,
+                          Instant createdAt,
+                          Instant updatedAt,
                           LocalDate dueDate,
                           Long projectId,
                           Long number,
