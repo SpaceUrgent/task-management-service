@@ -72,7 +72,7 @@ export default function ProjectMembers() {
             }
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="mb-0">Project Members</h5>
-                <button className="btn btn-primary" onClick={() => setAddMemberModalIsOpen(true)}>
+                <button className="btn btn-sm btn-primary" onClick={() => setAddMemberModalIsOpen(true)}>
                     Add Member
                 </button>
             </div>
