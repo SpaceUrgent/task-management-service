@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import AddMemberModal from "./modal/AddMemberModal";
 import {useProjectContext} from "../contexts/ProjectContext";
-import PromoteMemberModal from "./modal/PromoteMemberModal";
+import PromoteMemberModal from "./PromoteMemberModal";
 import {ProjectClient} from "../api/ProjectClient.ts";
 
 export default function ProjectMembers() {

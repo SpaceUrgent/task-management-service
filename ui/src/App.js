@@ -1,17 +1,17 @@
-import AvailableProjects from "./project/components/AvailableProjects";
+import AvailableProjects from "./project/overview/AvailableProjects";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import MainLayout from "./common/components/MainLayout";
 import Login from "./auth/pages/Login";
 import Register from "./auth/pages/Register";
 import {AuthProvider} from "./common/contexts/AuthContext";
 import PublicRoute from "./routes/PublicRoute";
-import ProjectLayout from "./project/components/ProjectLayout";
-import ProjectTasks from "./project/components/ProjectTasks";
-import ProjectMembers from "./project/components/ProjectMembers";
-import ProjectProfile from "./project/components/ProjectProfile";
+import ProjectLayout from "./project/layouts/ProjectLayout";
+import ProjectTasks from "./project/tasks/ProjectTasks";
+import ProjectMembers from "./project/members/ProjectMembers";
+import ProjectProfile from "./project/profile/ProjectProfile";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import ProjectContextLayout from "./project/components/ProjectContextLayout";
-import Task from "./project/components/Task";
+import ProjectContextLayout from "./project/layouts/ProjectContextLayout";
+import Task from "./project/tasks/Task";
 
 function App() {
 

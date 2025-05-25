@@ -1,6 +1,6 @@
 import React from "react";
 import {useProjectContext} from "../contexts/ProjectContext";
-import EditableDescription from "../EditableDescription";
+import EditableDescription from "../shared/EditableDescription";
 import {ProjectClient} from "../api/ProjectClient.ts";
 import EditableTaskStatuses from "./EditableTaskStatuses";
 import ProjectOwner from "./ProjectOwner";

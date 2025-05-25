@@ -3,7 +3,7 @@ import {ProjectClient} from "../api/ProjectClient.ts";
 import CreateTaskModal from "./modal/CreateTaskModal";
 import TaskPreviewTable from "./TaskPreviewTable";
 import {useProjectContext} from "../contexts/ProjectContext";
-import PaginationPanel from "./PaginationPanel";
+import PaginationPanel from "../shared/PaginationPanel";
 import LoadingSpinner from "../../common/components/LoadingSpinner";
 import Alert from "../../common/components/Alert";
 import LabeledSelector from "../../common/components/selectors/LabeledSelector";

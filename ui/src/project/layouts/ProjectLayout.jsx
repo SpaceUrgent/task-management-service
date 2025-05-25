@@ -1,7 +1,7 @@
 import React from "react";
 import {Outlet, useLocation, useNavigate, useParams} from "react-router-dom";
 import {useProjectContext} from "../contexts/ProjectContext";
-import EditableTitle from "./EditableTitle";
+import EditableTitle from "../shared/EditableTitle";
 import {ProjectClient} from "../api/ProjectClient.ts";
 
 export default function ProjectLayout({}) {
