@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link, useParams} from "react-router-dom";
+import {Link, useParams, useSearchParams} from "react-router-dom";
 import {useProjectContext} from "../contexts/ProjectContext";
 import {ProjectClient} from "../api/ProjectClient.ts";
 import LoadingSpinner from "../../common/components/LoadingSpinner";
@@ -10,10 +10,10 @@ import EditableDescription from "../EditableDescription";
 import DateSelector from "../../common/components/selectors/DateSelector";
 import TaskChangeLogs from "./TaskChangeLogs";
 import TaskComments from "./TaskComments";
-import {c} from "react/compiler-runtime";
+import {formatDateTime} from "../../common/Time";
+import LabeledValue from "../../common/components/LabeledValue";
 
 export default function Task() {
-
     const projectClient = ProjectClient.getInstance();
     const { taskId} = useParams();
     const { project } = useProjectContext();
@@ -135,38 +135,42 @@ export default function Task() {
                 </div>
                 <div className="row align-items-center">
                 <div className="col d-flex align-items-center ms-3 me-3">
-                        <h4 className="flex-grow-1 m-0 pe-2">#{task.number} </h4>
+                        <h5 className="flex-grow-1 m-0 pe-2">#{task.number} </h5>
                         <EditableTitle
                             initialValue={task.title}
                             onSave={handleUpdateTitle}
+                            editable={true}
                         />
                     </div>
                 </div>
                 <hr/>
                 <div className="m-3">
                     <div className="row mt-3">
-                        <div className="col-md-5">
-                            <div className="mb-3">
-                                <a>
-                                    <strong>Created: </strong>
-                                    {task.createdAt}
-                                </a>
-                            </div>
+                        <div className="col-md-3">
+                            <LabeledValue
+                                label="Created"
+                                value={formatDateTime(task.createdAt)}
+                            />
                         </div>
-                        <div className="col-md-5">
-                            {task.updatedAt &&
-                                <div className="mb-3">
-                                    <a>
-                                        <strong>Updated:</strong>
-                                        {task.updatedAt}
-                                    </a>
-                                </div>
-                            }
+                        <div className="col-md-3">
+                            <LabeledValue
+                                label="Updated"
+                                value={formatDateTime(task.updatedAt)}
+                            />
+                        </div>
+                        <div className="col-md-3">
+                            <LabeledValue
+                                label="Owner"
+                                value={task.owner.fullName}
+                            />
                         </div>
                     </div>
                     <div className="row mt-3">
                         <div className="col-md-3">
-                            <DateSelector onChange={handleDueDateChange}/>
+                            <DateSelector
+                                onChange={handleDueDateChange}
+                                initialValue={task.dueDate}
+                            />
                         </div>
                         <div className="col-md-3">
                             <LabeledSelector
@@ -178,8 +182,6 @@ export default function Task() {
                                 }))}
                             />
                         </div>
-                    </div>
-                    <div className="row mt-3">
                         <div className="col-md-3">
                             <LabeledSelector
                                 label="Status"
@@ -201,28 +203,17 @@ export default function Task() {
                                 }))}
                             />
                         </div>
-                        <div className="col-md-3">
-                            <div className="input-group">
-                                <label className="input-group-text" htmlFor="owner">Owner</label>
-                                <input className="form-control" value={task.owner?.fullName} disabled={true}/>
-                            </div>
-                        </div>
+                    </div>
+                    <div className="row mt-3">
                     </div>
                     <EditableDescription
                         initialValue={task.description}
                         onSave={handleUpdateDescription}
+                        allowEdit={true}
                     />
                     <TaskComments
                         comments={task.comments}
                         onAddComment={handleAddComment}
-                        // onAddComment={async (content) => {
-                        //     try {
-                        //         await projectClient.addComment(task.id, content);
-                        //         fetchTask(); // reload comments
-                        //     } catch (e) {
-                        //         console.error("Failed to add comment", e);
-                        //     }
-                        // }}
                     />
                     <TaskChangeLogs task={task}/>
                 </div>
