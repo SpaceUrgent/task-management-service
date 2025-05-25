@@ -4,26 +4,36 @@ import CreateTaskModal from "./modal/CreateTaskModal";
 import TaskPreviewTable from "./TaskPreviewTable";
 import {useProjectContext} from "../contexts/ProjectContext";
 import PaginationPanel from "./PaginationPanel";
-import Selector from "../../common/components/selectors/Selector";
 import LoadingSpinner from "../../common/components/LoadingSpinner";
 import Alert from "../../common/components/Alert";
 import LabeledSelector from "../../common/components/selectors/LabeledSelector";
 import LabeledMultiValueSelector from "../../common/components/selectors/LabeledMultiValueSelector";
+import {useSearchParams} from "react-router-dom";
 
 export default function ProjectTasks() {
     const { project, members } = useProjectContext();
 
     const projectClient = ProjectClient.getInstance();
 
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const getParam = (key, defaultValue) => {
+        const value = searchParams.get(key);
+        return value !== null ? value : defaultValue;
+    }
+
     const [ isLoading , setIsLoading ] = useState(false);
     const [ isError , setIsError ] = useState(false);
-    const [pageSize, setPageSize] = useState(25);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [sortBy, setSortBy] = useState("createdAt:DESC");
-    const [chosenAssigneeId, setChosenAssigneeId] = useState(null);
-    const [chosenStatuses, setChosenStatuses] = useState([]);
+    const [pageSize, setPageSize] = useState(Number(getParam("size", 25)));
+    const [currentPage, setCurrentPage] = useState(Number(getParam("page", 1)));
+    const [sortBy, setSortBy] = useState(getParam("sortBy", "createdAt:DESC"));
+    const [chosenAssigneeId, setChosenAssigneeId] = useState(getParam("assignee", ""));
+    const [chosenStatuses, setChosenStatuses] = useState(
+        getParam("statuses", "").split(",").filter(Boolean)
+    );
 
     const [tasksPage, setTasksPage] = useState({});
+
     const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
 
     const fetchTaskPage = async () => {
@@ -46,18 +56,20 @@ export default function ProjectTasks() {
         }
     }
 
-    useEffect(() => {
-        fetchTaskPage();
-    }, [])
+    const updateParams = () => {
+        const newParams = {
+            size: pageSize,
+            page: currentPage,
+            sortBy,
+            assignee: chosenAssigneeId,
+            statuses: chosenStatuses.join(","),
+        };
+        setSearchParams(newParams);
+    };
 
     useEffect(() => {
-        if (project?.taskStatuses) {
-            setChosenStatuses(project.taskStatuses.map(status => status.name));
-        }
-    }, [project?.taskStatuses]);
-
-    useEffect(() => {
         fetchTaskPage();
+        updateParams();
     }, [pageSize, currentPage, sortBy, chosenAssigneeId, chosenStatuses]);
 
     const handleSubmitCreateTask = () => {
@@ -99,8 +111,6 @@ export default function ProjectTasks() {
                             { value: "createdAt:ASC", label: "Sort by create time asc" },
                             { value: "priority:DESC", label: "High priority first" },
                             { value: "priority:ASC", label: "Low priority first" },
-                            // { value: "dueDate:DESC", label: "Due date desc" },
-                            // { value: "dueDate:ASC", label: "Due date asc" },
                         ]}
                     />
                 </div>
