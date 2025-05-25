@@ -18,8 +18,11 @@ export default function Task() {
     const { taskId} = useParams();
     const { project } = useProjectContext();
 
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const [task, setTask] = useState(null);
     const [ isLoading, setIsLoading ] = useState(false);
+    const [ commentsExpanded, setCommentsExpanded ] = useState(searchParams.get("commentsExpanded") === "true");
 
     const fetchTask = async () => {
         setIsLoading(true);
@@ -37,6 +40,13 @@ export default function Task() {
     useEffect(() => {
         fetchTask();
     }, [])
+
+    useEffect(() => {
+        const newParams = {
+            commentsExpanded: commentsExpanded,
+        }
+        setSearchParams(newParams)
+    }, [commentsExpanded])
 
     const handleUpdateTitle = async (value) => {
         if (!value || value === task.title) return;
@@ -134,7 +144,7 @@ export default function Task() {
                     </div>
                 </div>
                 <div className="row align-items-center">
-                <div className="col d-flex align-items-center ms-3 me-3">
+                    <div className="col d-flex align-items-center ms-3 me-3">
                         <h5 className="flex-grow-1 m-0 pe-2">#{task.number} </h5>
                         <EditableTitle
                             initialValue={task.title}
@@ -142,9 +152,9 @@ export default function Task() {
                             editable={true}
                         />
                     </div>
+                    <hr/>
                 </div>
-                <hr/>
-                <div className="m-3">
+                <div className="container m-0 p-0">
                     <div className="row mt-3">
                         <div className="col-md-3">
                             <LabeledValue
@@ -204,17 +214,21 @@ export default function Task() {
                             />
                         </div>
                     </div>
-                    <div className="row mt-3">
-                    </div>
                     <EditableDescription
                         initialValue={task.description}
                         onSave={handleUpdateDescription}
                         allowEdit={true}
                     />
-                    <TaskComments
-                        comments={task.comments}
-                        onAddComment={handleAddComment}
-                    />
+                    <div className="row mt-4">
+                        <div className="col p-0">
+                            <TaskComments
+                                isExpanded={commentsExpanded}
+                                onToggleExpand={() => setCommentsExpanded(!commentsExpanded)}
+                                comments={task.comments}
+                                onAddComment={handleAddComment}
+                            />
+                        </div>
+                    </div>
                     <TaskChangeLogs task={task}/>
                 </div>
             </div>
