@@ -23,6 +23,7 @@ export default function Task() {
     const [task, setTask] = useState(null);
     const [ isLoading, setIsLoading ] = useState(false);
     const [ commentsExpanded, setCommentsExpanded ] = useState(searchParams.get("commentsExpanded") === "true");
+    const [ changeLogsExpanded, setChangeLogsExpanded ] = useState(searchParams.get("changeLogsExpanded") === "true");
 
     const fetchTask = async () => {
         setIsLoading(true);
@@ -44,9 +45,10 @@ export default function Task() {
     useEffect(() => {
         const newParams = {
             commentsExpanded: commentsExpanded,
+            changeLogsExpanded: changeLogsExpanded,
         }
         setSearchParams(newParams)
-    }, [commentsExpanded])
+    }, [commentsExpanded, changeLogsExpanded])
 
     const handleUpdateTitle = async (value) => {
         if (!value || value === task.title) return;
@@ -229,7 +231,15 @@ export default function Task() {
                             />
                         </div>
                     </div>
-                    <TaskChangeLogs task={task}/>
+                    <div className="row mt-2">
+                        <div className="col p-0">
+                            <TaskChangeLogs
+                                isExpanded={changeLogsExpanded}
+                                onToggleExpand={() => setChangeLogsExpanded(!changeLogsExpanded)}
+                                changeLogs={task?.changeLogs}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
