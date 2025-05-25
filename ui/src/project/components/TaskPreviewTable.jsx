@@ -1,5 +1,6 @@
 import React from "react";
 import {useNavigate, useParams} from "react-router-dom";
+import {formatDate} from "../../common/Time";
 
 export default function TaskPreviewTable({taskPreviews = []}) {
     const { projectId } = useParams();
@@ -28,9 +29,9 @@ export default function TaskPreviewTable({taskPreviews = []}) {
                 {taskPreviews.map((task) => (
                     <tr key={task.id}>
                         <td>{task.number}</td>
-                        <td>{new Date(task.createdAt).toLocaleDateString()}</td>
+                        <td>{formatDate(task.createdAt)}</td>
                         <td>{task.title}</td>
-                        <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : ''}</td>
+                        <td>{formatDate(task.dueDate)}</td>
                         <td>
                             <span className="badge bg-secondary">{task.priority}</span>
                         </td>
