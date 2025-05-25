@@ -12,7 +12,7 @@ export default function TaskPreviewTable({taskPreviews = []}) {
 
     return (
         <div className="table-responsive mb-3 flex-grow-1 overflow-auto">
-            <table className="table table-hover align-middle">
+            <table className="table table-hover align-middle small">
                 <thead className="table-light">
                 <tr>
                     <th scope="col">#</th>
