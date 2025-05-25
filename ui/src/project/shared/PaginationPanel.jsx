@@ -4,7 +4,7 @@ export default function PaginationPanel({ currentPage, totalPages, onPrevious, o
     return (
         <div className="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
             <button
-                className="btn btn-outline-secondary"
+                className="btn btn-sm btn-outline-secondary"
                 disabled={currentPage <= 1}
                 onClick={onPrevious}
             >
@@ -14,7 +14,7 @@ export default function PaginationPanel({ currentPage, totalPages, onPrevious, o
                 Page {currentPage} of {totalPages || 1}
             </span>
             <button
-                className="btn btn-outline-secondary"
+                className="btn btn-sm btn-outline-secondary"
                 disabled={totalPages ? currentPage >= totalPages : true}
                 onClick={onNext}
             >
