@@ -3,32 +3,32 @@ package com.task.managment.web.iam;
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.iam.command.RegisterUserCommand;
-import com.task.management.application.iam.port.in.GetUserProfileUseCase;
+import com.task.management.application.iam.command.UpdateNameCommand;
+import com.task.management.application.iam.command.UpdatePasswordCommand;
+import com.task.management.application.iam.port.in.UserProfileUseCase;
 import com.task.management.application.iam.port.in.RegisterUserUseCase;
 import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.managment.web.common.dto.UserInfoDto;
 import com.task.managment.web.common.mapper.UserInfoMapper;
+import com.task.managment.web.iam.dto.request.UpdatePasswordRequest;
 import com.task.managment.web.iam.dto.request.RegisterUserRequest;
 import com.task.managment.web.common.dto.ErrorResponse;
 import com.task.managment.web.common.BaseController;
+import com.task.managment.web.iam.dto.request.UpdateUserProfileRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController extends BaseController {
     private final RegisterUserUseCase registerUserUseCase;
-    private final GetUserProfileUseCase getUserProfileUseCase;
+    private final UserProfileUseCase userProfileUseCase;
     private final UserInfoMapper userProfileResponseMapper;
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -52,8 +52,29 @@ public class UserController extends BaseController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public UserInfoDto getUserProfile() throws UseCaseException {
-        final var userProfile = getUserProfileUseCase.getUserProfile(actor());
+        final var userProfile = userProfileUseCase.getUserProfile(actor());
         return userProfileResponseMapper.toDto(userProfile);
+    }
+
+    @PatchMapping
+    public void updateUserProfile(@RequestBody @Valid @NotNull UpdateUserProfileRequest request) throws UseCaseException {
+        final var command = UpdateNameCommand.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .build();
+        userProfileUseCase.updateName(actor(), command);
+    }
+
+    @PostMapping(
+            value = "/password",
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+    )
+    public void updatePassword(@Valid @NotNull UpdatePasswordRequest request) throws UseCaseException {
+        final var command = UpdatePasswordCommand.builder()
+                .oldPassword(request.getOldPassword())
+                .newPassword(request.getNewPassword())
+                .build();
+        userProfileUseCase.updatePassword(actor(), command);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

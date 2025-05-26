@@ -1,8 +1,10 @@
 package com.task.managment.web.iam;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.iam.command.RegisterUserCommand;
-import com.task.management.application.iam.port.in.GetUserProfileUseCase;
+import com.task.management.application.iam.command.UpdateNameCommand;
+import com.task.management.application.iam.port.in.UserProfileUseCase;
 import com.task.management.application.iam.port.in.RegisterUserUseCase;
 import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.management.domain.common.model.objectvalue.UserId;
@@ -10,6 +12,7 @@ import com.task.management.domain.common.model.UserInfo;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.iam.dto.request.RegisterUserRequest;
+import com.task.managment.web.iam.dto.request.UpdateUserProfileRequest;
 import com.task.managment.web.security.MockUser;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
@@ -29,13 +32,13 @@ import static com.task.managment.web.TestUtils.EMAIL;
 import static com.task.managment.web.TestUtils.FIRST_NAME;
 import static com.task.managment.web.TestUtils.LAST_NAME;
 import static com.task.managment.web.TestUtils.PASSWORD;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -51,9 +54,11 @@ class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private GetUserProfileUseCase getUserProfileUseCase;
+    private UserProfileUseCase userProfileUseCase;
     @MockBean
     private RegisterUserUseCase registerUserUseCase;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @WithAnonymousUser
     @Test
@@ -99,7 +104,7 @@ class UserControllerTest {
     @Test
     void getUserProfile_shouldReturnUser_whenAllConditionsMet() throws Exception {
         final var expectedUser = getUserProfile();
-        doReturn(expectedUser).when(getUserProfileUseCase).getUserProfile(eq(TestUtils.DEFAULT_USER_ID));
+        doReturn(expectedUser).when(userProfileUseCase).getUserProfile(eq(TestUtils.DEFAULT_USER_ID));
         final var apiActionResult = mockMvc.perform(get("/api/users/profile"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -115,6 +120,40 @@ class UserControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @MockUser
+    @Test
+    void updateUserProfile_shouldReturnOk() throws Exception {
+        final var request = updateUserProfileRequest();
+        final var expectedCommand = UpdateNameCommand.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .build();
+        mockMvc.perform(patch("/api/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsBytes(request)))
+                .andExpect(status().isOk());
+        verify(userProfileUseCase).updateName(eq(TestUtils.DEFAULT_USER_ID), eq(expectedCommand));
+    }
+
+    @MockUser
+    @Test
+    void updatePassword_shouldReturnOk_whenAllConditionsMet() throws Exception {
+        final var givenNewPassword = "New password";
+        final var givenOldPassword = "Old password";
+        mockMvc.perform(post("/api/users/password")
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .params(new LinkedMultiValueMap<>() {{
+                        add("oldPassword", givenOldPassword);
+                        add("newPassword", givenNewPassword);
+                    }}))
+                .andExpect(status().isOk());
+        verify(userProfileUseCase).updatePassword(eq(TestUtils.DEFAULT_USER_ID), argThat(command -> {
+            assertEquals(givenOldPassword, new String(command.oldPassword()));
+            assertEquals(givenNewPassword, new String(command.newPassword()));
+            return true;
+        }));
+    }
+
     private static RegisterUserRequest getRegisterUserRequest() {
         final var registerUserDto = new RegisterUserRequest();
         registerUserDto.setEmail(EMAIL);
@@ -124,21 +163,19 @@ class UserControllerTest {
         return registerUserDto;
     }
 
+    private static UpdateUserProfileRequest updateUserProfileRequest() {
+        final var request = new UpdateUserProfileRequest();
+        request.setFirstName("New name");
+        request.setLastName("New last name");
+        return request;
+    }
+
     private static UserInfo getUserProfile() {
         return UserInfo.builder()
                 .id(new UserId(MockUser.DEFAULT_USER_ID_VALUE))
                 .email(new Email("user-%d@mail.com".formatted(MockUser.DEFAULT_USER_ID_VALUE)))
                 .firstName("FName-%d".formatted(MockUser.DEFAULT_USER_ID_VALUE))
                 .lastName("LName-%d".formatted(MockUser.DEFAULT_USER_ID_VALUE))
-                .build();
-    }
-
-    private static RegisterUserCommand toCommand(RegisterUserRequest givenRequest) {
-        return RegisterUserCommand.builder()
-                .email(new Email(givenRequest.getEmail()))
-                .firstName(givenRequest.getFirstName())
-                .lastName(givenRequest.getLastName())
-                .password(givenRequest.getPassword())
                 .build();
     }
 
