@@ -1,7 +1,7 @@
 package com.task.management.spring;
 
 import com.task.management.application.common.validation.ValidationService;
-import com.task.management.application.iam.port.in.GetUserProfileUseCase;
+import com.task.management.application.iam.port.in.UserProfileUseCase;
 import com.task.management.application.iam.port.in.RegisterUserUseCase;
 import com.task.management.application.iam.port.out.EncryptPasswordPort;
 import com.task.management.application.iam.port.out.UserRepositoryPort;
@@ -28,7 +28,7 @@ class TaskManagementServiceApplicationTest {
     @Test
     void beanTest() {
         assertNotNull(applicationContext.getBean(ValidationService.class));
-        assertNotNull(applicationContext.getBean(GetUserProfileUseCase.class));
+        assertNotNull(applicationContext.getBean(UserProfileUseCase.class));
         assertNotNull(applicationContext.getBean(RegisterUserUseCase.class));
         assertNotNull(applicationContext.getBean(EncryptPasswordPort.class));
         assertNotNull(applicationContext.getBean(UserRepositoryPort.class));
