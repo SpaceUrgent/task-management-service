@@ -57,7 +57,7 @@ public class UserController extends BaseController {
         return userProfileResponseMapper.toDto(userProfile);
     }
 
-    @PatchMapping
+    @PutMapping
     public void updateUserProfile(@RequestBody @Valid @NotNull UpdateUserProfileRequest request) throws UseCaseException {
         final var command = UpdateNameCommand.builder()
                 .firstName(request.getFirstName())

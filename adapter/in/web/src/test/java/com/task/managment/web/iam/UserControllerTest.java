@@ -128,7 +128,7 @@ class UserControllerTest {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .build();
-        mockMvc.perform(patch("/api/users")
+        mockMvc.perform(put("/api/users")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsBytes(request)))
                 .andExpect(status().isOk());
