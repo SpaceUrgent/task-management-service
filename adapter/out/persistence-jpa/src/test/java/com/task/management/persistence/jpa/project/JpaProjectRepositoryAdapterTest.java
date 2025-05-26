@@ -161,7 +161,9 @@ class JpaProjectRepositoryAdapterTest {
         assertEquals(expected.getTitle(), actual.title());
         assertEquals(expected.getDescription(), actual.description());
         final var projectEntityMembers = expected.getMembers();
+        projectEntityMembers.sort(Comparator.comparing(entity -> entity.getUser().getId()));
         final var projectDetailsMembers = new ArrayList<>(actual.members());
+        projectDetailsMembers.sort(Comparator.comparing(memberView -> memberView.id().value()));
         assertEquals(projectEntityMembers.size(), projectDetailsMembers.size());
         IntStream.range(0, projectEntityMembers.size()).forEach(index -> {
             assertMatches(projectEntityMembers.get(index), projectDetailsMembers.get(index));

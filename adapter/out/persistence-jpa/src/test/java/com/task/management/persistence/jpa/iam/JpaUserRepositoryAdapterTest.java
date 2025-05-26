@@ -66,7 +66,7 @@ class JpaUserRepositoryAdapterTest {
     }
 
     @Test
-    void findUserProfile_shouldReturnOptionalOfUserProfile_whenUserExists() {
+    void find_shouldReturnOptionalOfUser_whenUserExists() {
         final var existingUserEntity = userEntityDao.findAll().stream().findFirst().orElseThrow();
         final var givenUserId = new UserId(existingUserEntity.getId());
         final var result = userRepositoryAdapter.find(givenUserId);
@@ -75,9 +75,24 @@ class JpaUserRepositoryAdapterTest {
     }
 
     @Test
-    void findUserProfile_shouldReturnEmptyOptional_whenUserDoesNotExist() {
+    void find_shouldReturnOptionalEmpty_whenUserDoesNotExist() {
         final var givenUserId = new UserId(new Random().nextLong());
         assertTrue(userRepositoryAdapter.find(givenUserId).isEmpty());
+    }
+
+    @Test
+    void findUserInfo_shouldReturnOptionalOfUserInfo_whenUserExists() {
+        final var existingUserEntity = userEntityDao.findAll().stream().findFirst().orElseThrow();
+        final var givenUserId = new UserId(existingUserEntity.getId());
+        final var result = userRepositoryAdapter.findUserInfo(givenUserId);
+        assertTrue(result.isPresent());
+        assertMatches(existingUserEntity, result.get());
+    }
+
+    @Test
+    void findUserInfo_shouldReturnEmptyOptional_whenUserDoesNotExist() {
+        final var givenUserId = new UserId(new Random().nextLong());
+        assertTrue(userRepositoryAdapter.findUserInfo(givenUserId).isEmpty());
     }
 
     @Test
@@ -134,5 +149,15 @@ class JpaUserRepositoryAdapterTest {
         assertEquals(expected.getEmail(), actual.email().value());
         assertEquals(expected.getFirstName(), actual.firstName());
         assertEquals(expected.getLastName(), actual.lastName());
+    }
+
+    private void assertMatches(UserEntity expected, User actual) {
+        assertEquals(expected.getId(), actual.getId().value());
+        assertEquals(expected.getCreatedAt(), actual.getCreatedAt());
+        assertEquals(expected.getUpdatedAt(), actual.getUpdatedAt());
+        assertEquals(expected.getEmail(), actual.getEmail().value());
+        assertEquals(expected.getFirstName(), actual.getFirstName());
+        assertEquals(expected.getLastName(), actual.getLastName());
+        assertEquals(expected.getEncryptedPassword(), actual.getEncryptedPassword());
     }
 }

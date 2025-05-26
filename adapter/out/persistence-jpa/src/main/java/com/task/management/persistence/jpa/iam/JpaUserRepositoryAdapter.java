@@ -39,8 +39,15 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort,
     }
 
     @Override
-    public Optional<UserInfo> find(UserId id) {
-        parameterRequired(id, "User id");
+    public Optional<User> find(UserId id) {
+        userIdRequired(id);
+        return userEntityDao.findById(id.value())
+                .map(userMapper::toModel);
+    }
+
+    @Override
+    public Optional<UserInfo> findUserInfo(UserId id) {
+        userIdRequired(id);
         return userEntityDao.findById(id.value())
                 .map(userInfoMapper::toModel);
     }
@@ -55,5 +62,9 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort,
     public Optional<UserCredentials> findByEmail(Email email) {
         emailRequired(email);
         return userEntityDao.findByEmail(email.value()).map(userCredentialsMapper::toModel);
+    }
+
+    private static void userIdRequired(UserId id) {
+        parameterRequired(id, "User id");
     }
 }
