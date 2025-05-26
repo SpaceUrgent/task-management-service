@@ -1,6 +1,7 @@
 package com.task.management.application.iam.service;
 
 import com.task.management.application.common.UseCaseException;
+import com.task.management.application.iam.CurrentPasswordMismatchException;
 import com.task.management.application.iam.command.UpdateNameCommand;
 import com.task.management.application.iam.command.UpdatePasswordCommand;
 import com.task.management.domain.common.model.objectvalue.Email;
@@ -130,7 +131,7 @@ class UserServiceTest {
         final var expectedNewEncryptedPassword = "New encrypted password";
 
         doReturn(Optional.of(user)).when(userRepositoryPort).find(eq(givenActorId));
-        doReturn(user.getEncryptedPassword()).when(encryptPasswordPort).encrypt(eq(givenCommand.oldPassword()));
+        doReturn(user.getEncryptedPassword()).when(encryptPasswordPort).encrypt(eq(givenCommand.currentPassword()));
         doReturn(expectedNewEncryptedPassword).when(encryptPasswordPort).encrypt(eq(givenCommand.newPassword()));
 
         userService.updatePassword(givenActorId, givenCommand);
@@ -164,10 +165,10 @@ class UserServiceTest {
         final var givenCommand = updatePasswordCommand();
 
         doReturn(Optional.of(user)).when(userRepositoryPort).find(eq(givenActorId));
-        doReturn("Not matching").when(encryptPasswordPort).encrypt(eq(givenCommand.oldPassword()));
+        doReturn("Not matching").when(encryptPasswordPort).encrypt(eq(givenCommand.currentPassword()));
 
         assertThrows(
-                UseCaseException.IllegalAccessException.class,
+                CurrentPasswordMismatchException.class,
                 () -> userService.updatePassword(givenActorId, givenCommand)
         );
         verify(userRepositoryPort, times(0)).save(any());
@@ -206,7 +207,7 @@ class UserServiceTest {
 
     private static UpdatePasswordCommand updatePasswordCommand() {
         return UpdatePasswordCommand.builder()
-                .oldPassword("old password".toCharArray())
+                .currentPassword("old password".toCharArray())
                 .newPassword("new password".toCharArray())
                 .build();
     }

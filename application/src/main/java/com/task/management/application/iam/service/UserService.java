@@ -4,6 +4,7 @@ import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.common.annotation.UseCase;
 import com.task.management.application.common.validation.ValidationService;
+import com.task.management.application.iam.CurrentPasswordMismatchException;
 import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.iam.command.RegisterUserCommand;
 import com.task.management.application.iam.command.UpdateNameCommand;
@@ -71,10 +72,10 @@ public class UserService implements RegisterUserUseCase, UserProfileUseCase {
         actorIdRequired(actorId);
         validationService.validate(command);
         final var user = getUser(actorId);
-        final var oldPassword = command.oldPassword();
-        final var encryptedOldPassword = encryptPasswordPort.encrypt(oldPassword);
-        if (!encryptedOldPassword.equals(user.getEncryptedPassword())) {
-            throw new UseCaseException.IllegalAccessException("Operation not allowed");
+        final var currentPassword = command.currentPassword();
+        final var encryptedCurrent = encryptPasswordPort.encrypt(currentPassword);
+        if (!encryptedCurrent.equals(user.getEncryptedPassword())) {
+            throw new CurrentPasswordMismatchException("Current password does not match");
         }
         user.updatePassword(encryptPasswordPort.encrypt(command.newPassword()));
         userRepositoryPort.save(user);

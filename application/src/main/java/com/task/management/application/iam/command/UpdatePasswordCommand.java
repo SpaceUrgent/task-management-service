@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 public record UpdatePasswordCommand(
-        @NotNull(message = "Old password is required")
-        char[] oldPassword,
+        @NotNull(message = "Current password is required")
+        char[] currentPassword,
         @NotNull(message = "New password is required")
         char[] newPassword
 ) {
