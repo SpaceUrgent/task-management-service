@@ -1,6 +1,7 @@
 package com.task.managment.web.iam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.task.management.application.iam.CurrentPasswordMismatchException;
 import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.iam.command.RegisterUserCommand;
 import com.task.management.application.iam.command.UpdateNameCommand;
@@ -33,8 +34,7 @@ import static com.task.managment.web.TestUtils.FIRST_NAME;
 import static com.task.managment.web.TestUtils.LAST_NAME;
 import static com.task.managment.web.TestUtils.PASSWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -143,15 +143,36 @@ class UserControllerTest {
         mockMvc.perform(post("/api/users/password")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .params(new LinkedMultiValueMap<>() {{
-                        add("oldPassword", givenOldPassword);
+                        add("currentPassword", givenOldPassword);
                         add("newPassword", givenNewPassword);
                     }}))
                 .andExpect(status().isOk());
         verify(userProfileUseCase).updatePassword(eq(TestUtils.DEFAULT_USER_ID), argThat(command -> {
-            assertEquals(givenOldPassword, new String(command.oldPassword()));
+            assertEquals(givenOldPassword, new String(command.currentPassword()));
             assertEquals(givenNewPassword, new String(command.newPassword()));
             return true;
         }));
+    }
+
+    @MockUser
+    @Test
+    void updatePassword_shouldReturnBadRequest_whenCurrentPasswordMismatchExceptionRaised() throws Exception {
+        final var expectedMessage = "Current password does not match";
+        doThrow(new CurrentPasswordMismatchException(expectedMessage))
+                .when(userProfileUseCase)
+                .updatePassword(any(), any());
+        mockMvc.perform(post("/api/users/password")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(new LinkedMultiValueMap<>() {{
+                            add("currentPassword", "Old password");
+                            add("newPassword", "Old password");
+                        }}))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.reason").value("Bad request"))
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").value("/api/users/password"));
     }
 
     private static RegisterUserRequest getRegisterUserRequest() {

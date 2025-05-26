@@ -1,6 +1,7 @@
 package com.task.managment.web.iam;
 
 import com.task.management.application.common.UseCaseException;
+import com.task.management.application.iam.CurrentPasswordMismatchException;
 import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.iam.command.RegisterUserCommand;
 import com.task.management.application.iam.command.UpdateNameCommand;
@@ -71,15 +72,25 @@ public class UserController extends BaseController {
     )
     public void updatePassword(@Valid @NotNull UpdatePasswordRequest request) throws UseCaseException {
         final var command = UpdatePasswordCommand.builder()
-                .oldPassword(request.getOldPassword())
+                .currentPassword(request.getCurrentPassword())
                 .newPassword(request.getNewPassword())
                 .build();
         userProfileUseCase.updatePassword(actor(), command);
     }
 
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    @ExceptionHandler(EmailExistsException.class)
+//    public ErrorResponse handleEmailExistsException(EmailExistsException exception, HttpServletRequest request) {
+//        return ErrorResponse.builder()
+//                .reason("Bad request")
+//                .message(exception.getMessage())
+//                .request(request)
+//                .build();
+//    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(EmailExistsException.class)
-    public ErrorResponse handleEmailExistsException(EmailExistsException exception, HttpServletRequest request) {
+    @ExceptionHandler({EmailExistsException.class, CurrentPasswordMismatchException.class })
+    public ErrorResponse handleEmailExistsException(UseCaseException exception, HttpServletRequest request) {
         return ErrorResponse.builder()
                 .reason("Bad request")
                 .message(exception.getMessage())

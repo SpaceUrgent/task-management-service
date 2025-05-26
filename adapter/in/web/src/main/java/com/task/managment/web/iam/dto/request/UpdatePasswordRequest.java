@@ -6,8 +6,8 @@ import lombok.Data;
 
 @Data
 public class UpdatePasswordRequest {
-    @NotNull(message = "Old password is required")
-    private char[] oldPassword;
+    @NotNull(message = "Current password is required")
+    private char[] currentPassword;
     @NotNull(message = "New password is required")
     @Size(min = 8, message = "New password must contain at least 8 symbols")
     private char[] newPassword;
