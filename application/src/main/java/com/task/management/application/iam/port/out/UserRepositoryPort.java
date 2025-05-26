@@ -10,7 +10,9 @@ import java.util.Optional;
 public interface UserRepositoryPort {
     User save(User user);
 
-    Optional<UserInfo> find(UserId id);
+    Optional<User> find(UserId id);
+
+    Optional<UserInfo> findUserInfo(UserId id);
 
     boolean emailExists(Email email);
 }

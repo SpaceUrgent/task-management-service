@@ -1,6 +1,8 @@
 package com.task.management.application.iam.service;
 
 import com.task.management.application.common.UseCaseException;
+import com.task.management.application.iam.command.UpdateNameCommand;
+import com.task.management.application.iam.command.UpdatePasswordCommand;
 import com.task.management.domain.common.model.objectvalue.Email;
 import com.task.management.application.common.validation.ValidationService;
 import com.task.management.application.iam.EmailExistsException;
@@ -18,18 +20,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -81,19 +80,112 @@ class UserServiceTest {
                 .lastName("LName")
                 .build();
         final var givenActorId = expectedUserProfile.id();
-        doReturn(Optional.of(expectedUserProfile)).when(userRepositoryPort).find(eq(givenActorId));
+        doReturn(Optional.of(expectedUserProfile)).when(userRepositoryPort).findUserInfo(eq(givenActorId));
         assertEquals(expectedUserProfile, userService.getUserProfile(givenActorId));
     }
 
     @Test
     void getUserProfile_shouldThrowEntityNotFoundException_whenUserDoesNotExist() {
         final var givenActorId = randomUserId();
-        doReturn(Optional.empty()).when(userRepositoryPort).find(eq(givenActorId));
+        doReturn(Optional.empty()).when(userRepositoryPort).findUserInfo(eq(givenActorId));
         assertThrows(UseCaseException.EntityNotFoundException.class, () -> userService.getUserProfile(givenActorId));
+    }
+
+    @Test
+    void updateName_shouldSaveUpdatedUser_whenAllConditionsMet() throws UseCaseException {
+        final var user = randomUser();
+        final var givenActorId = user.getId();
+        final var givenCommand = updateNameCommand();
+        doReturn(Optional.of(user)).when(userRepositoryPort).find(eq(givenActorId));
+
+        userService.updateName(givenActorId, givenCommand);
+
+        verify(userRepositoryPort).save(argThat(saved -> {
+            assertNotNull(saved.getUpdatedAt());
+            assertEquals(givenCommand.firstName(), saved.getFirstName());
+            assertEquals(givenCommand.lastName(), saved.getLastName());
+            return true;
+        }));
+    }
+
+    @Test
+    void updateName_shouldThrowEntityNotFoundException_whenUserNotFound() {
+        final var givenActorId = randomUserId();
+        final var givenCommand = updateNameCommand();
+        doReturn(Optional.empty()).when(userRepositoryPort).find(eq(givenActorId));
+
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> userService.updateName(givenActorId, givenCommand)
+        );
+
+        verify(userRepositoryPort, times(0)).save(any());
+    }
+
+    @Test
+    void updatePassword_shouldSaveUpdatedUser_whenAllConditionsMet() throws UseCaseException {
+        final var user = randomUser();
+        final var givenActorId = user.getId();
+        final var givenCommand = updatePasswordCommand();
+        final var expectedNewEncryptedPassword = "New encrypted password";
+
+        doReturn(Optional.of(user)).when(userRepositoryPort).find(eq(givenActorId));
+        doReturn(user.getEncryptedPassword()).when(encryptPasswordPort).encrypt(eq(givenCommand.oldPassword()));
+        doReturn(expectedNewEncryptedPassword).when(encryptPasswordPort).encrypt(eq(givenCommand.newPassword()));
+
+        userService.updatePassword(givenActorId, givenCommand);
+
+        verify(userRepositoryPort).save(argThat(saved -> {
+            assertNotNull(saved.getUpdatedAt());
+            assertEquals(expectedNewEncryptedPassword, saved.getEncryptedPassword());
+            return true;
+        }));
+    }
+
+    @Test
+    void updatePassword_shouldThrowEntityNotFoundException_whenUserNotFound() {
+        final var givenActorId = randomUserId();
+        final var givenCommand = updatePasswordCommand();
+
+        doReturn(Optional.empty()).when(userRepositoryPort).find(eq(givenActorId));
+
+        assertThrows(
+                UseCaseException.EntityNotFoundException.class,
+                () -> userService.updatePassword(givenActorId, givenCommand)
+        );
+
+        verify(userRepositoryPort, times(0)).save(any());
+    }
+
+    @Test
+    void updatePassword_shouldThrowIllegalAccessException_whenOldPasswordMismatches() {
+        final var user = randomUser();
+        final var givenActorId = user.getId();
+        final var givenCommand = updatePasswordCommand();
+
+        doReturn(Optional.of(user)).when(userRepositoryPort).find(eq(givenActorId));
+        doReturn("Not matching").when(encryptPasswordPort).encrypt(eq(givenCommand.oldPassword()));
+
+        assertThrows(
+                UseCaseException.IllegalAccessException.class,
+                () -> userService.updatePassword(givenActorId, givenCommand)
+        );
+        verify(userRepositoryPort, times(0)).save(any());
     }
 
     private UserId randomUserId() {
         return new UserId(new Random().nextLong());
+    }
+
+    private User randomUser() {
+        return User.builder()
+                .id(randomUserId())
+                .createdAt(Instant.now())
+                .email(new Email("username@domain.com"))
+                .firstName("John")
+                .lastName("Dow")
+                .encryptedPassword("encryptedPassword")
+                .build();
     }
 
     private static RegisterUserCommand registerUserCommand() {
@@ -102,6 +194,20 @@ class UserServiceTest {
                 .firstName("FName")
                 .lastName("LName")
                 .password("password123456".toCharArray())
+                .build();
+    }
+
+    private static UpdateNameCommand updateNameCommand() {
+        return UpdateNameCommand.builder()
+                .firstName("Bob")
+                .lastName("Johnson")
+                .build();
+    }
+
+    private static UpdatePasswordCommand updatePasswordCommand() {
+        return UpdatePasswordCommand.builder()
+                .oldPassword("old password".toCharArray())
+                .newPassword("new password".toCharArray())
                 .build();
     }
 }
