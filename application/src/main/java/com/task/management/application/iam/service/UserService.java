@@ -72,9 +72,7 @@ public class UserService implements RegisterUserUseCase, UserProfileUseCase {
         actorIdRequired(actorId);
         validationService.validate(command);
         final var user = getUser(actorId);
-        final var currentPassword = command.currentPassword();
-        final var encryptedCurrent = encryptPasswordPort.encrypt(currentPassword);
-        if (!encryptedCurrent.equals(user.getEncryptedPassword())) {
+        if (!encryptPasswordPort.matches(command.currentPassword(), user.getEncryptedPassword())) {
             throw new CurrentPasswordMismatchException("Current password does not match");
         }
         user.updatePassword(encryptPasswordPort.encrypt(command.newPassword()));

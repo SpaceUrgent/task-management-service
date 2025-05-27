@@ -131,7 +131,7 @@ class UserServiceTest {
         final var expectedNewEncryptedPassword = "New encrypted password";
 
         doReturn(Optional.of(user)).when(userRepositoryPort).find(eq(givenActorId));
-        doReturn(user.getEncryptedPassword()).when(encryptPasswordPort).encrypt(eq(givenCommand.currentPassword()));
+        doReturn(true).when(encryptPasswordPort).matches(eq(givenCommand.currentPassword()), eq(user.getEncryptedPassword()));
         doReturn(expectedNewEncryptedPassword).when(encryptPasswordPort).encrypt(eq(givenCommand.newPassword()));
 
         userService.updatePassword(givenActorId, givenCommand);
@@ -165,7 +165,7 @@ class UserServiceTest {
         final var givenCommand = updatePasswordCommand();
 
         doReturn(Optional.of(user)).when(userRepositoryPort).find(eq(givenActorId));
-        doReturn("Not matching").when(encryptPasswordPort).encrypt(eq(givenCommand.currentPassword()));
+        doReturn(false).when(encryptPasswordPort).matches(eq(givenCommand.currentPassword()), eq(user.getEncryptedPassword()));
 
         assertThrows(
                 CurrentPasswordMismatchException.class,
