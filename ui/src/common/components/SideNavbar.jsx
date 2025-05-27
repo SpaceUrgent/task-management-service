@@ -16,7 +16,7 @@ export default function SideNavbar({ onSignOut }) {
                        <Link className="nav-link text-light" to="/projects">Tasks (In development)</Link>
                    </li>
                    <li className="nav-item mb-1">
-                       <Link className="nav-link text-light" to="/projects">Profile (In development)</Link>
+                       <Link className="nav-link text-light" to="/profile">Profile (In development)</Link>
                    </li>
                </ul>
                <hr className='m-1'/>

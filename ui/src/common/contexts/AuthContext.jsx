@@ -1,5 +1,6 @@
 import {createContext, useContext, useEffect, useState} from "react";
 import {ProjectClient} from "../../project/api/ProjectClient.ts";
+import {IAMClient} from "../../iam/api/IAMClient.ts";
 
 const AuthContext = createContext(null);
 
@@ -14,6 +15,7 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         ProjectClient.getInstance().setOnUnauthorized(logout);
+        IAMClient.getInstance().setOnUnauthorized(logout);
     }, [])
 
     const login = () => {setIsAuthenticated(true)}

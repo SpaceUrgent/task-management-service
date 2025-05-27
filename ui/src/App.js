@@ -12,6 +12,7 @@ import ProjectProfile from "./project/profile/ProjectProfile";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ProjectContextLayout from "./project/layouts/ProjectContextLayout";
 import Task from "./project/tasks/Task";
+import UserProfile from "./iam/components/UserProfile";
 
 function App() {
 
@@ -32,6 +33,7 @@ function App() {
                             </Route>
                             <Route path="/projects/:projectId/tasks/:taskId" element={<Task/>}/>
                         </Route>
+                        <Route path="/profile" element={<UserProfile/>}/>
                     </Route>
                 </Routes>
             </BrowserRouter>
