@@ -32,7 +32,7 @@ public class UserEntity extends JpaEntity<Long> {
     @Column(name = "encrypted_password", nullable = false)
     private String encryptedPassword;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<MemberEntity> memberships;
 
     protected UserEntity() {
