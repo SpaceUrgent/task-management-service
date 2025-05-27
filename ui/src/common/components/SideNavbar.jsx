@@ -1,7 +1,14 @@
 import React from "react";
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 
 export default function SideNavbar({ onSignOut }) {
+    const location = useLocation();
+
+    function getFirstUriPathPart() {
+        return location.pathname.split("/")[1];
+    }
+
+    const isActive = (path) => getFirstUriPathPart() === path;
 
     return (
        <nav className="col-md-2 d-md-block sidebar bg-dark p-3 text-white w-25">
@@ -10,13 +17,28 @@ export default function SideNavbar({ onSignOut }) {
                <hr/>
                <ul className="nav nav-pills flex-column mb-auto">
                    <li className="nav-item mb-1">
-                       <Link className="nav-link active" to="/projects">Projects</Link>
+                       <Link
+                           className={`nav-link ${isActive("projects") || !getFirstUriPathPart() ? "active" : "text-light"}`}
+                           to="/projects"
+                       >
+                           Projects
+                       </Link>
                    </li>
                    <li className="nav-item mb-1">
-                       <Link className="nav-link text-light" to="/projects">Tasks (In development)</Link>
+                       <Link
+                           className="nav-link text-light"
+                           to="/projects"
+                       >
+                           Tasks (In development)
+                       </Link>
                    </li>
                    <li className="nav-item mb-1">
-                       <Link className="nav-link text-light" to="/profile">Profile (In development)</Link>
+                       <Link
+                           className={`nav-link ${isActive("profile") ? "active" : "text-light"}`}
+                           to="/profile"
+                       >
+                           Profile
+                       </Link>
                    </li>
                </ul>
                <hr className='m-1'/>
