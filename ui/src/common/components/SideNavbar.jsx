@@ -11,41 +11,55 @@ export default function SideNavbar({ onSignOut }) {
     const isActive = (path) => getFirstUriPathPart() === path;
 
     return (
-       <nav className="col-md-2 d-md-block sidebar sticky-top vh-100 bg-dark p-3 text-white w-20">
-           <div className="sidebar-sticky h-100 d-flex flex-column">
-               <span className="navbar-brand fs-4 ms-3">PM Application</span>
-               <hr/>
-               <ul className="nav nav-pills flex-column mb-auto">
-                   <li className="nav-item mb-1">
-                       <Link
-                           className={`nav-link ${isActive("projects") || !getFirstUriPathPart() ? "active" : "text-light"}`}
-                           to="/projects"
-                       >
-                           Projects
-                       </Link>
-                   </li>
-                   <li className="nav-item mb-1">
-                       <Link
-                           className="nav-link text-light"
-                           to="/projects"
-                       >
-                           Tasks (In development)
-                       </Link>
-                   </li>
-                   <li className="nav-item mb-1">
-                       <Link
-                           className={`nav-link ${isActive("profile") ? "active" : "text-light"}`}
-                           to="/profile"
-                       >
-                           Profile
-                       </Link>
-                   </li>
-               </ul>
-               <hr className='m-1'/>
-               <button type="button" className="btn btn-outline-danger m-2" onClick={onSignOut}>
-                   Sign Out
-               </button>
-           </div>
-       </nav>
+        <nav className="bg-dark text-white d-flex flex-column flex-shrink-0" style={{ width: '280px', height: '100vh', position: 'sticky', top: 0 }}>
+            <div className="d-flex flex-column h-100">
+                {/* Header */}
+                <div className="p-3">
+                    <span className="navbar-brand fs-4">PM Application</span>
+                </div>
+                <hr className="my-2"/>
+                
+                {/* Navigation Links */}
+                <div className="flex-grow-1 p-3">
+                    <ul className="nav nav-pills flex-column">
+                        <li className="nav-item mb-2">
+                            <Link
+                                className={`nav-link ${isActive("projects") || !getFirstUriPathPart() ? "active" : "text-light"}`}
+                                to="/projects"
+                            >
+                                Projects
+                            </Link>
+                        </li>
+                        <li className="nav-item mb-2">
+                            <Link
+                                className="nav-link text-light"
+                                to="/projects"
+                            >
+                                Tasks (In development)
+                            </Link>
+                        </li>
+                        <li className="nav-item mb-2">
+                            <Link
+                                className={`nav-link ${isActive("profile") ? "active" : "text-light"}`}
+                                to="/profile"
+                            >
+                                Profile
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+
+                {/* Sign Out Button */}
+                <div className="p-3 mt-auto border-top">
+                    <button 
+                        type="button" 
+                        className="btn btn-outline-danger w-100"
+                        onClick={onSignOut}
+                    >
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </nav>
     )
 }
