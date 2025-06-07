@@ -1,9 +1,9 @@
-package com.task.management.domain.project.model.objectvalue;
+package com.task.management.domain.common.model.objectvalue;
 
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 
-public record ProjectId(Long value) {
-    public ProjectId {
+public record TaskId(Long value) {
+    public TaskId {
         parameterRequired(value, "Id value");
     }
 }

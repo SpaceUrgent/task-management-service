@@ -1,8 +1,8 @@
 package com.task.management.domain.project.event;
 
 import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.project.model.objectvalue.TaskId;
-import com.task.management.domain.project.model.objectvalue.TaskPriority;
+import com.task.management.domain.common.model.objectvalue.TaskId;
+import com.task.management.domain.common.model.objectvalue.TaskPriority;
 
 import static com.task.management.domain.common.validation.Validation.parameterRequired;
 

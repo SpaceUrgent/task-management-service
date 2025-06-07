@@ -1,5 +1,6 @@
 package com.task.management.application.project.service;
 
+import com.task.management.application.common.TestUtils;
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.project.ProjectConstants;
 import com.task.management.application.project.RemoveTaskStatusException;
@@ -17,8 +18,8 @@ import com.task.management.application.project.port.out.MemberRepositoryPort;
 import com.task.management.application.project.port.out.ProjectRepositoryPort;
 import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
-import com.task.management.domain.project.model.objectvalue.ProjectId;
-import com.task.management.domain.project.model.objectvalue.TaskStatus;
+import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.common.model.objectvalue.TaskStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -57,7 +58,7 @@ class ProjectServiceTest {
     @Test
     void createProject_shouldReturnNewProject_whenAllConditionsMet() {
         final var command = createProjectCommand();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var projectCaptor = ArgumentCaptor.forClass(Project.class);
         doAnswer(self(Project.class)).when(projectRepositoryPort).save(projectCaptor.capture());
         projectService.createProject(givenActorId, command);
@@ -70,7 +71,7 @@ class ProjectServiceTest {
     @Test
     void getAvailableProjects_shouldReturnProjectList() {
         final var expectedProjects = randomProjectPreviews();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         doReturn(expectedProjects).when(projectRepositoryPort).findProjectsByMember(eq(givenActorId));
         assertEquals(expectedProjects, projectService.getAvailableProjects(givenActorId));
     }
@@ -100,7 +101,7 @@ class ProjectServiceTest {
     void updateProject_shouldThrowIllegalAccessException_whenActorIsNotMember() {
         var project = randomProject();
         final var givenCommand = updateProjectCommand();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         doReturn(Optional.empty()).when(memberRepositoryPort).find(eq(project.getId()), eq(givenActorId));
         lenient().doReturn(Optional.of(project)).when(projectRepositoryPort).find(eq(project.getId()));
         assertThrows(
@@ -114,7 +115,7 @@ class ProjectServiceTest {
     void updateProject_shouldThrowIllegalAccessException_whenActorDoesNotAllowed() {
         var project = randomProject();
         final var givenCommand = updateProjectCommand();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var actor = Member.create(givenActorId, project.getId());
         doReturn(Optional.of(actor)).when(memberRepositoryPort).find(eq(project.getId()), eq(givenActorId));
         doReturn(Optional.of(project)).when(projectRepositoryPort).find(eq(project.getId()));
@@ -129,7 +130,7 @@ class ProjectServiceTest {
     void addTaskStatus_shouldAddNewTaskStatus_whenAllConditionsMet() throws UseCaseException {
         final var project = randomProject();
         final var givenCommand = addTaskStatusCommand();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var actor = Member.builder()
                 .id(givenActorId)
                 .projectId(project.getId())
@@ -152,8 +153,8 @@ class ProjectServiceTest {
 
     @Test
     void addTaskStatus_shouldThrowEntityNotFoundException_whenProjectProjectDoesNotExist() {
-        final var givenProjectId = randomProjectId();
-        final var givenActorId = randomUserId();
+        final var givenProjectId = TestUtils.randomProjectId();
+        final var givenActorId = TestUtils.randomUserId();
         final var givenCommand = addTaskStatusCommand();
 
         doReturn(Optional.empty()).when(projectRepositoryPort).find(eq(givenProjectId));
@@ -167,7 +168,7 @@ class ProjectServiceTest {
     @Test
     void addTaskStatus_shouldThrowIllegalAccessException_whenActorIsNotAdmin() {
         final var project = randomProject();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var givenCommand = addTaskStatusCommand();
         final var member = Member.create(givenActorId, project.getId());
 
@@ -184,7 +185,7 @@ class ProjectServiceTest {
     void removeTaskStatus_shouldRemoveTaskStatus_whenAllConditionsMet() throws UseCaseException {
         final var project = randomProject();
         final var givenStatusName = project.getAvailableTaskStatuses().getLast().name();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var actor = Member.builder()
                 .id(givenActorId)
                 .projectId(project.getId())
@@ -204,9 +205,9 @@ class ProjectServiceTest {
 
     @Test
     void removeTaskStatus_shouldThrowEntityNotFoundException_whenProjectDoesNotExist() throws UseCaseException {
-        final var givenProjectId = randomProjectId();
+        final var givenProjectId = TestUtils.randomProjectId();
         final var givenStatusName = "Done";
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
 
         doReturn(Optional.empty()).when(projectRepositoryPort).find(eq(givenProjectId));
 
@@ -220,7 +221,7 @@ class ProjectServiceTest {
     void removeTaskStatus_shouldThrowIllegalAccessException_whenActorIsNotAdmin() {
         final var project = randomProject();
         final var givenStatusName = project.getAvailableTaskStatuses().getLast().name();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var actor = Member.builder()
                 .id(givenActorId)
                 .projectId(project.getId())
@@ -242,7 +243,7 @@ class ProjectServiceTest {
     void removeTaskStatus_shouldThrowRemoveTaskStatusException_whenProjectHasTasksWithGivenStatus() {
         final var project = randomProject();
         final var givenStatusName = project.getAvailableTaskStatuses().getLast().name();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var actor = Member.builder()
                 .id(givenActorId)
                 .projectId(project.getId())
@@ -264,8 +265,8 @@ class ProjectServiceTest {
     @Test
     void addMember_shouldAddMember_whenAllConditionsMet() throws Exception {
         final var memberInfo = randomUserInfo();
-        final var givenActorId = randomUserId();
-        final var givenProjectId = randomProjectId();
+        final var givenActorId = TestUtils.randomUserId();
+        final var givenProjectId = TestUtils.randomProjectId();
         final var givenEmail = new Email("username@domain.com");
         final var actor = Member.create(givenActorId, givenProjectId);
         final var expectedMember = Member.create(memberInfo.id(), givenProjectId);
@@ -277,8 +278,8 @@ class ProjectServiceTest {
 
     @Test
     void addMember_shouldThrowIllegalAccessException_whenCurrentUserIsNotProjectMember() {
-        final var givenActorId = randomUserId();
-        final var givenProjectId = randomProjectId();
+        final var givenActorId = TestUtils.randomUserId();
+        final var givenProjectId = TestUtils.randomProjectId();
         final var givenEmail = new Email ("username@domain.com");
         doReturn(Optional.empty()).when(memberRepositoryPort).find(eq(givenProjectId), eq(givenActorId));
         assertThrows(
@@ -290,7 +291,7 @@ class ProjectServiceTest {
 
     @Test
     void updateMemberRole_shouldUpdate_whenOwnerRoleIsPassed() throws UseCaseException {
-        final var projectId = randomProjectId();
+        final var projectId = TestUtils.randomProjectId();
 
         final var actingMember = createMember(projectId, MemberRole.OWNER);
         final var updatedMember = createMember(projectId, null);
@@ -313,7 +314,7 @@ class ProjectServiceTest {
 
     @Test
     void updateMemberRole_shouldUpdate_whenOwnerPromotesToAdmin() throws UseCaseException {
-        final var projectId = randomProjectId();
+        final var projectId = TestUtils.randomProjectId();
         final var actingMember = createMember(projectId, MemberRole.OWNER);
         final var updatedMember = createMember(projectId, null);
         final var givenCommand = UpdateMemberRoleCommand.builder()
@@ -333,7 +334,7 @@ class ProjectServiceTest {
 
     @Test
     void updateMemberRole_shouldUpdate_whenOwnerRemovesRole() throws UseCaseException {
-        final var projectId = randomProjectId();
+        final var projectId = TestUtils.randomProjectId();
         final var actingMember = createMember(projectId, MemberRole.OWNER);
         final var updatedMember = createMember(projectId, null);
         final var givenCommand = UpdateMemberRoleCommand.builder()
@@ -354,7 +355,7 @@ class ProjectServiceTest {
     void updateMemberRole_throwsIllegalAccess_whenActorIsNotMember() {
         final var givenActorId = randomMemberId();
         final var givenCommand = UpdateMemberRoleCommand.builder()
-                .projectId(randomProjectId())
+                .projectId(TestUtils.randomProjectId())
                 .memberId(randomMemberId())
                 .role(MemberRole.ADMIN)
                 .build();
@@ -368,7 +369,7 @@ class ProjectServiceTest {
 
     @Test
     void updateMemberRole_throwsEntityNotFound_whenUpdatedMemberNotFound() {
-        final var projectId = randomProjectId();
+        final var projectId = TestUtils.randomProjectId();
         final var actingMember = createMember(projectId, null);
         final var givenCommand = UpdateMemberRoleCommand.builder()
                 .projectId(projectId)
@@ -386,7 +387,7 @@ class ProjectServiceTest {
 
     @Test
     void updateMemberRole_shouldThrowIllegalAccess_whenAdminUpdating() {
-        final var projectId = randomProjectId();
+        final var projectId = TestUtils.randomProjectId();
         final var actingMember = createMember(projectId, MemberRole.ADMIN);
         final var updatedMember = createMember(projectId, null);
         final var givenCommand = UpdateMemberRoleCommand.builder()
@@ -408,7 +409,7 @@ class ProjectServiceTest {
 
     @Test
     void updateMemberRole_shouldThrowIllegalAccess_whenMemberUpdating() {
-        final var projectId = randomProjectId();
+        final var projectId = TestUtils.randomProjectId();
         final var actingMember = createMember(projectId, null);
         final var updatedMember = createMember(projectId, null);
         final var givenCommand = UpdateMemberRoleCommand.builder()
@@ -435,7 +436,7 @@ class ProjectServiceTest {
     }
 
     private static ProjectPreview rendomProjectPreview() {
-        final var projectId = randomProjectId();
+        final var projectId = TestUtils.randomProjectId();
         final var projectIdValue = projectId.value();
         return ProjectPreview.builder()
                 .id(projectId)
@@ -446,13 +447,13 @@ class ProjectServiceTest {
     }
 
     private static Project randomProject() {
-        final var projectId = randomProjectId();
+        final var projectId = TestUtils.randomProjectId();
         return Project.builder()
                 .id(projectId)
                 .createdAt(Instant.now())
                 .title("Title %d".formatted(projectId.value()))
                 .description("Description %d".formatted(projectId.value()))
-                .ownerId(randomUserId())
+                .ownerId(TestUtils.randomUserId())
                 .availableTaskStatuses(ProjectConstants.DEFAULT_TASK_STATUSES)
                 .build();
     }
@@ -479,7 +480,7 @@ class ProjectServiceTest {
     }
 
     private Member createMember(ProjectId projectId, MemberRole memberRole) {
-        final var idValue = randomLong();
+        final var idValue = TestUtils.randomLong();
         return Member.builder()
                 .id(new UserId(idValue))
                 .projectId(projectId)
@@ -488,6 +489,6 @@ class ProjectServiceTest {
     }
 
     private UserId randomMemberId() {
-        return new UserId(randomLong());
+        return new UserId(TestUtils.randomLong());
     }
 }

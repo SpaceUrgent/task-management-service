@@ -5,16 +5,16 @@ import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.*;
-import com.task.management.domain.project.model.objectvalue.ProjectId;
-import com.task.management.domain.project.model.objectvalue.TaskId;
-import com.task.management.domain.project.model.objectvalue.TaskNumber;
+import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.common.model.objectvalue.TaskId;
+import com.task.management.domain.common.model.objectvalue.TaskNumber;
 import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import java.util.List;
 
-import static com.task.management.domain.project.model.objectvalue.TaskPriority.withOrder;
+import static com.task.management.domain.common.model.objectvalue.TaskPriority.withOrder;
 import static java.util.Objects.requireNonNull;
 
 public class TaskMapper {

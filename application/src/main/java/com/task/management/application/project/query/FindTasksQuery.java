@@ -3,7 +3,7 @@ package com.task.management.application.project.query;
 import com.task.management.application.common.query.PagedQuery;
 import com.task.management.application.common.query.Sort;
 import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.common.model.objectvalue.ProjectId;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

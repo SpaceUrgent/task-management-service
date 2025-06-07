@@ -4,7 +4,7 @@ import com.task.management.application.common.UseCaseException;
 import com.task.management.application.project.command.AddTaskStatusCommand;
 import com.task.management.application.project.command.UpdateProjectCommand;
 import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.common.model.objectvalue.ProjectId;
 
 public interface UpdateProjectUseCase {
     void updateProject(UserId actorId, ProjectId projectId, UpdateProjectCommand command) throws UseCaseException;

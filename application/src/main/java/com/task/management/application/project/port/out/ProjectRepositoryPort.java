@@ -4,8 +4,8 @@ import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Project;
-import com.task.management.domain.project.model.objectvalue.ProjectId;
-import com.task.management.domain.project.model.objectvalue.TaskStatus;
+import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.common.model.objectvalue.TaskStatus;
 
 import java.util.List;
 import java.util.Optional;

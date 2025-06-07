@@ -1,9 +1,9 @@
 package com.task.management.application.project.handler;
 
 import com.task.management.application.common.EventHandlingException;
+import com.task.management.application.common.TestUtils;
 import com.task.management.application.common.port.out.UserInfoRepositoryPort;
 import com.task.management.domain.project.event.TaskReassignedEvent;
-import com.task.management.application.project.handler.TaskReassignedEventHandler;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
@@ -32,10 +32,10 @@ class TaskReassignedEventHandlerTest {
     @Test
     void handle() throws EventHandlingException {
         final var givenEvent = new TaskReassignedEvent(
-                randomTaskId(),
-                randomUserId(),
-                randomUserId(),
-                randomUserId()
+                TestUtils.randomTaskId(),
+                TestUtils.randomUserId(),
+                TestUtils.randomUserId(),
+                TestUtils.randomUserId()
         );
         final var initialAssigneeInfo = randomUserInfo();
         final var newAssigneeInfo = randomUserInfo();
@@ -58,10 +58,10 @@ class TaskReassignedEventHandlerTest {
     @Test
     void handle_shouldThrow_whenInitialAssigneeNotFound() {
         final var givenEvent = new TaskReassignedEvent(
-                randomTaskId(),
-                randomUserId(),
-                randomUserId(),
-                randomUserId()
+                TestUtils.randomTaskId(),
+                TestUtils.randomUserId(),
+                TestUtils.randomUserId(),
+                TestUtils.randomUserId()
         );
 
         doReturn(Optional.empty()).when(userInfoRepositoryPort).find(eq(givenEvent.getInitialValue()));
@@ -76,10 +76,10 @@ class TaskReassignedEventHandlerTest {
     @Test
     void handle_shouldThrow_whenInitialNewAssigneeNotFound() {
         final var givenEvent = new TaskReassignedEvent(
-                randomTaskId(),
-                randomUserId(),
-                randomUserId(),
-                randomUserId()
+                TestUtils.randomTaskId(),
+                TestUtils.randomUserId(),
+                TestUtils.randomUserId(),
+                TestUtils.randomUserId()
         );
 
         doReturn(Optional.of(randomUserInfo())).when(userInfoRepositoryPort).find(eq(givenEvent.getInitialValue()));

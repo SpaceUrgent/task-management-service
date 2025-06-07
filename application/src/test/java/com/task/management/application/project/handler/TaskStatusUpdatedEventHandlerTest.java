@@ -3,7 +3,6 @@ package com.task.management.application.project.handler;
 import com.task.management.application.common.EventHandlingException;
 import com.task.management.application.project.ProjectConstants;
 import com.task.management.domain.project.event.TaskStatusUpdatedEvent;
-import com.task.management.application.project.handler.TaskStatusUpdatedEventHandler;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
@@ -14,8 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static com.task.management.application.project.ProjectTestUtils.randomTaskId;
-import static com.task.management.application.project.ProjectTestUtils.randomUserId;
+import static com.task.management.application.common.TestUtils.randomTaskId;
+import static com.task.management.application.common.TestUtils.randomUserId;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)

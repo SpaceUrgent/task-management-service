@@ -1,6 +1,6 @@
 package com.task.management.application.project;
 
-import com.task.management.domain.project.model.objectvalue.TaskStatus;
+import com.task.management.domain.common.model.objectvalue.TaskStatus;
 
 import java.util.ArrayList;
 import java.util.List;

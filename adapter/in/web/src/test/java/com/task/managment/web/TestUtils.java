@@ -6,7 +6,7 @@ import com.task.management.domain.common.model.UserInfo;
 import com.task.management.domain.iam.model.objectvalue.UserCredentials;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
-import com.task.management.domain.project.model.objectvalue.ProjectId;
+import com.task.management.domain.common.model.objectvalue.ProjectId;
 
 import java.util.Random;
 

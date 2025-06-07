@@ -21,8 +21,8 @@ import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Member;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.project.model.Project;
-import com.task.management.domain.project.model.objectvalue.ProjectId;
-import com.task.management.domain.project.model.objectvalue.TaskStatus;
+import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.common.model.objectvalue.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

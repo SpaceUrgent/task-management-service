@@ -1,5 +1,6 @@
 package com.task.management.application.project.service;
 
+import com.task.management.application.common.TestUtils;
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.project.port.out.TaskCommentRepositoryPort;
 import com.task.management.domain.common.event.DomainEvent;
@@ -9,7 +10,7 @@ import com.task.management.application.common.validation.ValidationService;
 import com.task.management.application.project.command.CreateTaskCommand;
 import com.task.management.application.project.command.UpdateTaskCommand;
 import com.task.management.domain.project.model.Task;
-import com.task.management.domain.project.model.objectvalue.TaskPriority;
+import com.task.management.domain.common.model.objectvalue.TaskPriority;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
@@ -62,7 +63,7 @@ class TaskServiceTest {
         final var owner = randomMemberView();
         final var givenActorId = owner.id();
         final var assignee = randomMemberView();
-        final var givenProjectId = randomProjectId();
+        final var givenProjectId = TestUtils.randomProjectId();
         final var givenCommand = CreateTaskCommand.builder()
                 .title("New task title")
                 .description("New task description")
@@ -89,8 +90,8 @@ class TaskServiceTest {
     @Test
     void createTask_shouldThrowIllegalAccessException_whenOwnerIsNotProjectMember() {
         final var assignee = randomMemberView();
-        final var givenActorId = randomUserId();
-        final var givenProjectId = randomProjectId();
+        final var givenActorId = TestUtils.randomUserId();
+        final var givenProjectId = TestUtils.randomProjectId();
         final var givenCommand = CreateTaskCommand.builder()
                 .title("New task title")
                 .description("New task description")
@@ -110,11 +111,11 @@ class TaskServiceTest {
     void createTask_shouldThrowIllegalAccessException_whenAssigneeIsNotProjectMember() {
         final var owner = randomMemberView();
         final var givenActorId = owner.id();
-        final var givenProjectId = randomProjectId();
+        final var givenProjectId = TestUtils.randomProjectId();
         final var givenCommand = CreateTaskCommand.builder()
                 .title("New task title")
                 .description("New task description")
-                .assigneeId(randomUserId())
+                .assigneeId(TestUtils.randomUserId())
                 .build();
         doReturn(false).when(projectService).isMember(eq(givenCommand.assigneeId()), eq(givenProjectId));
         assertThrows(
@@ -132,7 +133,7 @@ class TaskServiceTest {
                 .title("Updated title")
                 .description("Updated description")
                 .dueDate(LocalDate.now().plusWeeks(1))
-                .assigneeId(randomUserId())
+                .assigneeId(TestUtils.randomUserId())
                 .taskStatus("Done")
                 .priority(TaskPriority.HIGHEST)
                 .build();
@@ -158,7 +159,7 @@ class TaskServiceTest {
 
     @Test
     void updateTask_shouldThrowEntityNotFoundException_whenTaskDoesNotExist() {
-        final var givenTaskId = randomTaskId();
+        final var givenTaskId = TestUtils.randomTaskId();
         final var givenCommand = UpdateTaskCommand.builder()
                 .title("Updated title")
                 .description("Updated description")
@@ -166,7 +167,7 @@ class TaskServiceTest {
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
-                () -> taskService.updateTask(randomUserId(), givenTaskId, givenCommand)
+                () -> taskService.updateTask(TestUtils.randomUserId(), givenTaskId, givenCommand)
         );
         verify(taskRepositoryPort, times(0)).save(any(Task.class));
         verifyNoInteractions(eventPublisher);
@@ -192,8 +193,8 @@ class TaskServiceTest {
 
     @Test
     void updateStatus_shouldThrowEntityNotFoundException_whenTaskNotFound() {
-        final var givenActorId = randomUserId();
-        final var givenTaskId = randomTaskId();
+        final var givenActorId = TestUtils.randomUserId();
+        final var givenTaskId = TestUtils.randomTaskId();
         final var givenTaskStatus = "Done";
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
@@ -206,7 +207,7 @@ class TaskServiceTest {
 
     @Test
     void updatePriority_shouldUpdateTask_whenAllConditionsMet() throws UseCaseException {
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var task = randomTask();
         final var givenPriority = TaskPriority.HIGH;
         final var eventsCaptor = ArgumentCaptor.forClass(List.class);
@@ -222,8 +223,8 @@ class TaskServiceTest {
 
     @Test
     void updatePriority_shouldThrowEntityNotFoundException_whenTaskDoesNotExist() throws UseCaseException {
-        final var givenActorId = randomUserId();
-        final var givenTaskId = randomTaskId();
+        final var givenActorId = TestUtils.randomUserId();
+        final var givenTaskId = TestUtils.randomTaskId();
         final var givenPriority = TaskPriority.HIGH;
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
 
@@ -258,9 +259,9 @@ class TaskServiceTest {
 
     @Test
     void assignTask_shouldThrowEntityNotFoundException_whenTaskNotFound() {
-        final var givenActorId = randomUserId();
-        final var givenTaskId = randomTaskId();
-        final var givenAssigneeId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
+        final var givenTaskId = TestUtils.randomTaskId();
+        final var givenAssigneeId = TestUtils.randomUserId();
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
@@ -273,9 +274,9 @@ class TaskServiceTest {
     @Test
     void assignTask_shouldThrowIllegalAccessException_whenActorDoesNotHaveAccess() {
         final var task = randomTask();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var givenTaskId = task.getId();
-        final var givenAssigneeId = randomUserId();
+        final var givenAssigneeId = TestUtils.randomUserId();
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
                 UseCaseException.IllegalAccessException.class,
@@ -288,7 +289,7 @@ class TaskServiceTest {
     @Test
     void addComment_shouldSaveNewComment_whenAllConditionsMet() throws UseCaseException {
         final var task = randomTask();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var givenTaskId = task.getId();
         final var givenComment = "Please, help!";
         doReturn(Optional.of(task)).when(taskRepositoryPort).find(eq(givenTaskId));
@@ -304,8 +305,8 @@ class TaskServiceTest {
 
     @Test
     void addComment_shouldThrowEntityNotFoundException_whenDoesNotExist() {
-        final var givenActorId = randomUserId();
-        final var givenTaskId = randomTaskId();
+        final var givenActorId = TestUtils.randomUserId();
+        final var givenTaskId = TestUtils.randomTaskId();
         final var givenComment = "Please, help!";
         doReturn(Optional.empty()).when(taskRepositoryPort).find(eq(givenTaskId));
         assertThrows(
@@ -318,7 +319,7 @@ class TaskServiceTest {
     @Test
     void getTaskDetails_shouldReturnTaskDetails_whenAllConditionsMet() throws UseCaseException {
         final var expected = randomTaskDetails();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var givenTaskId = expected.id();
         doReturn(Optional.of(expected)).when(taskRepositoryPort).findTaskDetails(eq(givenTaskId));
         assertEquals(expected, taskService.getTaskDetails(givenActorId, givenTaskId));
@@ -326,8 +327,8 @@ class TaskServiceTest {
 
     @Test
     void getTaskDetails_shouldThrowEntityNotFoundException_whenTaskNotFound() {
-        final var givenActorId = randomUserId();
-        final var givenTaskId = randomTaskId();
+        final var givenActorId = TestUtils.randomUserId();
+        final var givenTaskId = TestUtils.randomTaskId();
         doReturn(Optional.empty()).when(taskRepositoryPort).findTaskDetails(eq(givenTaskId));
         assertThrows(
                 UseCaseException.EntityNotFoundException.class,
@@ -340,9 +341,9 @@ class TaskServiceTest {
         final var givenQuery = FindTasksQuery.builder()
                 .pageNumber(1)
                 .pageSize(20)
-                .projectId(randomProjectId())
+                .projectId(TestUtils.randomProjectId())
                 .build();
-        final var givenActorId = randomUserId();
+        final var givenActorId = TestUtils.randomUserId();
         final var expected = Page.<TaskPreview>builder()
                 .pageNo(givenQuery.getPageNumber())
                 .pageSize(givenQuery.getPageSize())
@@ -356,26 +357,26 @@ class TaskServiceTest {
 
     private static Task randomTask() {
         return Task.builder()
-                .id(randomTaskId())
-                .number(randomTaskNumber())
+                .id(TestUtils.randomTaskId())
+                .number(TestUtils.randomTaskNumber())
                 .createdAt(Instant.now())
-                .project(randomProjectId())
+                .project(TestUtils.randomProjectId())
                 .status("In progress")
                 .title("Title")
                 .description("Description")
-                .owner(randomUserId())
+                .owner(TestUtils.randomUserId())
                 .priority(TaskPriority.LOWEST)
-                .assignee(randomUserId())
+                .assignee(TestUtils.randomUserId())
                 .build();
     }
 
     private static TaskDetails randomTaskDetails() {
         return TaskDetails.builder()
-                .id(randomTaskId())
-                .number(randomTaskNumber())
+                .id(TestUtils.randomTaskId())
+                .number(TestUtils.randomTaskNumber())
                 .createdAt(Instant.now())
                 .dueDate(LocalDate.now().plusWeeks(1))
-                .projectId(randomProjectId())
+                .projectId(TestUtils.randomProjectId())
                 .status("Done")
                 .title("Title")
                 .description("Description")
@@ -402,8 +403,8 @@ class TaskServiceTest {
 
     private static TaskPreview randomTaskPreview() {
         return TaskPreview.builder()
-                .id(randomTaskId())
-                .number(randomTaskNumber())
+                .id(TestUtils.randomTaskId())
+                .number(TestUtils.randomTaskNumber())
                 .createdAt(Instant.now())
                 .dueDate(LocalDate.now().minusWeeks(1))
                 .title("Title")

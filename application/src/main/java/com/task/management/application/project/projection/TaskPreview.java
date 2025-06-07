@@ -1,9 +1,9 @@
 package com.task.management.application.project.projection;
 
 import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.project.model.objectvalue.TaskId;
-import com.task.management.domain.project.model.objectvalue.TaskNumber;
-import com.task.management.domain.project.model.objectvalue.TaskPriority;
+import com.task.management.domain.common.model.objectvalue.TaskId;
+import com.task.management.domain.common.model.objectvalue.TaskNumber;
+import com.task.management.domain.common.model.objectvalue.TaskPriority;
 import lombok.Builder;
 
 import java.time.Instant;

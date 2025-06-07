@@ -1,5 +1,6 @@
 package com.task.management.domain.project.model.objectvalue;
 
+import com.task.management.domain.common.model.objectvalue.TaskId;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import lombok.Builder;
 

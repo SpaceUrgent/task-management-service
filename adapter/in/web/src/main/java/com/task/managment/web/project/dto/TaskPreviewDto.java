@@ -1,6 +1,5 @@
 package com.task.managment.web.project.dto;
 
-import com.task.management.domain.project.model.objectvalue.TaskPriority;
 import com.task.managment.web.common.dto.UserInfoDto;
 import lombok.Builder;
 import lombok.Data;

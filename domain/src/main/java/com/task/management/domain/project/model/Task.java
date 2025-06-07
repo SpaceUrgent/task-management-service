@@ -1,9 +1,8 @@
 package com.task.management.domain.project.model;
 
 import com.task.management.domain.common.model.DomainEventAggregate;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.common.model.objectvalue.*;
 import com.task.management.domain.project.event.*;
-import com.task.management.domain.project.model.objectvalue.*;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

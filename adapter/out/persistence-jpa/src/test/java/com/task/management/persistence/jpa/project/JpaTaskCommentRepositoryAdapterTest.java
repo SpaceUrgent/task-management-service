@@ -2,7 +2,7 @@ package com.task.management.persistence.jpa.project;
 
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.TaskComment;
-import com.task.management.domain.project.model.objectvalue.TaskId;
+import com.task.management.domain.common.model.objectvalue.TaskId;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.TaskCommentEntityDao;
