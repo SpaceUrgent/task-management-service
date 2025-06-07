@@ -3,7 +3,7 @@ package com.task.management.domain.project.model;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.common.validation.ValidationException;
 import com.task.management.domain.common.model.objectvalue.ProjectId;
-import com.task.management.domain.common.model.objectvalue.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
