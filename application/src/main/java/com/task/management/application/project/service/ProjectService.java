@@ -22,7 +22,7 @@ import com.task.management.domain.project.model.Member;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.project.model.Project;
 import com.task.management.domain.common.model.objectvalue.ProjectId;
-import com.task.management.domain.common.model.objectvalue.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -169,7 +169,7 @@ public class ProjectService implements CreateProjectUseCase,
         }
     }
 
-    public TaskStatus getInitialTaskStatus(ProjectId projectId) throws UseCaseException {
+    public TaskStatus getInitialTaskStatus(ProjectId projectId) {
         return getAvailableTaskStatuses(projectId).stream()
                 .min(Comparator.comparing(TaskStatus::position))
                 .orElseThrow(() -> new IllegalStateException("Project does not have available status"));

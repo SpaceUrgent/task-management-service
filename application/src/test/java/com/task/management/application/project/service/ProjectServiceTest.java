@@ -19,7 +19,7 @@ import com.task.management.application.project.port.out.ProjectRepositoryPort;
 import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.common.model.objectvalue.ProjectId;
-import com.task.management.domain.common.model.objectvalue.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

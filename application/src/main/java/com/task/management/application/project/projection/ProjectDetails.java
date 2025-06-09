@@ -2,7 +2,7 @@ package com.task.management.application.project.projection;
 
 import com.task.management.domain.common.model.objectvalue.ProjectId;
 import com.task.management.domain.common.model.objectvalue.TaskPriority;
-import com.task.management.domain.common.model.objectvalue.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import lombok.Builder;
 
 import java.time.Instant;
