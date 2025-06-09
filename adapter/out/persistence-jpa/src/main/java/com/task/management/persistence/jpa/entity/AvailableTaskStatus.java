@@ -15,6 +15,8 @@ public class AvailableTaskStatus {
     private String name;
     @Column(nullable = false)
     private Integer position;
+    @Column(name = "is_final")
+    private boolean isFinal = false;
 
     protected AvailableTaskStatus() {
     }

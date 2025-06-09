@@ -102,7 +102,7 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
                 .number(Optional.ofNullable(task.getNumber()).map(TaskNumber::value).orElseGet(() -> taskNumberSequenceDao.nextNumber(projectId)))
                 .title(task.getTitle())
                 .description(task.getDescription())
-                .status(task.getStatus())
+                .statusName(task.getStatus())
                 .priority(task.getPriority().order())
                 .owner(ownerReference)
                 .assignee(assigneeReference)

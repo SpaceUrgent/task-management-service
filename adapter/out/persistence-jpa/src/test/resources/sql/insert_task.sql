@@ -17,6 +17,12 @@ values (now(), 'Project', 'Project description');
 insert into task_number_seq(project_id, created_at, current_value)
 values ((select id from projects where title = 'Project'), now(), 0);
 
+insert into task_statuses (project_id, name, position, is_final)
+values ((select id from projects where title = 'Project'), 'To do', 1, 'false');
+
+insert into task_statuses (project_id, name, position, is_final)
+values ((select id from projects where title = 'Project'), 'Done', 2, 'false');
+
 insert into projects_members (project_id, member_id, role)
 values ((select id from projects where title = 'Project'), (select id from users where email = 'jdoe@mail.com'), 'OWNER');
 
@@ -35,7 +41,7 @@ values (
         1,
         'New task',
         'New task description',
-        'TO_DO',
+        'To do',
         2,
         (select id from projects where title = 'Project'),
         (select id from users where email = 'jdoe@mail.com'),

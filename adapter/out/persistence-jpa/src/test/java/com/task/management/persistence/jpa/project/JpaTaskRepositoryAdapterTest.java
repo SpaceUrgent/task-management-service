@@ -282,7 +282,7 @@ class JpaTaskRepositoryAdapterTest {
     @Test
     void projectTaskWithStatusExists_shouldReturnTrue() {
         final var taskEntity = getFirstTaskEntity();
-        assertTrue(taskRepositoryAdapter.projectTaskWithStatusExists(new ProjectId(taskEntity.getProject().getId()), taskEntity.getStatus()));
+        assertTrue(taskRepositoryAdapter.projectTaskWithStatusExists(new ProjectId(taskEntity.getProject().getId()), taskEntity.getStatus().getName()));
     }
 
     @Sql(
@@ -319,7 +319,7 @@ class JpaTaskRepositoryAdapterTest {
         assertEquals(expected.getNumber(), actual.number().value());
         assertEquals(expected.getTitle(), actual.title());
         assertEquals(expected.getDescription(), actual.description());
-        assertEquals(expected.getStatus(), actual.status());
+        assertEquals(expected.getStatusName(), actual.status());
         assertEquals(expected.getProject().getId(), actual.projectId().value());
         assertEquals(expected.getOwner().getId(), actual.owner().id().value());
         assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());
@@ -357,7 +357,7 @@ class JpaTaskRepositoryAdapterTest {
         assertEquals(expected.getNumber().value(), actual.getNumber());
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEquals(expected.getDescription(), actual.getDescription());
-        assertEquals(expected.getStatus(), actual.getStatus());
+        assertEquals(expected.getStatus(), actual.getStatusName());
         assertEquals(expected.getPriority().order(), actual.getPriority());
         assertEquals(expected.getOwner().value(), actual.getOwner().getId());
         assertEquals(expected.getAssignee().value(), actual.getAssignee().getId());
@@ -381,7 +381,7 @@ class JpaTaskRepositoryAdapterTest {
         assertEquals(expected.getDueDate(), actual.dueDate());
         assertEquals(expected.getNumber(), actual.number().value());
         assertEquals(expected.getTitle(), actual.title());
-        assertEquals(expected.getStatus(), actual.status());
+        assertEquals(expected.getStatusName(), actual.status());
         assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());
     }
 

@@ -3,8 +3,8 @@ package com.task.management.persistence.jpa.dao.impl;
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.persistence.jpa.dao.AbstractEntityDao;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
-import com.task.management.persistence.jpa.entity.AvailableTaskStatus;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
+import com.task.management.persistence.jpa.entity.TaskStatusEntity;
 import jakarta.persistence.EntityManager;
 
 import java.util.List;
@@ -31,12 +31,12 @@ public class ProjectEntityDaoImpl extends AbstractEntityDao<ProjectEntity, Long>
     }
 
     @Override
-    public List<AvailableTaskStatus> findAvailableTaskStatuses(Long projectId) {
+    public List<TaskStatusEntity> findAvailableTaskStatuses(Long projectId) {
         parameterRequired(projectId, "Project id");
         return entityManager.createQuery("""
                 select p.availableTaskStatuses from ProjectEntity p\s
                 where p.id = :projectId
-                """, AvailableTaskStatus.class)
+                """, TaskStatusEntity.class)
                 .setParameter("projectId", projectId)
                 .getResultList();
     }

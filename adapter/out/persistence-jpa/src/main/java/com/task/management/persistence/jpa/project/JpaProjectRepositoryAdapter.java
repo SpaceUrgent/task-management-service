@@ -8,15 +8,16 @@ import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.project.model.Project;
 import com.task.management.domain.common.model.objectvalue.ProjectId;
-import com.task.management.domain.common.model.objectvalue.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
-import com.task.management.persistence.jpa.entity.AvailableTaskStatus;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.entity.TaskNumberSequence;
+import com.task.management.persistence.jpa.entity.TaskStatusEntity;
 import com.task.management.persistence.jpa.project.mapper.ProjectMapper;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -70,22 +71,27 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
     }
 
     private ProjectEntity buildProjectEntity(Project project) {
-        return ProjectEntity.builder()
+        final var projectEntity = ProjectEntity.builder()
                 .id(Optional.ofNullable(project.getId()).map(ProjectId::value).orElse(null))
                 .createdAt(project.getCreatedAt())
                 .updatedAt(project.getUpdatedAt())
                 .title(project.getTitle())
                 .description(project.getDescription())
-                .availableTaskStatuses(toAvailableTaskStatuses(project.getAvailableTaskStatuses()))
                 .build();
+        final var availableTaskStatuses = toAvailableTaskStatuses(project.getAvailableTaskStatuses(), projectEntity);
+        availableTaskStatuses.getLast().setFinal(true);
+        projectEntity.setAvailableTaskStatuses(availableTaskStatuses);
+        return projectEntity;
     }
 
-    private List<AvailableTaskStatus> toAvailableTaskStatuses(List<TaskStatus> taskStatuses) {
+    private List<TaskStatusEntity> toAvailableTaskStatuses(List<TaskStatus> taskStatuses, ProjectEntity projectEntity) {
         return taskStatuses.stream()
-                .map(taskStatus -> AvailableTaskStatus.builder()
+                .map(taskStatus -> TaskStatusEntity.builder()
                         .name(taskStatus.name())
                         .position(taskStatus.position())
+                        .projectEntity(projectEntity)
                         .build())
+                .sorted(Comparator.comparing(TaskStatusEntity::getPosition))
                 .collect(Collectors.toList());
     }
 

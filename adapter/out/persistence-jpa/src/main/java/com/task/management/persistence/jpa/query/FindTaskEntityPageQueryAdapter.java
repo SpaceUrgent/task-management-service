@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -67,7 +66,7 @@ public class FindTaskEntityPageQueryAdapter implements FindPageQuery<TaskEntity>
             predicates.add(criteriaBuilder.equal(countJoinAssignedTo.get("id"), assigneeId()));
         }
         if (nonNull(statusIn()) && !statusIn().isEmpty()) {
-            predicates.add(root.get("status").in(statusIn()));
+            predicates.add(root.get("statusName").in(statusIn()));
         }
         return predicates.toArray(new Predicate[]{});
     }

@@ -6,11 +6,12 @@ import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Project;
 import com.task.management.domain.common.model.objectvalue.ProjectId;
-import com.task.management.domain.common.model.objectvalue.TaskStatus;
-import com.task.management.persistence.jpa.entity.AvailableTaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import com.task.management.persistence.jpa.entity.MemberEntity;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
+import com.task.management.persistence.jpa.entity.TaskStatusEntity;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,14 +65,15 @@ public class ProjectMapper {
                 .build();
     }
 
-    public List<TaskStatus> toAvailableTaskStatuses(List<AvailableTaskStatus> availableTaskStatuses) {
+    public List<TaskStatus> toAvailableTaskStatuses(List<TaskStatusEntity> availableTaskStatuses) {
         parameterRequired(availableTaskStatuses, "Available task statuses");
         return availableTaskStatuses.stream()
+                .sorted(Comparator.comparing(TaskStatusEntity::getPosition))
                 .map(this::toTaskStatus)
                 .collect(Collectors.toList());
     }
 
-    public TaskStatus toTaskStatus(AvailableTaskStatus availableTaskStatus) {
+    public TaskStatus toTaskStatus(TaskStatusEntity availableTaskStatus) {
         parameterRequired(availableTaskStatus, "Available task status");
         return TaskStatus.builder()
                 .name(availableTaskStatus.getName())

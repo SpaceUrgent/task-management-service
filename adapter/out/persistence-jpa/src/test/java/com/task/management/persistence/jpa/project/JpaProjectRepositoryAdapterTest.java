@@ -7,15 +7,12 @@ import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Project;
 import com.task.management.domain.common.model.objectvalue.ProjectId;
-import com.task.management.domain.common.model.objectvalue.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
-import com.task.management.persistence.jpa.entity.AvailableTaskStatus;
-import com.task.management.persistence.jpa.entity.MemberEntity;
-import com.task.management.persistence.jpa.entity.ProjectEntity;
-import com.task.management.persistence.jpa.entity.UserEntity;
+import com.task.management.persistence.jpa.entity.*;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -242,6 +239,11 @@ class JpaProjectRepositoryAdapterTest {
     }
 
     private static void assertMatches(AvailableTaskStatus expected, TaskStatus actual) {
+        assertEquals(expected.getName(), actual.name());
+        assertEquals(expected.getPosition(), actual.position());
+    }
+
+    private static void assertMatches(TaskStatusEntity expected, TaskStatus actual) {
         assertEquals(expected.getName(), actual.name());
         assertEquals(expected.getPosition(), actual.position());
     }
