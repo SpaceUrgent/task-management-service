@@ -6,7 +6,7 @@ import com.task.management.application.project.projection.ProjectPreview;
 import com.task.management.domain.common.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.common.model.objectvalue.TaskPriority;
-import com.task.management.domain.common.model.objectvalue.TaskStatus;
+import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import com.task.managment.web.project.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
