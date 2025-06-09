@@ -68,8 +68,8 @@ public class Project {
     public void addStatus(TaskStatus status) {
         parameterRequired(status, "Task status");
         checkUniqueStatusName(status.name());
-        int position = Math.min(status.position(), availableTaskStatuses.size());
-        availableTaskStatuses.add(position - 1, status);
+        int position = Math.min(availableTaskStatuses.size(), status.position() - 1);
+        availableTaskStatuses.add(position, status);
         reorderAvailableStatuses();
     }
 
