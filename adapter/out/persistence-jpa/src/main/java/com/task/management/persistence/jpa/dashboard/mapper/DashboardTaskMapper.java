@@ -1,0 +1,40 @@
+package com.task.management.persistence.jpa.dashboard.mapper;
+
+import com.task.management.application.dashboard.projection.DashboardTaskPreview;
+import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.common.model.objectvalue.TaskId;
+import com.task.management.domain.common.model.objectvalue.TaskNumber;
+import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
+import com.task.management.persistence.jpa.entity.TaskEntity;
+
+import java.time.LocalDate;
+
+import static com.task.management.domain.common.model.objectvalue.TaskPriority.withOrder;
+import static java.util.Objects.nonNull;
+
+public class DashboardTaskMapper {
+    public static final DashboardTaskMapper INSTANCE = new DashboardTaskMapper(UserInfoMapper.INSTANCE);
+
+    private final UserInfoMapper userInfoMapper;
+
+    private DashboardTaskMapper(UserInfoMapper userInfoMapper) {
+        this.userInfoMapper = userInfoMapper;
+    }
+
+    public DashboardTaskPreview toDashboardTaskPreview(TaskEntity entity) {
+        final var dueDate = entity.getDueDate();
+        return DashboardTaskPreview.builder()
+                .createdAt(entity.getCreatedAt())
+                .taskId(new TaskId(entity.getId()))
+                .number(new TaskNumber(entity.getNumber()))
+                .title(entity.getTitle())
+                .projectId(new ProjectId(entity.getProject().getId()))
+                .projectTitle(entity.getProject().getTitle())
+                .dueDate(dueDate)
+                .isOverdue(nonNull(dueDate) && dueDate.isBefore(LocalDate.now()))
+                .priority(withOrder(entity.getPriority()))
+                .status(entity.getStatusName())
+                .assignee(userInfoMapper.toModel(entity.getAssignee()))
+                .build();
+    }
+}

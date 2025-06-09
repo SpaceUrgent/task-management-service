@@ -3,6 +3,7 @@ package com.task.management.persistence.jpa;
 import com.task.management.persistence.jpa.common.JpaUserInfoRepositoryAdapter;
 import com.task.management.persistence.jpa.dao.*;
 import com.task.management.persistence.jpa.dao.impl.*;
+import com.task.management.persistence.jpa.dashboard.JpaTasksDashboardRepositoryAdapter;
 import com.task.management.persistence.jpa.iam.JpaUserRepositoryAdapter;
 import com.task.management.persistence.jpa.project.JpaProjectRepositoryAdapter;
 import com.task.management.persistence.jpa.project.JpaTaskCommentRepositoryAdapter;
@@ -69,6 +70,11 @@ public class JpaTestConfiguration {
     @Bean
     public JpaUserInfoRepositoryAdapter jpaUserInfoRepositoryAdapter(UserEntityDao userEntityDao) {
         return new JpaUserInfoRepositoryAdapter(userEntityDao);
+    }
+
+    @Bean
+    public JpaTasksDashboardRepositoryAdapter jpaTasksDashboardRepositoryAdapter(TaskEntityDao taskEntityDao) {
+        return new JpaTasksDashboardRepositoryAdapter(taskEntityDao);
     }
 
     @Bean
