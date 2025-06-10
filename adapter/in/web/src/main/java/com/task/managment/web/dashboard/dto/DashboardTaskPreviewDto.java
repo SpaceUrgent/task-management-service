@@ -41,7 +41,7 @@ public class DashboardTaskPreviewDto {
         this.title = parameterRequired(title, "Title");
         this.projectId = parameterRequired(projectId, "Project id");
         this.projectTitle = parameterRequired(projectTitle, "Project title");
-        this.dueDate = parameterRequired(dueDate, "Due date");
+        this.dueDate = dueDate;
         this.isOverdue = parameterRequired(isOverdue, "Is overdue");
         this.priority = parameterRequired(priority, "Priority");
         this.status = parameterRequired(status, "Status");
