@@ -13,6 +13,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import ProjectContextLayout from "./project/layouts/ProjectContextLayout";
 import Task from "./project/tasks/Task";
 import UserProfile from "./iam/components/UserProfile";
+import DashboardLayout from "./dashboard/layouts/DashboardLayout";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
                     <Route path="/" element={<ProtectedRoute children={<MainLayout/>}/>}>
                         <Route path="/" element={<AvailableProjects/>}/>
                         <Route path="/projects" element={<AvailableProjects />}/>
+                        <Route path="/dashboard" element={<DashboardLayout />}/>
                         <Route element={<ProjectContextLayout/>}>
                             <Route path="/projects/:projectId" element={<ProjectLayout/>}>
                                 <Route path="/projects/:projectId/profile" element={<ProjectProfile/>}/>

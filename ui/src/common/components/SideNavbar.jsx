@@ -32,10 +32,10 @@ export default function SideNavbar({ onSignOut }) {
                         </li>
                         <li className="nav-item mb-2">
                             <Link
-                                className="nav-link text-light"
-                                to="/projects"
+                                className={`nav-link ${isActive("dashboard") ? "active" : "text-light"}`}
+                                to="/dashboard"
                             >
-                                Tasks (In development)
+                                Dashboard
                             </Link>
                         </li>
                         <li className="nav-item mb-2">
