@@ -6,7 +6,7 @@ import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
-import com.task.managment.web.common.mapper.UserInfoMapper;
+import com.task.managment.web.shared.mapper.UserInfoMapper;
 import com.task.managment.web.project.dto.TaskChangeLogDto;
 import com.task.managment.web.project.dto.TaskCommentDto;
 import com.task.managment.web.project.dto.TaskDetailsDto;

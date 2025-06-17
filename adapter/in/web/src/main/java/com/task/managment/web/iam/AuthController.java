@@ -1,6 +1,6 @@
 package com.task.managment.web.iam;
 
-import com.task.managment.web.common.dto.ErrorResponse;
+import com.task.managment.web.shared.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;

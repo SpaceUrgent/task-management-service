@@ -15,13 +15,13 @@ import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.shared.model.objectvalue.*;
 import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.project.model.objectvalue.*;
-import com.task.managment.web.common.dto.ListResponse;
+import com.task.managment.web.shared.dto.ListResponse;
 import com.task.managment.web.TestUtils;
 import com.task.managment.web.WebTest;
-import com.task.managment.web.common.dto.UserInfoDto;
+import com.task.managment.web.shared.dto.UserInfoDto;
 import com.task.managment.web.project.dto.*;
 import com.task.managment.web.project.dto.request.*;
-import com.task.managment.web.common.dto.PagedResponse;
+import com.task.managment.web.shared.dto.PagedResponse;
 import com.task.managment.web.security.MockUser;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
@@ -49,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @ComponentScan(basePackages = {
-        "com.task.managment.web.common.mapper",
+        "com.task.managment.web.shared.mapper",
         "com.task.managment.web.project.mapper"
 })
 @WebTest(testClasses = ProjectController.class)
@@ -60,27 +60,17 @@ class ProjectControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private GetAvailableProjectsUseCase getAvailableProjectsUseCase;
+    private ProjectUseCase projectUseCase;
     @MockBean
-    private GetProjectDetailsUseCase getProjectDetailsUseCase;
+    private ProjectMemberUseCase memberRoleUseCase;
     @MockBean
-    private CreateProjectUseCase createProjectUseCase;
-    @MockBean
-    private ProjectUseCase updateProjectUseCase;
-    @MockBean
-    private ProjectMemberUseCase addProjectMemberUseCase;
-    @MockBean
-    private UpdateMemberRoleUseCase updateMemberRoleUseCase;
-    @MockBean
-    private FindTasksUseCase findTasksUseCase;
-    @MockBean
-    private CreateTaskUseCase createTaskUseCase;
+    private TaskUseCase taskUseCase;
 
     @MockUser
     @Test
     void getAvailableProjects() throws Exception {
         final var expectedProjects = randomProjectPreviews();
-        doReturn(expectedProjects).when(getAvailableProjectsUseCase)
+        doReturn(expectedProjects).when(projectUseCase)
                 .getAvailableProjects(eq(new UserId(DEFAULT_USER_ID_VALUE)));
         final var responseBody = mockMvc.perform(get("/api/projects"))
                 .andExpect(status().isOk())
@@ -98,7 +88,7 @@ class ProjectControllerTest {
     void getProjectDetails() throws Exception {
         final var projectDetails = projectDetails();
         final var givenProjectId = projectDetails.id();
-        doReturn(projectDetails).when(getProjectDetailsUseCase).getProjectDetails(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
+        doReturn(projectDetails).when(projectUseCase).getProjectDetails(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
         final var responseBody = mockMvc.perform(get("/api/projects/{projectId}", givenProjectId.value()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -117,7 +107,7 @@ class ProjectControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(givenRequest)))
                 .andExpect(status().isCreated());
-        verify(createProjectUseCase).createProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), argThat(createProjectCommandMatcher(givenRequest)));
+        verify(projectUseCase).createProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), argThat(createProjectCommandMatcher(givenRequest)));
     }
 
     @MockUser
@@ -133,7 +123,7 @@ class ProjectControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(givenRequest)))
                         .andExpect(status().isOk());
-        verify(updateProjectUseCase).updateProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(expectedCommand));
+        verify(projectUseCase).updateProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId), eq(expectedCommand));
     }
 
     @MockUser
@@ -146,7 +136,7 @@ class ProjectControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(givenRequest)))
                 .andExpect(status().isOk());
-        verify(addProjectMemberUseCase).addMember(eq(USER_ID), eq(givenProjectId), eq(expectedEmail));
+        verify(projectUseCase).addMember(eq(USER_ID), eq(givenProjectId), eq(expectedEmail));
     }
 
     @MockUser
@@ -163,7 +153,7 @@ class ProjectControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(givenRequest)))
                         .andExpect(status().isOk());
-        verify(updateMemberRoleUseCase).updateMemberRole(eq(USER_ID), eq(expectedCommand));
+        verify(memberRoleUseCase).updateMemberRole(eq(USER_ID), eq(expectedCommand));
     }
 
     @MockUser
@@ -179,7 +169,7 @@ class ProjectControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(givenRequest)))
                 .andExpect(status().isOk());
-        verify(updateProjectUseCase).addTaskStatus(eq(USER_ID), eq(givenProjectId), eq(expectedCommand));
+        verify(projectUseCase).addTaskStatus(eq(USER_ID), eq(givenProjectId), eq(expectedCommand));
     }
 
     @MockUser
@@ -189,7 +179,7 @@ class ProjectControllerTest {
         final var givenStatusName = "Review";
         mockMvc.perform(delete("/api/projects/{projectId}/available-statuses/{statusName}", givenProjectId.value(), givenStatusName))
                 .andExpect(status().isOk());
-        verify(updateProjectUseCase).removeTaskStatus(eq(USER_ID), eq(givenProjectId), eq(givenStatusName));
+        verify(projectUseCase).removeTaskStatus(eq(USER_ID), eq(givenProjectId), eq(givenStatusName));
     }
 
     @MockUser
@@ -198,7 +188,7 @@ class ProjectControllerTest {
         final var givenProjectId = randomProjectId();
         final var givenStatusName = "Review";
         final var exception = new RemoveTaskStatusException("Failed to remove status");
-        doThrow(exception).when(updateProjectUseCase).removeTaskStatus(eq(USER_ID), eq(givenProjectId), eq(givenStatusName));
+        doThrow(exception).when(projectUseCase).removeTaskStatus(eq(USER_ID), eq(givenProjectId), eq(givenStatusName));
 
         mockMvc.perform(delete("/api/projects/{projectId}/available-statuses/{statusName}", givenProjectId.value(), givenStatusName))
                 .andExpect(status().isConflict())
@@ -226,7 +216,7 @@ class ProjectControllerTest {
                 .totalPages(2)
                 .content(randomTaskPreviews(expectedQuery.getPageSize()))
                 .build();
-        doReturn(expectedTaskPreviews).when(findTasksUseCase).findTasks(eq(USER_ID), eq(expectedQuery));
+        doReturn(expectedTaskPreviews).when(taskUseCase).findTasks(eq(USER_ID), eq(expectedQuery));
         final var responseBody = mockMvc.perform(get("/api/projects/{projectId}/tasks", givenProjectId.value()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -259,7 +249,7 @@ class ProjectControllerTest {
                 .totalPages(totalTasks / expectedQuery.getPageSize())
                 .content(randomTaskPreviews(expectedQuery.getPageSize()))
                 .build();
-        doReturn(expectedTaskPreviews).when(findTasksUseCase).findTasks(eq(USER_ID), eq(expectedQuery));
+        doReturn(expectedTaskPreviews).when(taskUseCase).findTasks(eq(USER_ID), eq(expectedQuery));
         final var responseBody = mockMvc.perform(get("/api/projects/{projectId}/tasks", givenProjectId.value())
                         .param("page", "2")
                         .param("size", "10")
@@ -293,7 +283,7 @@ class ProjectControllerTest {
                         .content(objectMapper.writeValueAsString(givenRequest)))
                 .andExpect(status().isCreated());
 
-        verify(createTaskUseCase).createTask(eq(USER_ID), eq(givenProjectId), eq(expectedCommand));
+        verify(taskUseCase).createTask(eq(USER_ID), eq(givenProjectId), eq(expectedCommand));
     }
 
     private void assertMatches(Page<TaskPreview> expected, PagedResponse<TaskPreviewDto> actual) {

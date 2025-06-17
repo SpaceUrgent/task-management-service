@@ -2,7 +2,7 @@ package com.task.managment.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.management.application.shared.UseCaseException;
-import com.task.managment.web.common.dto.ErrorResponse;
+import com.task.managment.web.shared.dto.ErrorResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

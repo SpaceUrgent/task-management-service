@@ -1,7 +1,7 @@
 package com.task.managment.web;
 
 import com.task.management.application.shared.UseCaseException;
-import com.task.managment.web.common.dto.ErrorResponse;
+import com.task.managment.web.shared.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;

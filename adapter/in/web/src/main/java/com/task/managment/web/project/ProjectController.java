@@ -11,14 +11,14 @@ import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.shared.model.objectvalue.TaskPriority;
-import com.task.managment.web.common.BaseController;
-import com.task.managment.web.common.dto.ErrorResponse;
-import com.task.managment.web.common.dto.ListResponse;
+import com.task.managment.web.shared.BaseController;
+import com.task.managment.web.shared.dto.ErrorResponse;
+import com.task.managment.web.shared.dto.ListResponse;
 import com.task.managment.web.project.dto.ProjectPreviewDto;
 import com.task.managment.web.project.dto.TaskPreviewDto;
 import com.task.managment.web.project.dto.UserProjectDetailsDto;
 import com.task.managment.web.project.dto.request.*;
-import com.task.managment.web.common.dto.PagedResponse;
+import com.task.managment.web.shared.dto.PagedResponse;
 import com.task.managment.web.project.mapper.ProjectMapper;
 import com.task.managment.web.project.mapper.TaskMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,20 +37,15 @@ import java.util.Set;
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
 public class ProjectController extends BaseController {
-    private final GetAvailableProjectsUseCase getAvailableProjectsUseCase;
-    private final CreateProjectUseCase createProjectUseCase;
-    private final GetProjectDetailsUseCase getProjectDetailsUseCase;
-    private final ProjectUseCase updateProjectUseCase;
-    private final ProjectMemberUseCase addProjectMemberUseCase;
-    private final UpdateMemberRoleUseCase updateMemberRoleUseCase;
-    private final CreateTaskUseCase createTaskUseCase;
-    private final FindTasksUseCase findTasksUseCase;
+    private final ProjectUseCase projectUseCase;
+    private final TaskUseCase taskUseCase;
+    private final ProjectMemberUseCase projectMemberUseCase;
     private final ProjectMapper projectMapper;
     private final TaskMapper taskMapper;
 
     @GetMapping
     public ListResponse<ProjectPreviewDto> getAvailableProjects() {
-        final var projectPreviews = getAvailableProjectsUseCase.getAvailableProjects(actor());
+        final var projectPreviews = projectUseCase.getAvailableProjects(actor());
         return ListResponse.<ProjectPreviewDto>builder()
                 .data(projectPreviews.stream().map(projectMapper::toDto).toList())
                 .build();
@@ -63,13 +58,13 @@ public class ProjectController extends BaseController {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .build();
-        createProjectUseCase.createProject(actor(), command);
+        projectUseCase.createProject(actor(), command);
     }
 
     @GetMapping("/{projectId}")
     public UserProjectDetailsDto getProjectDetails(@PathVariable Long projectId) throws UseCaseException {
         final var actor = actor();
-        final var projectDetails = getProjectDetailsUseCase.getProjectDetails(actor, new ProjectId(projectId));
+        final var projectDetails = projectUseCase.getProjectDetails(actor, new ProjectId(projectId));
         return projectMapper.toDto(actor, projectDetails);
     }
 
@@ -80,13 +75,13 @@ public class ProjectController extends BaseController {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .build();
-        updateProjectUseCase.updateProject(actor(), new ProjectId(projectId), command);
+        projectUseCase.updateProject(actor(), new ProjectId(projectId), command);
     }
 
     @PostMapping("/{projectId}/members")
     public void addProjectMember(@PathVariable Long projectId,
                                  @RequestBody @Valid @NotNull AddProjectMemberRequest request) throws UseCaseException {
-        addProjectMemberUseCase.addMember(
+        projectUseCase.addMember(
                 actor(), new ProjectId(projectId), new Email(request.getEmail())
         );
     }
@@ -99,7 +94,7 @@ public class ProjectController extends BaseController {
                 .memberId(new UserId(request.getMemberId()))
                 .role(MemberRole.withRoleName(request.getRole()))
                 .build();
-        updateMemberRoleUseCase.updateMemberRole(actor(), command);
+        projectMemberUseCase.updateMemberRole(actor(), command);
     }
 
     @PutMapping("/{projectId}/available-statuses")
@@ -109,13 +104,13 @@ public class ProjectController extends BaseController {
                 .name(request.getName())
                 .position(request.getPosition())
                 .build();
-        updateProjectUseCase.addTaskStatus(actor(), new ProjectId(projectId), command);
+        projectUseCase.addTaskStatus(actor(), new ProjectId(projectId), command);
     }
 
     @DeleteMapping("/{projectId}/available-statuses/{statusName}")
     public void removeAvailableTaskStatus(@PathVariable Long projectId,
                                           @PathVariable String statusName) throws UseCaseException {
-        updateProjectUseCase.removeTaskStatus(actor(), new ProjectId(projectId), statusName);
+        projectUseCase.removeTaskStatus(actor(), new ProjectId(projectId), statusName);
     }
 
     @GetMapping("/{projectId}/tasks")
@@ -134,7 +129,7 @@ public class ProjectController extends BaseController {
                 .statusIn(statusList)
                 .sortBy(sortList)
                 .build();
-        final var taskPreviewPage = findTasksUseCase.findTasks(actor(), query);
+        final var taskPreviewPage = taskUseCase.findTasks(actor(), query);
         final var data = taskPreviewPage.content().stream()
                 .map(taskMapper::toDto)
                 .toList();
@@ -158,7 +153,7 @@ public class ProjectController extends BaseController {
                 .dueDate(request.getDueDate())
                 .priority(TaskPriority.withPriorityName(request.getPriority()))
                 .build();
-        createTaskUseCase.createTask(actor(), new ProjectId(projectId), command);
+        taskUseCase.createTask(actor(), new ProjectId(projectId), command);
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)

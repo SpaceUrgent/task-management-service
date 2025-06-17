@@ -1,6 +1,6 @@
 package com.task.managment.web.dashboard.dto;
 
-import com.task.managment.web.common.dto.UserInfoDto;
+import com.task.managment.web.shared.dto.UserInfoDto;
 import lombok.Builder;
 import lombok.Data;
 

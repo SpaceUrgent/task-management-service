@@ -1,4 +1,4 @@
-package com.task.managment.web.common;
+package com.task.managment.web.shared;
 
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.managment.web.security.SecuredUser;

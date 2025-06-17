@@ -12,7 +12,7 @@ import com.task.management.application.dashboard.query.FindOwnedDashboardTasksQu
 import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.shared.model.objectvalue.*;
 import com.task.managment.web.WebTest;
-import com.task.managment.web.common.dto.PagedResponse;
+import com.task.managment.web.shared.dto.PagedResponse;
 import com.task.managment.web.dashboard.dto.DashboardTaskPreviewDto;
 import com.task.managment.web.security.MockUser;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ComponentScan(basePackages = {
-        "com.task.managment.web.common.mapper",
+        "com.task.managment.web.shared.mapper",
         "com.task.managment.web.dashboard.mapper"
 })
 @WebTest(testClasses = TasksDashboardController.class)

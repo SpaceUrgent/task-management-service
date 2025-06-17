@@ -2,7 +2,7 @@ package com.task.managment.web.dashboard.mapper;
 
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;
 import com.task.management.application.dashboard.projection.TasksSummary;
-import com.task.managment.web.common.mapper.UserInfoMapper;
+import com.task.managment.web.shared.mapper.UserInfoMapper;
 import com.task.managment.web.dashboard.dto.DashboardTaskPreviewDto;
 import com.task.managment.web.dashboard.dto.TasksSummaryDto;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
-package com.task.managment.web.common.mapper;
+package com.task.managment.web.shared.mapper;
 
 import com.task.management.domain.shared.model.UserInfo;
-import com.task.managment.web.common.dto.UserInfoDto;
+import com.task.managment.web.shared.dto.UserInfoDto;
 import org.springframework.stereotype.Component;
 
 import static com.task.management.domain.shared.validation.Validation.parameterRequired;

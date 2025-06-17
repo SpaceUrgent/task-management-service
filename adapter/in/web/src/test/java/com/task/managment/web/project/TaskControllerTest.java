@@ -2,7 +2,6 @@ package com.task.managment.web.project;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.management.application.project.command.UpdateTaskCommand;
-import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
 import com.task.management.application.project.port.in.TaskUseCase;
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskCommentView;
@@ -43,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ComponentScan(basePackages = {
-        "com.task.managment.web.common.mapper",
+        "com.task.managment.web.shared.mapper",
         "com.task.managment.web.project.mapper"
 })
 @WebTest(testClasses = TaskController.class)
@@ -54,9 +53,7 @@ class TaskControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private GetTaskDetailsUseCase getTaskDetailsUseCase;
-    @MockBean
-    private TaskUseCase updateTaskUseCase;
+    private TaskUseCase taskUseCase;
 
     @MockUser
     @Test
@@ -64,7 +61,7 @@ class TaskControllerTest {
         final var taskDetails = randomTaskDetails();
         final var taskOwner = taskDetails.owner();
         final var assignee = taskDetails.assignee();
-        doReturn(taskDetails).when(getTaskDetailsUseCase).getTaskDetails(eq(USER_ID), eq(taskDetails.id()));
+        doReturn(taskDetails).when(taskUseCase).getTaskDetails(eq(USER_ID), eq(taskDetails.id()));
         final var responseBody = mockMvc.perform(get("/api/tasks/{taskId}", taskDetails.id().value()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -115,7 +112,7 @@ class TaskControllerTest {
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk());
-        verify(updateTaskUseCase).updateTask(eq(USER_ID), eq(givenTaskId), eq(expectedCommand));
+        verify(taskUseCase).updateTask(eq(USER_ID), eq(givenTaskId), eq(expectedCommand));
     }
 
     @MockUser
@@ -127,7 +124,7 @@ class TaskControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
-        verify(updateTaskUseCase).updateStatus(eq(USER_ID), eq(givenTaskId), eq(request.getStatus()));
+        verify(taskUseCase).updateStatus(eq(USER_ID), eq(givenTaskId), eq(request.getStatus()));
     }
 
     @MockUser
@@ -139,7 +136,7 @@ class TaskControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(givenRequest)))
                         .andExpect(status().isOk());
-        verify(updateTaskUseCase)
+        verify(taskUseCase)
                 .assignTask(eq(USER_ID), eq(givenTaskId), eq(new UserId(givenRequest.getAssigneeId())));
     }
 
@@ -152,7 +149,7 @@ class TaskControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(givenRequest)))
                 .andExpect(status().isOk());
-        verify(updateTaskUseCase)
+        verify(taskUseCase)
                 .updatePriority(eq(USER_ID), eq(givenTaskId), eq(TaskPriority.withPriorityName(givenRequest.getPriority())));
     }
 
@@ -165,7 +162,7 @@ class TaskControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(givenRequest)))
                 .andExpect(status().isOk());
-        verify(updateTaskUseCase)
+        verify(taskUseCase)
                 .addComment(eq(USER_ID), eq(givenTaskId), eq(givenRequest.getComment()));
     }
 

@@ -1,7 +1,7 @@
 package com.task.managment.web.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.task.managment.web.common.dto.ErrorResponse;
+import com.task.managment.web.shared.dto.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

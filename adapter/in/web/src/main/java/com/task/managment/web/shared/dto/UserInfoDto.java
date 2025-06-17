@@ -1,4 +1,4 @@
-package com.task.managment.web.common.dto;
+package com.task.managment.web.shared.dto;
 
 import lombok.Builder;
 import lombok.Data;

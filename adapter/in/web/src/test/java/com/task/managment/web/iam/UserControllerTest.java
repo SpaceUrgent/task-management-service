@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ComponentScan(basePackages = {
-        "com.task.managment.web.common.mapper",
+        "com.task.managment.web.shared.mapper",
         "com.task.managment.web.iam.mapper"
 })
 @WebTest(testClasses = UserController.class)
