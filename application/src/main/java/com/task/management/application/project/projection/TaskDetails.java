@@ -1,10 +1,10 @@
 package com.task.management.application.project.projection;
 
-import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
-import com.task.management.domain.common.model.objectvalue.TaskId;
-import com.task.management.domain.common.model.objectvalue.TaskNumber;
-import com.task.management.domain.common.model.objectvalue.TaskPriority;
+import com.task.management.domain.shared.model.UserInfo;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.TaskId;
+import com.task.management.domain.shared.model.objectvalue.TaskNumber;
+import com.task.management.domain.shared.model.objectvalue.TaskPriority;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 public record TaskDetails(
         TaskId id,

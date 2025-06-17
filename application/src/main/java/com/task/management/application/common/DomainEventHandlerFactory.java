@@ -1,12 +1,12 @@
 package com.task.management.application.common;
 
 import com.task.management.application.common.port.in.DomainEventHandlerPort;
-import com.task.management.domain.common.event.DomainEvent;
+import com.task.management.domain.shared.event.DomainEvent;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.task.management.domain.common.validation.Validation.eventRequired;
+import static com.task.management.domain.shared.validation.Validation.eventRequired;
 
 public class DomainEventHandlerFactory {
 

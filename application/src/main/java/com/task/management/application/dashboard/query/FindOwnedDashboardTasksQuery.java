@@ -1,12 +1,12 @@
 package com.task.management.application.dashboard.query;
 
 import com.task.management.application.common.query.PagedQuery;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)

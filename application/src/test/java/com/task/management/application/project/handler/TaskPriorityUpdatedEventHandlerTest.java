@@ -4,7 +4,7 @@ import com.task.management.application.common.EventHandlingException;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.domain.project.event.TaskPriorityUpdatedEvent;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
-import com.task.management.domain.common.model.objectvalue.TaskPriority;
+import com.task.management.domain.shared.model.objectvalue.TaskPriority;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

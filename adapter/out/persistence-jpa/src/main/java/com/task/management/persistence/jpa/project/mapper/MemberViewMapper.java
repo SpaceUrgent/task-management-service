@@ -1,11 +1,11 @@
 package com.task.management.persistence.jpa.project.mapper;
 
 import com.task.management.application.project.projection.MemberView;
-import com.task.management.domain.common.model.objectvalue.Email;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.persistence.jpa.entity.MemberEntity;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 public class MemberViewMapper {
 

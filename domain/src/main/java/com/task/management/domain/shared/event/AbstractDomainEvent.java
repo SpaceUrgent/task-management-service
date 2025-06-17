@@ -1,11 +1,11 @@
-package com.task.management.domain.common.event;
+package com.task.management.domain.shared.event;
 
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import lombok.Data;
 
 import java.time.Instant;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @Data
 public abstract class AbstractDomainEvent<EntityId> implements DomainEvent {

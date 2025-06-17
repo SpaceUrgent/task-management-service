@@ -6,7 +6,7 @@ import com.task.management.application.project.projection.TaskCommentView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
-import com.task.management.domain.common.model.objectvalue.*;
+import com.task.management.domain.shared.model.objectvalue.*;
 import com.task.management.domain.project.model.*;
 import com.task.management.domain.project.model.objectvalue.*;
 import com.task.management.persistence.jpa.InvalidTestSetupException;

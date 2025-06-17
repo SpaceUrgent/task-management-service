@@ -4,7 +4,7 @@ import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.iam.port.out.EncryptPasswordPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @AppComponent
 public class BCryptPasswordEncryptorAdapter implements EncryptPasswordPort {

@@ -7,10 +7,10 @@ import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.project.model.*;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
-import com.task.management.domain.common.model.objectvalue.TaskId;
-import com.task.management.domain.common.model.objectvalue.TaskNumber;
+import com.task.management.domain.shared.model.objectvalue.TaskId;
+import com.task.management.domain.shared.model.objectvalue.TaskNumber;
 import com.task.management.persistence.jpa.dao.*;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 import static java.util.Objects.requireNonNull;
 
 @AppComponent

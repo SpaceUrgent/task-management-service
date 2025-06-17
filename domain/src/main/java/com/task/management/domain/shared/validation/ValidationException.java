@@ -1,10 +1,9 @@
-package com.task.management.domain.common.validation;
+package com.task.management.domain.shared.validation;
 
 //import jakarta.validation.ConstraintViolation;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Set;
 
 @Getter
 public class ValidationException extends RuntimeException {

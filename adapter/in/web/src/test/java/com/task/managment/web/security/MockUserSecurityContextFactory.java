@@ -1,8 +1,8 @@
 package com.task.managment.web.security;
 
-import com.task.management.domain.common.model.objectvalue.Email;
-import com.task.management.domain.iam.model.objectvalue.UserCredentials;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.management.application.iam.projection.UserCredentials;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -1,7 +1,7 @@
 package com.task.management.domain.project.model;
 
-import com.task.management.domain.common.model.DomainEventAggregate;
-import com.task.management.domain.common.model.objectvalue.*;
+import com.task.management.domain.shared.model.DomainEventAggregate;
+import com.task.management.domain.shared.model.objectvalue.*;
 import com.task.management.domain.project.event.*;
 
 import lombok.Builder;
@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import static com.task.management.domain.common.validation.Validation.*;
+import static com.task.management.domain.shared.validation.Validation.*;
 import static java.util.Objects.*;
 
 @Getter

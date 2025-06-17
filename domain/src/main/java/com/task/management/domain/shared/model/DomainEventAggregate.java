@@ -1,11 +1,11 @@
-package com.task.management.domain.common.model;
+package com.task.management.domain.shared.model;
 
-import com.task.management.domain.common.event.DomainEvent;
+import com.task.management.domain.shared.event.DomainEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 public abstract class DomainEventAggregate {
     private final transient List<DomainEvent> events = new ArrayList<>();

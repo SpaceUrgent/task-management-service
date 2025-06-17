@@ -1,7 +1,7 @@
 package com.task.management.domain.project.model;
 
 import com.task.management.domain.project.event.*;
-import com.task.management.domain.common.model.objectvalue.TaskPriority;
+import com.task.management.domain.shared.model.objectvalue.TaskPriority;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

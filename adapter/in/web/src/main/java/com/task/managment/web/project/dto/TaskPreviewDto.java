@@ -9,8 +9,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @Data
 @NoArgsConstructor

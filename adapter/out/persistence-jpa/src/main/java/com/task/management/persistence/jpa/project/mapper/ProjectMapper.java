@@ -3,9 +3,9 @@ package com.task.management.persistence.jpa.project.mapper;
 import com.task.management.application.project.projection.MemberView;
 import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Project;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import com.task.management.persistence.jpa.entity.MemberEntity;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 import static java.util.Objects.requireNonNull;
 
 public class ProjectMapper {

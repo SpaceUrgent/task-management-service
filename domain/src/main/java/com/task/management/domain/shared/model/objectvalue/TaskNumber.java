@@ -1,6 +1,6 @@
-package com.task.management.domain.common.model.objectvalue;
+package com.task.management.domain.shared.model.objectvalue;
 
-import com.task.management.domain.common.validation.Validation;
+import com.task.management.domain.shared.validation.Validation;
 
 public record TaskNumber(Long value) {
     public TaskNumber {

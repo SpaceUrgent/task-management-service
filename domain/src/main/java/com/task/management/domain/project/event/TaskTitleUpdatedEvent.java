@@ -1,10 +1,10 @@
 package com.task.management.domain.project.event;
 
-import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.common.model.objectvalue.TaskId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.TaskId;
 import lombok.*;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)

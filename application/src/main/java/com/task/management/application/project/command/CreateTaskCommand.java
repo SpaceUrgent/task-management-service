@@ -1,7 +1,7 @@
 package com.task.management.application.project.command;
 
-import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.common.model.objectvalue.TaskPriority;
+import com.task.management.domain.shared.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.TaskPriority;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.Builder;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
-import static com.task.management.domain.common.validation.Validation.presentOrFuture;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.presentOrFuture;
 
 public record CreateTaskCommand(
         @NotBlank(message = "Title is required")

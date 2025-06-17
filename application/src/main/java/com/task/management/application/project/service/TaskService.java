@@ -15,17 +15,17 @@ import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.TaskComment;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.Task;
-import com.task.management.domain.common.model.objectvalue.TaskId;
-import com.task.management.domain.common.model.objectvalue.TaskPriority;
+import com.task.management.domain.shared.model.objectvalue.TaskId;
+import com.task.management.domain.shared.model.objectvalue.TaskPriority;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 
-import static com.task.management.domain.common.validation.Validation.*;
+import static com.task.management.domain.shared.validation.Validation.*;
 
 @AppComponent
 @RequiredArgsConstructor

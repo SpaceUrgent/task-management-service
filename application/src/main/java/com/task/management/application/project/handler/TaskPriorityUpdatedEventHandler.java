@@ -3,7 +3,7 @@ package com.task.management.application.project.handler;
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.domain.project.event.TaskPriorityUpdatedEvent;
-import com.task.management.domain.common.model.objectvalue.TaskPriority;
+import com.task.management.domain.shared.model.objectvalue.TaskPriority;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 
 @AppComponent

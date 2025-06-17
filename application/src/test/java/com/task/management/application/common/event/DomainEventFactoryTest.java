@@ -3,7 +3,7 @@ package com.task.management.application.common.event;
 import com.task.management.application.common.EventHandlingException;
 import com.task.management.application.common.DomainEventHandlerFactory;
 import com.task.management.application.common.port.in.DomainEventHandlerPort;
-import com.task.management.domain.common.event.DomainEvent;
+import com.task.management.domain.shared.event.DomainEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

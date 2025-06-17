@@ -9,7 +9,7 @@ import lombok.ToString;
 
 import java.time.Instant;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

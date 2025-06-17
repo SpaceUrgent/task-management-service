@@ -5,7 +5,7 @@ import com.task.management.application.dashboard.projection.DashboardTaskPreview
 import com.task.management.application.dashboard.projection.TasksSummary;
 import com.task.management.application.dashboard.query.FindAssignedDashboardTasksQuery;
 import com.task.management.application.dashboard.query.FindOwnedDashboardTasksQuery;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 
 public interface TasksDashboardRepository {
     TasksSummary getAssignedToSummary(UserId assignee);

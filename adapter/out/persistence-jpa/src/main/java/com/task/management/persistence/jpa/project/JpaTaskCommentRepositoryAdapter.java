@@ -12,7 +12,7 @@ import com.task.management.persistence.jpa.project.mapper.TaskCommentMapper;
 
 import java.util.Optional;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @AppComponent
 public class JpaTaskCommentRepositoryAdapter implements TaskCommentRepositoryPort {

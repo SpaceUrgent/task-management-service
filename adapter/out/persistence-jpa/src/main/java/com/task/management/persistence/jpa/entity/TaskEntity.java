@@ -11,8 +11,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @NamedEntityGraph(
         name = "task-details",

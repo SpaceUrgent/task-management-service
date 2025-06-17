@@ -10,7 +10,7 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @AppComponent
 public class ProjectEntityDaoImpl extends AbstractEntityDao<ProjectEntity, Long> implements ProjectEntityDao {

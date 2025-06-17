@@ -1,6 +1,6 @@
 package com.task.managment.web.iam.mapper;
 
-import com.task.management.domain.common.model.UserInfo;
+import com.task.management.domain.shared.model.UserInfo;
 import com.task.managment.web.iam.dto.UserProfileDto;
 import org.springframework.stereotype.Component;
 

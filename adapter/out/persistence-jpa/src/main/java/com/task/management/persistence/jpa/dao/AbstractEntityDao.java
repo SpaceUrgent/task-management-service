@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 import static java.util.Objects.requireNonNull;
 
 public abstract class AbstractEntityDao<T extends JpaEntity<ID>, ID> implements EntityDao<T, ID> {

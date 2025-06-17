@@ -1,14 +1,14 @@
 package com.task.management.application.dashboard.projection;
 
-import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.common.model.objectvalue.*;
+import com.task.management.domain.shared.model.UserInfo;
+import com.task.management.domain.shared.model.objectvalue.*;
 import lombok.Builder;
 
 import java.time.Instant;
 import java.time.LocalDate;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 public record DashboardTaskPreview(
         Instant createdAt,

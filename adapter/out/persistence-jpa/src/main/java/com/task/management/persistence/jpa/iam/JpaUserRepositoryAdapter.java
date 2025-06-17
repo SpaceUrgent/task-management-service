@@ -3,11 +3,11 @@ package com.task.management.persistence.jpa.iam;
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.iam.port.out.UserCredentialsPort;
 import com.task.management.application.iam.port.out.UserRepositoryPort;
-import com.task.management.domain.common.model.objectvalue.Email;
+import com.task.management.domain.shared.model.objectvalue.Email;
 import com.task.management.domain.iam.model.User;
-import com.task.management.domain.iam.model.objectvalue.UserCredentials;
-import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.common.model.UserInfo;
+import com.task.management.application.iam.projection.UserCredentials;
+import com.task.management.domain.shared.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.iam.mapper.UserCredentialsMapper;
@@ -15,8 +15,8 @@ import com.task.management.persistence.jpa.iam.mapper.UserMapper;
 
 import java.util.Optional;
 
-import static com.task.management.domain.common.validation.Validation.emailRequired;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.emailRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @AppComponent
 public class JpaUserRepositoryAdapter implements UserRepositoryPort,

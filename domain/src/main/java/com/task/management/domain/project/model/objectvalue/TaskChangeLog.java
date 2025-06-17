@@ -1,12 +1,12 @@
 package com.task.management.domain.project.model.objectvalue;
 
-import com.task.management.domain.common.model.objectvalue.TaskId;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.TaskId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import lombok.Builder;
 
 import java.time.Instant;
 
-import static com.task.management.domain.common.validation.Validation.*;
+import static com.task.management.domain.shared.validation.Validation.*;
 
 public record TaskChangeLog(
         Instant time,

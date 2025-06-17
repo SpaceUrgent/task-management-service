@@ -1,8 +1,8 @@
 package com.task.management.application.iam.port.out;
 
-import com.task.management.domain.common.model.objectvalue.Email;
-import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.common.model.UserInfo;
+import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.management.domain.shared.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.iam.model.User;
 
 import java.util.Optional;

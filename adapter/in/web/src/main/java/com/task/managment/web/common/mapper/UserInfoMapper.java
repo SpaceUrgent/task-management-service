@@ -1,10 +1,10 @@
 package com.task.managment.web.common.mapper;
 
-import com.task.management.domain.common.model.UserInfo;
+import com.task.management.domain.shared.model.UserInfo;
 import com.task.managment.web.common.dto.UserInfoDto;
 import org.springframework.stereotype.Component;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @Component
 public class UserInfoMapper {

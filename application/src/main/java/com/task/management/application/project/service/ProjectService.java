@@ -16,12 +16,12 @@ import com.task.management.application.project.port.out.ProjectRepositoryPort;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
-import com.task.management.domain.common.model.objectvalue.Email;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Member;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.project.model.Project;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static com.task.management.application.project.ProjectConstants.DEFAULT_TASK_STATUSES;
-import static com.task.management.domain.common.validation.Validation.*;
+import static com.task.management.domain.shared.validation.Validation.*;
 
 @Slf4j
 @AppComponent

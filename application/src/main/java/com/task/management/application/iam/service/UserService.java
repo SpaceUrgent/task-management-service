@@ -13,14 +13,14 @@ import com.task.management.application.iam.port.in.UserProfileUseCase;
 import com.task.management.application.iam.port.in.RegisterUserUseCase;
 import com.task.management.application.iam.port.out.EncryptPasswordPort;
 import com.task.management.application.iam.port.out.UserRepositoryPort;
-import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.common.model.UserInfo;
+import com.task.management.domain.shared.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.iam.model.User;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 
-import static com.task.management.domain.common.validation.Validation.actorIdRequired;
+import static com.task.management.domain.shared.validation.Validation.actorIdRequired;
 
 @AppComponent
 @RequiredArgsConstructor

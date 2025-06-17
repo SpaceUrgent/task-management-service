@@ -2,7 +2,7 @@ package com.task.management.application.dashboard.projection;
 
 import lombok.Builder;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 public record TasksSummary(
         Integer total,

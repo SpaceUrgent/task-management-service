@@ -4,7 +4,7 @@ import com.task.management.application.common.DomainEventHandlerFactory;
 import com.task.management.application.common.DomainEventPublishingException;
 import com.task.management.application.common.EventHandlingException;
 import com.task.management.application.common.port.out.DomainEventPublisherPort;
-import com.task.management.domain.common.event.DomainEvent;
+import com.task.management.domain.shared.event.DomainEvent;
 
 import java.util.List;
 

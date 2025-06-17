@@ -4,10 +4,10 @@ import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.project.port.out.ProjectRepositoryPort;
 import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
 import com.task.management.domain.project.model.Project;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @AppComponent
 @RequiredArgsConstructor

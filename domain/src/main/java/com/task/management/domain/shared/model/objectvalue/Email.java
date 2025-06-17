@@ -1,11 +1,11 @@
-package com.task.management.domain.common.model.objectvalue;
+package com.task.management.domain.shared.model.objectvalue;
 
-import com.task.management.domain.common.validation.ValidationException;
+import com.task.management.domain.shared.validation.ValidationException;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
 
 public record Email(String value) implements Serializable {
     public static final String VALID_EMAIL_REGEXP = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";

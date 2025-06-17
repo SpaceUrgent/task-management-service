@@ -1,9 +1,9 @@
 package com.task.management.application.project;
 
 import com.task.management.application.common.TestUtils;
-import com.task.management.domain.common.model.objectvalue.Email;
-import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.common.model.UserInfo;
+import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.management.domain.shared.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.project.model.*;
 import com.task.management.application.project.projection.MemberView;
 import org.mockito.stubbing.Answer;

@@ -1,12 +1,12 @@
 package com.task.managment.web;
 
 import com.task.management.application.project.projection.MemberView;
-import com.task.management.domain.common.model.objectvalue.Email;
-import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.iam.model.objectvalue.UserCredentials;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.management.domain.shared.model.UserInfo;
+import com.task.management.application.iam.projection.UserCredentials;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 
 import java.util.Random;
 

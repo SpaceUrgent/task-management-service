@@ -1,9 +1,9 @@
 package com.task.management.domain.project.model.objectvalue;
 
-import com.task.management.domain.common.validation.ValidationException;
+import com.task.management.domain.shared.validation.ValidationException;
 import lombok.Builder;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 public record TaskStatus(
         String name,

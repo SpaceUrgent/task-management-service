@@ -1,7 +1,7 @@
 package com.task.management.domain.iam.model;
 
-import com.task.management.domain.common.model.objectvalue.Email;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -9,9 +9,9 @@ import lombok.Setter;
 
 import java.time.Instant;
 
-import static com.task.management.domain.common.validation.Validation.emailRequired;
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.emailRequired;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 
 @Data

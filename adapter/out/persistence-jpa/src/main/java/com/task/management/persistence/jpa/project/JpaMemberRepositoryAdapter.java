@@ -2,9 +2,9 @@ package com.task.management.persistence.jpa.project;
 
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.project.port.out.MemberRepositoryPort;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Member;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.persistence.jpa.dao.MemberEntityDao;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @AppComponent
 @RequiredArgsConstructor

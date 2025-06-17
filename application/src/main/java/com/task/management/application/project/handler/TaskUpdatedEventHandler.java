@@ -7,7 +7,7 @@ import com.task.management.domain.project.event.TaskUpdatedEvent;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 
-import static com.task.management.domain.common.validation.Validation.eventRequired;
+import static com.task.management.domain.shared.validation.Validation.eventRequired;
 
 public abstract class TaskUpdatedEventHandler<Event extends TaskUpdatedEvent<PropType>, PropType> implements DomainEventHandlerPort<Event> {
     protected final TaskRepositoryPort taskRepositoryPort;

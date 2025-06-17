@@ -1,8 +1,8 @@
 package com.task.management.domain.project.model;
 
-import com.task.management.domain.common.model.objectvalue.UserId;
-import com.task.management.domain.common.validation.ValidationException;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
+import com.task.management.domain.shared.validation.ValidationException;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static com.task.management.domain.common.validation.Validation.*;
+import static com.task.management.domain.shared.validation.Validation.*;
 
 @Getter
 @ToString

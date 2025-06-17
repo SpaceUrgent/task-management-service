@@ -9,8 +9,8 @@ import com.task.management.application.dashboard.projection.DashboardTaskPreview
 import com.task.management.application.dashboard.projection.TasksSummary;
 import com.task.management.application.dashboard.query.FindAssignedDashboardTasksQuery;
 import com.task.management.application.dashboard.query.FindOwnedDashboardTasksQuery;
-import com.task.management.domain.common.model.UserInfo;
-import com.task.management.domain.common.model.objectvalue.*;
+import com.task.management.domain.shared.model.UserInfo;
+import com.task.management.domain.shared.model.objectvalue.*;
 import com.task.managment.web.WebTest;
 import com.task.managment.web.common.dto.PagedResponse;
 import com.task.managment.web.dashboard.dto.DashboardTaskPreviewDto;

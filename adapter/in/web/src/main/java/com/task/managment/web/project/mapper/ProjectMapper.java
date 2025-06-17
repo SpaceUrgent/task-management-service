@@ -3,9 +3,9 @@ package com.task.managment.web.project.mapper;
 import com.task.management.application.project.projection.MemberView;
 import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
-import com.task.management.domain.common.model.objectvalue.TaskPriority;
+import com.task.management.domain.shared.model.objectvalue.TaskPriority;
 import com.task.management.domain.project.model.objectvalue.TaskStatus;
 import com.task.managment.web.project.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @Component
 @RequiredArgsConstructor

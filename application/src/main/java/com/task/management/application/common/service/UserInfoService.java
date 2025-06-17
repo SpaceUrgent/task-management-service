@@ -3,11 +3,11 @@ package com.task.management.application.common.service;
 import com.task.management.application.common.annotation.AppComponent;
 import com.task.management.application.common.UseCaseException;
 import com.task.management.application.common.port.out.UserInfoRepositoryPort;
-import com.task.management.domain.common.model.objectvalue.Email;
-import com.task.management.domain.common.model.UserInfo;
+import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.management.domain.shared.model.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @Slf4j
 @AppComponent

@@ -5,9 +5,9 @@ import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.project.model.Task;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
-import com.task.management.domain.common.model.objectvalue.TaskId;
+import com.task.management.domain.shared.model.objectvalue.TaskId;
 
 import java.util.Optional;
 

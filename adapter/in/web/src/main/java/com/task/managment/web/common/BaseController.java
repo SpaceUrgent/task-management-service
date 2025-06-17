@@ -1,6 +1,6 @@
 package com.task.managment.web.common;
 
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.managment.web.security.SecuredUser;
 import org.springframework.security.core.context.SecurityContextHolder;
 

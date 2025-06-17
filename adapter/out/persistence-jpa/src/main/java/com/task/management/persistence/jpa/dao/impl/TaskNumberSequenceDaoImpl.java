@@ -6,7 +6,7 @@ import com.task.management.persistence.jpa.entity.TaskNumberSequence;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @AppComponent
 public class TaskNumberSequenceDaoImpl implements TaskNumberSequenceDao {

@@ -1,14 +1,14 @@
 package com.task.management.domain.project.model;
 
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.TaskCommentId;
-import com.task.management.domain.common.model.objectvalue.TaskId;
+import com.task.management.domain.shared.model.objectvalue.TaskId;
 import lombok.*;
 
 import java.time.Instant;
 
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @Getter
 @ToString

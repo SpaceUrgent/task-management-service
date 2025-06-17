@@ -7,7 +7,7 @@ import jakarta.persistence.EntityManager;
 
 import java.util.Optional;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @AppComponent
 public class MemberEntityDaoImpl implements MemberEntityDao {

@@ -1,15 +1,15 @@
 package com.task.management.persistence.jpa.dashboard.mapper;
 
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
-import com.task.management.domain.common.model.objectvalue.TaskId;
-import com.task.management.domain.common.model.objectvalue.TaskNumber;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.TaskId;
+import com.task.management.domain.shared.model.objectvalue.TaskNumber;
 import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import java.time.LocalDate;
 
-import static com.task.management.domain.common.model.objectvalue.TaskPriority.withOrder;
+import static com.task.management.domain.shared.model.objectvalue.TaskPriority.withOrder;
 import static java.util.Objects.nonNull;
 
 public class DashboardTaskMapper {

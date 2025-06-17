@@ -1,8 +1,8 @@
 package com.task.management.application.project.command;
 
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.objectvalue.MemberRole;
-import com.task.management.domain.common.model.objectvalue.ProjectId;
+import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 

@@ -1,12 +1,12 @@
 package com.task.management.application.project.projection;
 
-import com.task.management.domain.common.model.UserInfo;
+import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.project.model.objectvalue.TaskCommentId;
 import lombok.Builder;
 
 import java.time.Instant;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 public record TaskCommentView(
         TaskCommentId id,

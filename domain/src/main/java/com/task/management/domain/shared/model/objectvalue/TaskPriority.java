@@ -1,12 +1,12 @@
-package com.task.management.domain.common.model.objectvalue;
+package com.task.management.domain.shared.model.objectvalue;
 
-import com.task.management.domain.common.validation.ValidationException;
+import com.task.management.domain.shared.validation.ValidationException;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 public enum TaskPriority {
     LOWEST("Lowest", 0),

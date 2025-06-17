@@ -3,7 +3,7 @@ package com.task.management.persistence.jpa.dashboard;
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;
 import com.task.management.application.dashboard.query.FindAssignedDashboardTasksQuery;
 import com.task.management.application.dashboard.query.FindOwnedDashboardTasksQuery;
-import com.task.management.domain.common.model.objectvalue.*;
+import com.task.management.domain.shared.model.objectvalue.*;
 import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;

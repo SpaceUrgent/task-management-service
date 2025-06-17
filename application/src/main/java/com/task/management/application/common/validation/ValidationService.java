@@ -1,14 +1,14 @@
 package com.task.management.application.common.validation;
 
 import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.domain.common.validation.ValidationException;
+import com.task.management.domain.shared.validation.ValidationException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
 import java.util.List;
 
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 @AppComponent
 public class ValidationService {

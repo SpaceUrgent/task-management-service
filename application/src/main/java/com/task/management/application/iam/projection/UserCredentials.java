@@ -1,13 +1,13 @@
-package com.task.management.domain.iam.model.objectvalue;
+package com.task.management.application.iam.projection;
 
-import com.task.management.domain.common.model.objectvalue.Email;
-import com.task.management.domain.common.model.objectvalue.UserId;
+import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 
 import java.io.Serializable;
 
-import static com.task.management.domain.common.validation.Validation.emailRequired;
-import static com.task.management.domain.common.validation.Validation.notBlank;
-import static com.task.management.domain.common.validation.Validation.parameterRequired;
+import static com.task.management.domain.shared.validation.Validation.emailRequired;
+import static com.task.management.domain.shared.validation.Validation.notBlank;
+import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
 public record UserCredentials(UserId id,
                               Email email,
