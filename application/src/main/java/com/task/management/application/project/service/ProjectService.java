@@ -1,10 +1,10 @@
 package com.task.management.application.project.service;
 
-import com.task.management.application.common.UseCaseException;
-import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.application.common.annotation.UseCase;
-import com.task.management.application.common.service.UserInfoService;
-import com.task.management.application.common.validation.ValidationService;
+import com.task.management.application.shared.UseCaseException;
+import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.application.shared.annotation.UseCase;
+import com.task.management.application.shared.service.UserInfoService;
+import com.task.management.application.shared.validation.ValidationService;
 import com.task.management.application.project.RemoveTaskStatusException;
 import com.task.management.application.project.command.AddTaskStatusCommand;
 import com.task.management.application.project.command.CreateProjectCommand;

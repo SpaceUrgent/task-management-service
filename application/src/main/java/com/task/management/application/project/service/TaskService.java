@@ -1,11 +1,11 @@
 package com.task.management.application.project.service;
 
-import com.task.management.application.common.UseCaseException;
-import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.application.common.annotation.UseCase;
-import com.task.management.application.common.port.out.DomainEventPublisherPort;
-import com.task.management.application.common.projection.Page;
-import com.task.management.application.common.validation.ValidationService;
+import com.task.management.application.shared.UseCaseException;
+import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.application.shared.annotation.UseCase;
+import com.task.management.application.shared.port.out.DomainEventPublisherPort;
+import com.task.management.application.shared.projection.Page;
+import com.task.management.application.shared.validation.ValidationService;
 import com.task.management.application.project.UpdateTaskStatusException;
 import com.task.management.application.project.command.CreateTaskCommand;
 import com.task.management.application.project.command.UpdateTaskCommand;

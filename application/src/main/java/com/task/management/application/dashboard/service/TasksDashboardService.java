@@ -1,8 +1,8 @@
 package com.task.management.application.dashboard.service;
 
-import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.application.common.projection.Page;
-import com.task.management.application.common.query.PagedQuery;
+import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.application.shared.projection.Page;
+import com.task.management.application.shared.query.PagedQuery;
 import com.task.management.application.dashboard.port.in.TasksDashboardUseCase;
 import com.task.management.application.dashboard.port.out.TasksDashboardRepository;
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;

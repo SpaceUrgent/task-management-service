@@ -1,7 +1,7 @@
 package com.task.managment.web.dashboard;
 
-import com.task.management.application.common.projection.Page;
-import com.task.management.application.common.query.Sort;
+import com.task.management.application.shared.projection.Page;
+import com.task.management.application.shared.query.Sort;
 import com.task.management.application.dashboard.port.in.TasksDashboardUseCase;
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;
 import com.task.management.application.dashboard.query.FindAssignedDashboardTasksQuery;

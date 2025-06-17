@@ -1,6 +1,6 @@
 package com.task.managment.web;
 
-import com.task.management.application.common.UseCaseException;
+import com.task.management.application.shared.UseCaseException;
 import com.task.managment.web.common.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;

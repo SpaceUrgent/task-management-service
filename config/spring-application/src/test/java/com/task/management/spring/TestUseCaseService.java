@@ -1,6 +1,6 @@
 package com.task.management.spring;
 
-import com.task.management.application.common.annotation.UseCase;
+import com.task.management.application.shared.annotation.UseCase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 

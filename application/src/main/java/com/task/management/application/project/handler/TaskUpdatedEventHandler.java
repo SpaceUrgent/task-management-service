@@ -1,7 +1,7 @@
 package com.task.management.application.project.handler;
 
-import com.task.management.application.common.EventHandlingException;
-import com.task.management.application.common.port.in.DomainEventHandlerPort;
+import com.task.management.application.shared.EventHandlingException;
+import com.task.management.application.shared.port.in.DomainEventHandlerPort;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.domain.project.event.TaskUpdatedEvent;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;

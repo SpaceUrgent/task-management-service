@@ -1,6 +1,6 @@
 package com.task.management.application.project.port.in;
 
-import com.task.management.application.common.UseCaseException;
+import com.task.management.application.shared.UseCaseException;
 import com.task.management.application.project.command.CreateTaskCommand;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.shared.model.objectvalue.ProjectId;

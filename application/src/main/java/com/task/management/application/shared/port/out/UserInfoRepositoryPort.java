@@ -1,4 +1,4 @@
-package com.task.management.application.common.port.out;
+package com.task.management.application.shared.port.out;
 
 import com.task.management.domain.shared.model.objectvalue.Email;
 import com.task.management.domain.shared.model.objectvalue.UserId;

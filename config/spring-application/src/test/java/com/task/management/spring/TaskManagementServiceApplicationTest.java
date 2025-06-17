@@ -1,6 +1,6 @@
 package com.task.management.spring;
 
-import com.task.management.application.common.validation.ValidationService;
+import com.task.management.application.shared.validation.ValidationService;
 import com.task.management.application.iam.port.in.UserProfileUseCase;
 import com.task.management.application.iam.port.in.RegisterUserUseCase;
 import com.task.management.application.iam.port.out.EncryptPasswordPort;

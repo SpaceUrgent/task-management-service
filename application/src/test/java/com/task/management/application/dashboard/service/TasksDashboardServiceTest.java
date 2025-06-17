@@ -1,6 +1,6 @@
 package com.task.management.application.dashboard.service;
 
-import com.task.management.application.common.projection.Page;
+import com.task.management.application.shared.projection.Page;
 import com.task.management.application.dashboard.port.out.TasksDashboardRepository;
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;
 import com.task.management.application.dashboard.projection.TasksSummary;

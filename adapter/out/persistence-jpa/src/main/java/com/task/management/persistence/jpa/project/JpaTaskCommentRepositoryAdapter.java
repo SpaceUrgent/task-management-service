@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.project;
 
-import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.project.port.out.TaskCommentRepositoryPort;
 import com.task.management.domain.project.model.TaskComment;
 import com.task.management.domain.project.model.objectvalue.TaskCommentId;

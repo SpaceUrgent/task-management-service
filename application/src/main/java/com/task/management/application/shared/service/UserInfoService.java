@@ -1,8 +1,8 @@
-package com.task.management.application.common.service;
+package com.task.management.application.shared.service;
 
-import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.application.common.UseCaseException;
-import com.task.management.application.common.port.out.UserInfoRepositoryPort;
+import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.application.shared.UseCaseException;
+import com.task.management.application.shared.port.out.UserInfoRepositoryPort;
 import com.task.management.domain.shared.model.objectvalue.Email;
 import com.task.management.domain.shared.model.UserInfo;
 import lombok.extern.slf4j.Slf4j;

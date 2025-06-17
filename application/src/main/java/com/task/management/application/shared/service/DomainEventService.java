@@ -1,9 +1,9 @@
-package com.task.management.application.common.service;
+package com.task.management.application.shared.service;
 
-import com.task.management.application.common.DomainEventHandlerFactory;
-import com.task.management.application.common.DomainEventPublishingException;
-import com.task.management.application.common.EventHandlingException;
-import com.task.management.application.common.port.out.DomainEventPublisherPort;
+import com.task.management.application.shared.DomainEventHandlerFactory;
+import com.task.management.application.shared.DomainEventPublishingException;
+import com.task.management.application.shared.EventHandlingException;
+import com.task.management.application.shared.port.out.DomainEventPublisherPort;
 import com.task.management.domain.shared.event.DomainEvent;
 
 import java.util.List;

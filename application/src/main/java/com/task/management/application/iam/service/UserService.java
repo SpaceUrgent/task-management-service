@@ -1,9 +1,9 @@
 package com.task.management.application.iam.service;
 
-import com.task.management.application.common.UseCaseException;
-import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.application.common.annotation.UseCase;
-import com.task.management.application.common.validation.ValidationService;
+import com.task.management.application.shared.UseCaseException;
+import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.application.shared.annotation.UseCase;
+import com.task.management.application.shared.validation.ValidationService;
 import com.task.management.application.iam.CurrentPasswordMismatchException;
 import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.iam.command.RegisterUserCommand;

@@ -1,6 +1,6 @@
-package com.task.management.application.common.validation;
+package com.task.management.application.shared.validation;
 
-import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.domain.shared.validation.ValidationException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;

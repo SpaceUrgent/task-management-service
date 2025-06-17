@@ -1,4 +1,4 @@
-package com.task.management.application.common;
+package com.task.management.application.shared;
 
 public class EventHandlingException extends Exception {
     public EventHandlingException(String message) {

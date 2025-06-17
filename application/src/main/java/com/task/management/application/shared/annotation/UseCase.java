@@ -1,4 +1,4 @@
-package com.task.management.application.common.annotation;
+package com.task.management.application.shared.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.iam;
 
-import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.iam.port.out.UserCredentialsPort;
 import com.task.management.application.iam.port.out.UserRepositoryPort;
 import com.task.management.domain.shared.model.objectvalue.Email;

@@ -1,10 +1,10 @@
 package com.task.management.spring.configuration;
 
-import com.task.management.application.common.DomainEventHandlerFactory;
-import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.application.common.port.in.DomainEventHandlerPort;
-import com.task.management.application.common.port.out.DomainEventPublisherPort;
-import com.task.management.application.common.service.DomainEventService;
+import com.task.management.application.shared.DomainEventHandlerFactory;
+import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.application.shared.port.in.DomainEventHandlerPort;
+import com.task.management.application.shared.port.out.DomainEventPublisherPort;
+import com.task.management.application.shared.service.DomainEventService;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;

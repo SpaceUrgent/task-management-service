@@ -1,6 +1,6 @@
 package com.task.management.application.iam.port.in;
 
-import com.task.management.application.common.UseCaseException;
+import com.task.management.application.shared.UseCaseException;
 import com.task.management.application.iam.command.UpdateNameCommand;
 import com.task.management.application.iam.command.UpdatePasswordCommand;
 import com.task.management.domain.shared.model.objectvalue.UserId;

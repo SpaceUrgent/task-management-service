@@ -1,8 +1,8 @@
 package com.task.management.application.project.handler;
 
-import com.task.management.application.common.EventHandlingException;
+import com.task.management.application.shared.EventHandlingException;
 import com.task.management.application.common.TestUtils;
-import com.task.management.application.common.port.out.UserInfoRepositoryPort;
+import com.task.management.application.shared.port.out.UserInfoRepositoryPort;
 import com.task.management.domain.project.event.TaskReassignedEvent;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;

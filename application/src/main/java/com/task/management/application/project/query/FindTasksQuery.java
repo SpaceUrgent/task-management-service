@@ -1,7 +1,7 @@
 package com.task.management.application.project.query;
 
-import com.task.management.application.common.query.PagedQuery;
-import com.task.management.application.common.query.Sort;
+import com.task.management.application.shared.query.PagedQuery;
+import com.task.management.application.shared.query.Sort;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import lombok.EqualsAndHashCode;

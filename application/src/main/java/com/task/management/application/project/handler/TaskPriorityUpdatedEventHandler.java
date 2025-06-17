@@ -1,6 +1,6 @@
 package com.task.management.application.project.handler;
 
-import com.task.management.application.common.annotation.AppComponent;
+import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.domain.project.event.TaskPriorityUpdatedEvent;
 import com.task.management.domain.shared.model.objectvalue.TaskPriority;

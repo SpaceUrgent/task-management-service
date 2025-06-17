@@ -1,6 +1,6 @@
 package com.task.management.application.project.port.out;
 
-import com.task.management.application.common.projection.Page;
+import com.task.management.application.shared.projection.Page;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.application.project.query.FindTasksQuery;

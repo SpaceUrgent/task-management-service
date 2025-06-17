@@ -1,7 +1,7 @@
 package com.task.management.persistence.jpa.project;
 
-import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.application.common.projection.Page;
+import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.application.shared.projection.Page;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;

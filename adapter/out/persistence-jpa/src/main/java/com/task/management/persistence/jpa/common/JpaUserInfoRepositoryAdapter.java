@@ -1,7 +1,7 @@
 package com.task.management.persistence.jpa.common;
 
-import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.application.common.port.out.UserInfoRepositoryPort;
+import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.application.shared.port.out.UserInfoRepositoryPort;
 import com.task.management.domain.shared.model.objectvalue.Email;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.shared.model.UserInfo;

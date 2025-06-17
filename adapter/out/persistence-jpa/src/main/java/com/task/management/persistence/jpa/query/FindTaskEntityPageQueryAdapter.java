@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.query;
 
-import com.task.management.application.common.query.Sort;
+import com.task.management.application.shared.query.Sort;
 import com.task.management.application.project.query.FindTasksQuery;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.persistence.jpa.entity.TaskEntity;

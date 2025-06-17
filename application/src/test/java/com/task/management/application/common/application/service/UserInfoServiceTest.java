@@ -1,8 +1,8 @@
 package com.task.management.application.common.application.service;
 
-import com.task.management.application.common.UseCaseException;
-import com.task.management.application.common.port.out.UserInfoRepositoryPort;
-import com.task.management.application.common.service.UserInfoService;
+import com.task.management.application.shared.UseCaseException;
+import com.task.management.application.shared.port.out.UserInfoRepositoryPort;
+import com.task.management.application.shared.service.UserInfoService;
 import com.task.management.domain.shared.model.objectvalue.Email;
 import com.task.management.application.project.ProjectTestUtils;
 import org.junit.jupiter.api.Test;

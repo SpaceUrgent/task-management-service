@@ -1,6 +1,6 @@
 package com.task.managment.web.iam;
 
-import com.task.management.application.common.UseCaseException;
+import com.task.management.application.shared.UseCaseException;
 import com.task.management.application.iam.CurrentPasswordMismatchException;
 import com.task.management.application.iam.EmailExistsException;
 import com.task.management.application.iam.command.RegisterUserCommand;

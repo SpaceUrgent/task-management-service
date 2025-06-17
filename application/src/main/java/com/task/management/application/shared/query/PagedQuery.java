@@ -1,4 +1,4 @@
-package com.task.management.application.common.query;
+package com.task.management.application.shared.query;
 
 import lombok.Data;
 

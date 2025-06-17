@@ -1,12 +1,12 @@
 package com.task.management.application.project.service;
 
 import com.task.management.application.common.TestUtils;
-import com.task.management.application.common.UseCaseException;
+import com.task.management.application.shared.UseCaseException;
 import com.task.management.application.project.port.out.TaskCommentRepositoryPort;
 import com.task.management.domain.shared.event.DomainEvent;
-import com.task.management.application.common.port.out.DomainEventPublisherPort;
-import com.task.management.application.common.projection.Page;
-import com.task.management.application.common.validation.ValidationService;
+import com.task.management.application.shared.port.out.DomainEventPublisherPort;
+import com.task.management.application.shared.projection.Page;
+import com.task.management.application.shared.validation.ValidationService;
 import com.task.management.application.project.command.CreateTaskCommand;
 import com.task.management.application.project.command.UpdateTaskCommand;
 import com.task.management.domain.project.model.Task;

@@ -1,4 +1,4 @@
-package com.task.management.application.common.projection;
+package com.task.management.application.shared.projection;
 
 import lombok.Builder;
 

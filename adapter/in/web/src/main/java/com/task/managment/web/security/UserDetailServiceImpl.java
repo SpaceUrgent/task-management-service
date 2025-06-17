@@ -1,6 +1,6 @@
 package com.task.managment.web.security;
 
-import com.task.management.application.common.annotation.UseCase;
+import com.task.management.application.shared.annotation.UseCase;
 import com.task.management.application.iam.port.out.UserCredentialsPort;
 import com.task.management.domain.shared.model.objectvalue.Email;
 import lombok.RequiredArgsConstructor;

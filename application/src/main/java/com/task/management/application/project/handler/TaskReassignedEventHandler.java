@@ -1,8 +1,8 @@
 package com.task.management.application.project.handler;
 
-import com.task.management.application.common.EventHandlingException;
-import com.task.management.application.common.annotation.AppComponent;
-import com.task.management.application.common.port.out.UserInfoRepositoryPort;
+import com.task.management.application.shared.EventHandlingException;
+import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.application.shared.port.out.UserInfoRepositoryPort;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.shared.model.UserInfo;

@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.project;
 
-import com.task.management.application.common.query.Sort;
+import com.task.management.application.shared.query.Sort;
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskCommentView;
 import com.task.management.application.project.projection.TaskDetails;

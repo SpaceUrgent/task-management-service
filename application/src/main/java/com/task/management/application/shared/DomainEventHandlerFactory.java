@@ -1,6 +1,6 @@
-package com.task.management.application.common;
+package com.task.management.application.shared;
 
-import com.task.management.application.common.port.in.DomainEventHandlerPort;
+import com.task.management.application.shared.port.in.DomainEventHandlerPort;
 import com.task.management.domain.shared.event.DomainEvent;
 
 import java.util.List;

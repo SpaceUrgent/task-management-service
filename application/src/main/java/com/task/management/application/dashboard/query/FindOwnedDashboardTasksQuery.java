@@ -1,6 +1,6 @@
 package com.task.management.application.dashboard.query;
 
-import com.task.management.application.common.query.PagedQuery;
+import com.task.management.application.shared.query.PagedQuery;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
