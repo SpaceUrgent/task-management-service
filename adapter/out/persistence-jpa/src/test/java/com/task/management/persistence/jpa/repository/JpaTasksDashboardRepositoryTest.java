@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.dashboard;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;
 import com.task.management.application.dashboard.query.FindAssignedDashboardTasksQuery;
@@ -8,7 +8,6 @@ import com.task.management.persistence.jpa.InvalidTestSetupException;
 import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.entity.TaskEntity;
-import com.task.management.persistence.jpa.repository.JpaTasksDashboardRepositoryAdapter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -28,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
         scripts = "classpath:sql/clear.sql"
 )
 @PersistenceTest
-class JpaTasksDashboardRepositoryAdapterTest {
+class JpaTasksDashboardRepositoryTest {
     @Autowired
     private TaskEntityDao taskEntityDao;
     @Autowired

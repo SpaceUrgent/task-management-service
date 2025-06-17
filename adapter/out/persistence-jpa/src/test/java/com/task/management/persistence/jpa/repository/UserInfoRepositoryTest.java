@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.common;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.domain.shared.model.objectvalue.Email;
 import com.task.management.domain.shared.model.objectvalue.UserId;
@@ -8,7 +8,6 @@ import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.UserEntity;
-import com.task.management.persistence.jpa.repository.JpaUserInfoRepositoryAdapter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -29,9 +28,9 @@ import static org.junit.jupiter.api.Assertions.*;
         }
 )
 @PersistenceTest
-class UserInfoRepositoryAdapterTest {
+class UserInfoRepositoryTest {
     @Autowired
-    private JpaUserInfoRepositoryAdapter userInfoRepositoryAdapter;
+    private JpaUserInfoRepositoryAdapter userInfoRepository;
     @Autowired
     private UserEntityDao userEntityDao;
     @Autowired
@@ -41,7 +40,7 @@ class UserInfoRepositoryAdapterTest {
     void findById_shouldReturnOptionalOfProjectUser_whenUserExists() {
         final var expected = getFirstJpaUser();
         final var givenId = new UserId(expected.getId());
-        final var actual = userInfoRepositoryAdapter.find(givenId).orElse(null);
+        final var actual = userInfoRepository.find(givenId).orElse(null);
         assertNotNull(actual);
         assertMatches(expected, actual);
     }
@@ -49,14 +48,14 @@ class UserInfoRepositoryAdapterTest {
     @Test
     void findById_shouldReturnEmptyOptional_whenUserDoesNotExist() {
         final var givenId = new UserId(randomLong());
-        assertTrue(userInfoRepositoryAdapter.find(givenId).isEmpty());
+        assertTrue(userInfoRepository.find(givenId).isEmpty());
     }
 
     @Test
     void findByEmail_shouldReturnOptionalOfProjectUser_whenUserExists() {
         final var expected = getFirstJpaUser();
         final var givenEmail = new Email(expected.getEmail());
-        final var actual = userInfoRepositoryAdapter.find(givenEmail).orElse(null);
+        final var actual = userInfoRepository.find(givenEmail).orElse(null);
         assertNotNull(actual);
         assertMatches(expected, actual);
     }
@@ -64,7 +63,7 @@ class UserInfoRepositoryAdapterTest {
     @Test
     void findByEmail_shouldReturnEmptyOptional_whenUserDoesNotExist() {
         final var givenEmail = new Email("non-existing@mail.com");
-        assertTrue(userInfoRepositoryAdapter.find(givenEmail).isEmpty());
+        assertTrue(userInfoRepository.find(givenEmail).isEmpty());
     }
 
     private UserEntity getFirstJpaUser() {

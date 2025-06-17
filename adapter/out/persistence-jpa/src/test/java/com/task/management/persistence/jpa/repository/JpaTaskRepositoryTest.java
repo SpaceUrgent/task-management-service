@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.project;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.application.shared.query.Sort;
 import com.task.management.application.project.projection.TaskChangeLogView;
@@ -16,7 +16,6 @@ import com.task.management.persistence.jpa.dao.TaskChangeLogEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.*;
-import com.task.management.persistence.jpa.repository.JpaTaskRepositoryAdapter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -37,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
         scripts = "classpath:sql/clear.sql"
 )
 @PersistenceTest
-class JpaTaskRepositoryAdapterTest {
+class JpaTaskRepositoryTest {
     @Autowired
     private UserEntityDao userEntityDao;
     @Autowired
@@ -47,7 +46,7 @@ class JpaTaskRepositoryAdapterTest {
     @Autowired
     private TaskChangeLogEntityDao taskChangeLogEntityDao;
     @Autowired
-    private JpaTaskRepositoryAdapter taskRepositoryAdapter;
+    private JpaTaskRepositoryAdapter taskRepository;
 
     @Sql(
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
@@ -71,7 +70,7 @@ class JpaTaskRepositoryAdapterTest {
                 .owner(ownerId)
                 .assignee(ownerId)
                 .build();
-        final var added = taskRepositoryAdapter.save(givenTask);
+        final var added = taskRepository.save(givenTask);
         assertNotNull(added.getId());
         assertNotNull(added.getNumber());
         assertMatches(givenTask, added);
@@ -105,7 +104,7 @@ class JpaTaskRepositoryAdapterTest {
                 .owner(new UserId(taskEntity.getOwner().getId()))
                 .assignee(newAssignee)
                 .build();
-        final var updated = taskRepositoryAdapter.save(givenTask);
+        final var updated = taskRepository.save(givenTask);
         assertMatches(givenTask, updated);
         final var updateTaskEntity = taskEntityDao.findById(taskEntity.getId()).orElseThrow();
         assertMatches(updated, updateTaskEntity);
@@ -127,7 +126,7 @@ class JpaTaskRepositoryAdapterTest {
                 .initialValue("Initial title")
                 .newValue("New value")
                 .build();
-        taskRepositoryAdapter.save(changeLog);
+        taskRepository.save(changeLog);
         final var changeLogEntities = taskChangeLogEntityDao.findAll();
         assertFalse(changeLogEntities.isEmpty());
         final var changeLogEntity = changeLogEntities.getLast();
@@ -147,7 +146,7 @@ class JpaTaskRepositoryAdapterTest {
     void findById_shouldReturnOptionalOfTask_whenTaskExists() {
         final var taskEntity = getFirstTaskEntity();
         final var givenTaskId = new TaskId(taskEntity.getId());
-        final var foundOptional = taskRepositoryAdapter.find(givenTaskId);
+        final var foundOptional = taskRepository.find(givenTaskId);
         assertTrue(foundOptional.isPresent());
         assertMatches(taskEntity, foundOptional.get());
     }
@@ -155,7 +154,7 @@ class JpaTaskRepositoryAdapterTest {
     @Test
     void findById_shouldReturnEmptyOptional_whenTaskDoesNotExists() {
         final var givenTaskId = new TaskId(new Random().nextLong());
-        assertTrue(taskRepositoryAdapter.find(givenTaskId).isEmpty());
+        assertTrue(taskRepository.find(givenTaskId).isEmpty());
     }
 
     @Sql(
@@ -166,7 +165,7 @@ class JpaTaskRepositoryAdapterTest {
     void findTaskDetailsById_shouldReturnOptionalOfTaskDetails_whenTaskExists() {
         final var taskEntity = getFirstTaskEntity();
         final var givenTaskId = new TaskId(taskEntity.getId());
-        final var foundOptional = taskRepositoryAdapter.findTaskDetails(givenTaskId);
+        final var foundOptional = taskRepository.findTaskDetails(givenTaskId);
         assertTrue(foundOptional.isPresent());
         assertMatches(taskEntity, foundOptional.get());
     }
@@ -174,7 +173,7 @@ class JpaTaskRepositoryAdapterTest {
     @Test
     void findTaskDetailsById_shouldReturnEmptyOptional_whenTaskDoesNotExists() {
         final var givenTaskId = new TaskId(new Random().nextLong());
-        assertTrue(taskRepositoryAdapter.findTaskDetails(givenTaskId).isEmpty());
+        assertTrue(taskRepository.findTaskDetails(givenTaskId).isEmpty());
     }
 
     @Sql(
@@ -196,7 +195,7 @@ class JpaTaskRepositoryAdapterTest {
                     .pageNumber(currentPage)
                     .pageSize(pageSize)
                     .build();
-            final var resultPage = taskRepositoryAdapter.findProjectTasks(givenQuery);
+            final var resultPage = taskRepository.findProjectTasks(givenQuery);
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
             assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
             assertEquals(expectedTaskEntities.size(), resultPage.total());
@@ -228,7 +227,7 @@ class JpaTaskRepositoryAdapterTest {
                     .pageNumber(currentPage)
                     .pageSize(pageSize)
                     .build();
-            final var resultPage = taskRepositoryAdapter.findProjectTasks(givenQuery);
+            final var resultPage = taskRepository.findProjectTasks(givenQuery);
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
             assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
             assertEquals(expectedTaskEntities.size(), resultPage.total());
@@ -265,7 +264,7 @@ class JpaTaskRepositoryAdapterTest {
                     .statusIn(givenStatuses)
                     .assigneeId(givenAssigneeId)
                     .build();
-            final var resultPage = taskRepositoryAdapter.findProjectTasks(givenQuery);
+            final var resultPage = taskRepository.findProjectTasks(givenQuery);
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
             assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
             assertEquals(expectedTaskEntities.size(), resultPage.total());
@@ -283,7 +282,7 @@ class JpaTaskRepositoryAdapterTest {
     @Test
     void projectTaskWithStatusExists_shouldReturnTrue() {
         final var taskEntity = getFirstTaskEntity();
-        assertTrue(taskRepositoryAdapter.projectTaskWithStatusExists(new ProjectId(taskEntity.getProject().getId()), taskEntity.getStatus().getName()));
+        assertTrue(taskRepository.projectTaskWithStatusExists(new ProjectId(taskEntity.getProject().getId()), taskEntity.getStatus().getName()));
     }
 
     @Sql(
@@ -293,7 +292,7 @@ class JpaTaskRepositoryAdapterTest {
     @Test
     void projectTaskWithStatusExists_shouldReturnFalse() {
         final var taskEntity = getFirstTaskEntity();
-        assertFalse(taskRepositoryAdapter.projectTaskWithStatusExists(new ProjectId(taskEntity.getProject().getId()), "Non-existing status"));
+        assertFalse(taskRepository.projectTaskWithStatusExists(new ProjectId(taskEntity.getProject().getId()), "Non-existing status"));
     }
 
     private ProjectEntity getFirstProjectEntity() {

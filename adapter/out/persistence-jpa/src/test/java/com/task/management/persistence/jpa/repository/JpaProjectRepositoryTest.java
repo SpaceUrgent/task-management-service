@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.project;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.application.project.ProjectConstants;
 import com.task.management.application.project.projection.MemberView;
@@ -13,7 +13,6 @@ import com.task.management.persistence.jpa.PersistenceTest;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.*;
-import com.task.management.persistence.jpa.repository.JpaProjectRepositoryAdapter;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +29,13 @@ import static org.junit.jupiter.api.Assertions.*;
         scripts = "classpath:sql/clear.sql"
 )
 @PersistenceTest
-class JpaProjectRepositoryAdapterTest {
+class JpaProjectRepositoryTest {
     @Autowired
     private UserEntityDao userEntityDao;
     @Autowired
     private ProjectEntityDao projectEntityDao;
     @Autowired
-    private JpaProjectRepositoryAdapter projectRepositoryAdapter;
+    private JpaProjectRepositoryAdapter projectRepository;
 
     @Sql(
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
@@ -52,7 +51,7 @@ class JpaProjectRepositoryAdapterTest {
                 .ownerId(new UserId(userEntity.getId()))
                 .availableTaskStatuses(ProjectConstants.DEFAULT_TASK_STATUSES)
                 .build();
-        final var added = projectRepositoryAdapter.save(givenProject);
+        final var added = projectRepository.save(givenProject);
         assertMatches(givenProject, added);
         final var projectEntity = findProjectEntityOrNull(added.getId());
         assertNotNull(projectEntity);
@@ -84,7 +83,7 @@ class JpaProjectRepositoryAdapterTest {
                 .ownerId(new UserId(newOwnerUserEntity.getId()))
                 .availableTaskStatuses(ProjectConstants.DEFAULT_TASK_STATUSES)
                 .build();
-        final var updatedProject = projectRepositoryAdapter.save(givenProject);
+        final var updatedProject = projectRepository.save(givenProject);
         assertMatches(givenProject, updatedProject);
         final var updateProjectEntity = projectEntityDao.findById(projectEntity.getId()).orElseThrow();
         assertMatches(updateProjectEntity, updatedProject);
@@ -100,7 +99,7 @@ class JpaProjectRepositoryAdapterTest {
     void findById_shouldReturnOptionalOfProject_whenProjectExists() {
         final var projectEntity = getFirstProjectEntity();
         final var givenProjectId = new ProjectId(projectEntity.getId());
-        final var result = projectRepositoryAdapter.find(givenProjectId).orElse(null);
+        final var result = projectRepository.find(givenProjectId).orElse(null);
         assertNotNull(result);
         assertMatches(projectEntity, result);
     }
@@ -112,7 +111,7 @@ class JpaProjectRepositoryAdapterTest {
     @Test
     void findById_shouldReturnEmptyOptional_whenProjectDoesNotExist() {
         final var givenProjectId = new ProjectId(new Random().nextLong());
-        assertTrue(projectRepositoryAdapter.find(givenProjectId).isEmpty());
+        assertTrue(projectRepository.find(givenProjectId).isEmpty());
     }
 
     @Sql(
@@ -126,7 +125,7 @@ class JpaProjectRepositoryAdapterTest {
                 .filter(projectEntity -> projectEntity.getMembers().stream().anyMatch(member -> Objects.equals(member.getUser(), userEntity)))
                 .toList();
         final var givenMemberId = new UserId(userEntity.getId());
-        final var result = projectRepositoryAdapter.findProjectsByMember(givenMemberId);
+        final var result = projectRepository.findProjectsByMember(givenMemberId);
         assertMatches(memberProjectEntities, result);
     }
 
@@ -137,7 +136,7 @@ class JpaProjectRepositoryAdapterTest {
     @Test
     void findProjectDetails_shouldReturnOptionalEmpty_whenProjectDoesNotExist() {
         final var givenProjectId = new ProjectId(new Random().nextLong());
-        assertTrue(projectRepositoryAdapter.findProjectDetails(givenProjectId).isEmpty());
+        assertTrue(projectRepository.findProjectDetails(givenProjectId).isEmpty());
     }
 
     @Sql(
@@ -147,7 +146,7 @@ class JpaProjectRepositoryAdapterTest {
     @Test
     void findProjectDetails_shouldReturnOptionalOfProjectDetails_whenProjectExists() {
         final var projectEntity = getFirstProjectEntity();
-        final var projectDetails = projectRepositoryAdapter.findProjectDetails(new ProjectId(projectEntity.getId())).orElse(null);
+        final var projectDetails = projectRepository.findProjectDetails(new ProjectId(projectEntity.getId())).orElse(null);
         assertNotNull(projectDetails);
         assertMatches(projectEntity, projectDetails);
     }
@@ -185,7 +184,7 @@ class JpaProjectRepositoryAdapterTest {
     void findAvailableTaskStatuses_shouldReturn() {
         final var projectEntity = getFirstProjectEntity();
         final var expected = projectEntity.getAvailableTaskStatuses();
-        final var taskStatuses = projectRepositoryAdapter.findAvailableTaskStatuses(new ProjectId(projectEntity.getId()));
+        final var taskStatuses = projectRepository.findAvailableTaskStatuses(new ProjectId(projectEntity.getId()));
         assertEquals(expected.size(), taskStatuses.size());
         IntStream.range(0, expected.size()).forEach(index -> {
             assertMatches(expected.get(index), taskStatuses.get(index));

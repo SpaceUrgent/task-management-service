@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.project;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.TaskComment;
@@ -9,7 +9,6 @@ import com.task.management.persistence.jpa.dao.TaskCommentEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.entity.TaskCommentEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
-import com.task.management.persistence.jpa.repository.JpaTaskCommentRepositoryAdapter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -23,13 +22,13 @@ import static org.junit.jupiter.api.Assertions.*;
         scripts = "classpath:sql/clear.sql"
 )
 @PersistenceTest
-class JpaTaskCommentRepositoryAdapterTest {
+class JpaTaskCommentRepositoryTest {
     @Autowired
     private TaskEntityDao taskEntityDao;
     @Autowired
     private TaskCommentEntityDao taskCommentEntityDao;
     @Autowired
-    private JpaTaskCommentRepositoryAdapter jpaTaskCommentRepositoryAdapter;
+    private JpaTaskCommentRepositoryAdapter jpaTaskCommentRepository;
 
     @Sql(
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
@@ -44,7 +43,7 @@ class JpaTaskCommentRepositoryAdapterTest {
                 .author(new UserId(taskEntity.getAssignee().getId()))
                 .content("Help me!")
                 .build();
-        final var saved = jpaTaskCommentRepositoryAdapter.save(givenTaskComment);
+        final var saved = jpaTaskCommentRepository.save(givenTaskComment);
         assertMatches(givenTaskComment, saved);
         final var savedEntity = taskCommentEntityDao.findById(saved.getId().value()).orElseThrow();
         assertMatches(saved, savedEntity);
