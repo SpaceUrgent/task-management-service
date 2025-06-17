@@ -20,8 +20,9 @@
         <module>adapter/out/persistence-jpa</module>
         <module>adapter/in/web</module>
         <module>adapter/out/password-encryption</module>
-        <module>config/spring-application</module>
+        <module>config/spring-config</module>
         <module>application</module>
+        <module>launcher/spring-launcher</module>
     </modules>
 
     <properties>
