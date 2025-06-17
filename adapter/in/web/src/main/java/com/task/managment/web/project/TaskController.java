@@ -3,7 +3,7 @@ package com.task.managment.web.project;
 import com.task.management.application.shared.UseCaseException;
 import com.task.management.application.project.command.UpdateTaskCommand;
 import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
-import com.task.management.application.project.port.in.UpdateTaskUseCase;
+import com.task.management.application.project.port.in.TaskUseCase;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.shared.model.objectvalue.TaskId;
 import com.task.management.domain.shared.model.objectvalue.TaskPriority;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TaskController extends BaseController {
     private final GetTaskDetailsUseCase getTaskDetailsUseCase;
-    private final UpdateTaskUseCase updateTaskUseCase;
+    private final TaskUseCase updateTaskUseCase;
     private final TaskMapper taskDetailsDtoMapper;
 
     @GetMapping("/{taskId}")

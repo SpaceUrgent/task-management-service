@@ -66,9 +66,9 @@ class ProjectControllerTest {
     @MockBean
     private CreateProjectUseCase createProjectUseCase;
     @MockBean
-    private UpdateProjectUseCase updateProjectUseCase;
+    private ProjectUseCase updateProjectUseCase;
     @MockBean
-    private AddProjectMemberUseCase addProjectMemberUseCase;
+    private ProjectMemberUseCase addProjectMemberUseCase;
     @MockBean
     private UpdateMemberRoleUseCase updateMemberRoleUseCase;
     @MockBean

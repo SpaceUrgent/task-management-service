@@ -33,7 +33,7 @@ class TaskManagementServiceApplicationTest {
         assertNotNull(applicationContext.getBean(EncryptPasswordPort.class));
         assertNotNull(applicationContext.getBean(UserRepositoryPort.class));
 
-        assertNotNull(applicationContext.getBean(AddProjectMemberUseCase.class));
+        assertNotNull(applicationContext.getBean(ProjectMemberUseCase.class));
         assertNotNull(applicationContext.getBean(AssignTaskUseCase.class));
         assertNotNull(applicationContext.getBean(CreateProjectUseCase.class));
         assertNotNull(applicationContext.getBean(CreateTaskUseCase.class));
@@ -41,9 +41,9 @@ class TaskManagementServiceApplicationTest {
         assertNotNull(applicationContext.getBean(GetAvailableProjectsUseCase.class));
         assertNotNull(applicationContext.getBean(GetProjectDetailsUseCase.class));
         assertNotNull(applicationContext.getBean(GetTaskDetailsUseCase.class));
-        assertNotNull(applicationContext.getBean(UpdateProjectUseCase.class));
+        assertNotNull(applicationContext.getBean(ProjectUseCase.class));
         assertNotNull(applicationContext.getBean(UpdateTaskStatusUseCase.class));
-        assertNotNull(applicationContext.getBean(UpdateTaskUseCase.class));
+        assertNotNull(applicationContext.getBean(TaskUseCase.class));
         assertNotNull(applicationContext.getBean(ProjectRepositoryPort.class));
         assertNotNull(applicationContext.getBean(UserRepositoryPort.class));
         assertNotNull(applicationContext.getBean(TaskRepositoryPort.class));

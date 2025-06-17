@@ -29,10 +29,7 @@ import static com.task.management.domain.shared.validation.Validation.*;
 
 @AppComponent
 @RequiredArgsConstructor
-public class TaskService implements CreateTaskUseCase,
-                                    UpdateTaskUseCase,
-                                    GetTaskDetailsUseCase,
-                                    FindTasksUseCase {
+public class TaskService implements TaskUseCase {
     private final ValidationService validationService;
     private final DomainEventPublisherPort eventPublisher;
     private final ProjectService projectService;

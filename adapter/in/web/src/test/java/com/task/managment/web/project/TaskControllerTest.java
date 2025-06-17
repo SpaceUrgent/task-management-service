@@ -3,7 +3,7 @@ package com.task.managment.web.project;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.management.application.project.command.UpdateTaskCommand;
 import com.task.management.application.project.port.in.GetTaskDetailsUseCase;
-import com.task.management.application.project.port.in.UpdateTaskUseCase;
+import com.task.management.application.project.port.in.TaskUseCase;
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskCommentView;
 import com.task.management.application.project.projection.TaskDetails;
@@ -56,7 +56,7 @@ class TaskControllerTest {
     @MockBean
     private GetTaskDetailsUseCase getTaskDetailsUseCase;
     @MockBean
-    private UpdateTaskUseCase updateTaskUseCase;
+    private TaskUseCase updateTaskUseCase;
 
     @MockUser
     @Test

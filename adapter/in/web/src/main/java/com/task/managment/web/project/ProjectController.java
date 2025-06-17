@@ -40,8 +40,8 @@ public class ProjectController extends BaseController {
     private final GetAvailableProjectsUseCase getAvailableProjectsUseCase;
     private final CreateProjectUseCase createProjectUseCase;
     private final GetProjectDetailsUseCase getProjectDetailsUseCase;
-    private final UpdateProjectUseCase updateProjectUseCase;
-    private final AddProjectMemberUseCase addProjectMemberUseCase;
+    private final ProjectUseCase updateProjectUseCase;
+    private final ProjectMemberUseCase addProjectMemberUseCase;
     private final UpdateMemberRoleUseCase updateMemberRoleUseCase;
     private final CreateTaskUseCase createTaskUseCase;
     private final FindTasksUseCase findTasksUseCase;

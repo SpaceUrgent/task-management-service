@@ -37,12 +37,7 @@ import static com.task.management.domain.shared.validation.Validation.*;
 @Slf4j
 @AppComponent
 @RequiredArgsConstructor
-public class ProjectService implements CreateProjectUseCase,
-                                       AddProjectMemberUseCase,
-                                       UpdateMemberRoleUseCase,
-                                       GetAvailableProjectsUseCase,
-                                       UpdateProjectUseCase,
-                                       GetProjectDetailsUseCase {
+public class ProjectService implements ProjectMemberUseCase, ProjectUseCase {
 
     private final ValidationService validationService;
     private final UserInfoService userService;
