@@ -45,9 +45,7 @@ public class UserEntity extends JpaEntity<Long> {
                       String email,
                       String firstName,
                       String lastName,
-                      String encryptedPassword
-//                      List<ProjectEntity> projects
-    ) {
+                      String encryptedPassword) {
         this.id = id;
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;
@@ -55,6 +53,5 @@ public class UserEntity extends JpaEntity<Long> {
         this.firstName = notBlank(firstName, "First name");
         this.lastName = notBlank(lastName, "Last name");
         this.encryptedPassword = notBlank(encryptedPassword, "Encrypted password");
-//        this.projects = Optional.ofNullable(projects).orElse(new ArrayList<>());
     }
 }

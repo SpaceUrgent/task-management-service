@@ -1,7 +1,7 @@
 package com.task.management.persistence.jpa.dao;
 
-import com.task.management.persistence.jpa.IPage;
-import com.task.management.persistence.jpa.PageImpl;
+import com.task.management.persistence.jpa.pagination.JpaPage;
+import com.task.management.persistence.jpa.pagination.JpaPageImpl;
 import com.task.management.persistence.jpa.entity.JpaEntity;
 import com.task.management.persistence.jpa.query.FindPageQuery;
 import jakarta.persistence.EntityManager;
@@ -49,7 +49,7 @@ public abstract class AbstractEntityDao<T extends JpaEntity<ID>, ID> implements 
     }
 
     @Override
-    public IPage<T> findPage(FindPageQuery<T> query) {
+    public JpaPage<T> findPage(FindPageQuery<T> query) {
         final var criteriaBuilder = entityManager.getCriteriaBuilder();
         final var content = entityManager.createQuery(query.toQuery(criteriaBuilder))
                 .setFirstResult(query.offset())
@@ -57,7 +57,7 @@ public abstract class AbstractEntityDao<T extends JpaEntity<ID>, ID> implements 
                 .getResultList();
         final var total = entityManager.createQuery(query.toCountQuery(criteriaBuilder))
                 .getSingleResult();
-        return new PageImpl<>(query.pageIndex(), query.size(), total, content);
+        return new JpaPageImpl<>(query.pageIndex(), query.size(), total, content);
     }
 
     public T getReference(ID id) {

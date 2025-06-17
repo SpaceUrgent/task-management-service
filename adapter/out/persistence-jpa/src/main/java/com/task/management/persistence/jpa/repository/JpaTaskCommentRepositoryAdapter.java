@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.project;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.project.port.out.TaskCommentRepositoryPort;
@@ -8,7 +8,7 @@ import com.task.management.persistence.jpa.dao.TaskCommentEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.TaskCommentEntity;
-import com.task.management.persistence.jpa.project.mapper.TaskCommentMapper;
+import com.task.management.persistence.jpa.mapper.TaskCommentMapper;
 
 import java.util.Optional;
 

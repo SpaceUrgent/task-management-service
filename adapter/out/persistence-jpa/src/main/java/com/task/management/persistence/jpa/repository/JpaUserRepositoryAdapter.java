@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.iam;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.iam.port.out.UserCredentialsPort;
@@ -8,10 +8,10 @@ import com.task.management.domain.iam.model.User;
 import com.task.management.application.iam.projection.UserCredentials;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.shared.model.UserInfo;
-import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
+import com.task.management.persistence.jpa.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
-import com.task.management.persistence.jpa.iam.mapper.UserCredentialsMapper;
-import com.task.management.persistence.jpa.iam.mapper.UserMapper;
+import com.task.management.persistence.jpa.mapper.UserCredentialsMapper;
+import com.task.management.persistence.jpa.mapper.UserMapper;
 
 import java.util.Optional;
 

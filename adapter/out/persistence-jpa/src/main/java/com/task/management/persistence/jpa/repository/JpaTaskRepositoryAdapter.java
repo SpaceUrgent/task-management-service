@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.project;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.shared.projection.Page;
@@ -14,7 +14,7 @@ import com.task.management.domain.shared.model.objectvalue.TaskNumber;
 import com.task.management.persistence.jpa.dao.*;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
-import com.task.management.persistence.jpa.project.mapper.TaskMapper;
+import com.task.management.persistence.jpa.mapper.TaskMapper;
 import com.task.management.persistence.jpa.query.FindTaskEntityPageQueryAdapter;
 import lombok.RequiredArgsConstructor;
 

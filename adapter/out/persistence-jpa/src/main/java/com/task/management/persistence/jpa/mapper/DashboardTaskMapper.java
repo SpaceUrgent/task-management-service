@@ -1,10 +1,9 @@
-package com.task.management.persistence.jpa.dashboard.mapper;
+package com.task.management.persistence.jpa.mapper;
 
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;
 import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.shared.model.objectvalue.TaskId;
 import com.task.management.domain.shared.model.objectvalue.TaskNumber;
-import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 
 import java.time.LocalDate;

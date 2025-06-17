@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.project;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.project.port.out.MemberRepositoryPort;

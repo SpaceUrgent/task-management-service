@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.iam.mapper;
+package com.task.management.persistence.jpa.mapper;
 
 import com.task.management.domain.shared.model.objectvalue.Email;
 import com.task.management.domain.iam.model.User;

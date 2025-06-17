@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.project;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.project.port.out.ProjectRepositoryPort;
@@ -14,7 +14,7 @@ import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.ProjectEntity;
 import com.task.management.persistence.jpa.entity.TaskNumberSequence;
 import com.task.management.persistence.jpa.entity.TaskStatusEntity;
-import com.task.management.persistence.jpa.project.mapper.ProjectMapper;
+import com.task.management.persistence.jpa.mapper.ProjectMapper;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Comparator;

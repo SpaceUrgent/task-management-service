@@ -1,6 +1,6 @@
 package com.task.management.persistence.jpa.dao;
 
-import com.task.management.persistence.jpa.IPage;
+import com.task.management.persistence.jpa.pagination.JpaPage;
 import com.task.management.persistence.jpa.entity.JpaEntity;
 import com.task.management.persistence.jpa.query.FindPageQuery;
 
@@ -14,7 +14,7 @@ public interface EntityDao<T extends JpaEntity<ID>, ID> {
 
     List<T> findAll();
 
-    IPage<T> findPage(FindPageQuery<T> query);
+    JpaPage<T> findPage(FindPageQuery<T> query);
 
     T getReference(ID id);
 

@@ -16,6 +16,7 @@ import com.task.management.persistence.jpa.dao.TaskChangeLogEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.*;
+import com.task.management.persistence.jpa.repository.JpaTaskRepositoryAdapter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;

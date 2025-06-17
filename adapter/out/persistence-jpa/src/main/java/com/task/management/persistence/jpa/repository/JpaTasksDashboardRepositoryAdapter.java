@@ -1,4 +1,4 @@
-package com.task.management.persistence.jpa.dashboard;
+package com.task.management.persistence.jpa.repository;
 
 import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.shared.projection.Page;
@@ -9,7 +9,7 @@ import com.task.management.application.dashboard.query.FindAssignedDashboardTask
 import com.task.management.application.dashboard.query.FindOwnedDashboardTasksQuery;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
-import com.task.management.persistence.jpa.dashboard.mapper.DashboardTaskMapper;
+import com.task.management.persistence.jpa.mapper.DashboardTaskMapper;
 import com.task.management.persistence.jpa.query.FindAssignedDashboardTasksQueryAdapter;
 import com.task.management.persistence.jpa.query.FindOwnedDashboardTasksQueryAdapter;
 

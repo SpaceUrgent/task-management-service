@@ -1,11 +1,10 @@
-package com.task.management.persistence.jpa.project.mapper;
+package com.task.management.persistence.jpa.mapper;
 
 import com.task.management.application.project.projection.TaskCommentView;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.TaskComment;
 import com.task.management.domain.project.model.objectvalue.TaskCommentId;
 import com.task.management.domain.shared.model.objectvalue.TaskId;
-import com.task.management.persistence.jpa.common.mapper.UserInfoMapper;
 import com.task.management.persistence.jpa.entity.TaskCommentEntity;
 
 import java.util.Collection;

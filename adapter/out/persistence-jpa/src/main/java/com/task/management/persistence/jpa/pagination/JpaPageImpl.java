@@ -1,20 +1,20 @@
-package com.task.management.persistence.jpa;
+package com.task.management.persistence.jpa.pagination;
 
 import java.util.Collection;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
-public class PageImpl<T> implements IPage<T> {
+public class JpaPageImpl<T> implements JpaPage<T> {
     private final int pageIndex;
     private final int pageSize;
     private final long total;
     private final Collection<T> content;
 
-    public PageImpl(Integer pageIndex,
-                    Integer pageSize,
-                    Long total,
-                    Collection<T> content) {
+    public JpaPageImpl(Integer pageIndex,
+                       Integer pageSize,
+                       Long total,
+                       Collection<T> content) {
         this.pageIndex = requireNonNull(pageIndex, "Page index is required");
         this.pageSize = requireNonNull(pageSize, "Page size is required");
         this.total = requireNonNull(total, "Total is required");
