@@ -19,7 +19,7 @@ public class TransactionalUseCaseAspect {
     }
 
 
-    @Around("@annotation(com.task.management.application.common.annotation.UseCase)")
+    @Around("@annotation(com.task.management.application.shared.annotation.UseCase)")
     public Object runWithTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
         final var definition = new DefaultTransactionDefinition();
         definition.setIsolationLevel(TransactionDefinition.ISOLATION_DEFAULT);

@@ -1,8 +1,9 @@
-package com.task.managment.web.security;
+package com.task.management.spring.security;
 
 import com.task.management.application.shared.annotation.UseCase;
 import com.task.management.application.iam.port.out.UserCredentialsPort;
 import com.task.management.domain.shared.model.objectvalue.Email;
+import com.task.managment.web.security.SecuredUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,5 +1,6 @@
-package com.task.managment.web.security;
+package com.task.management.spring.security;
 
+import com.task.managment.web.security.SecuredUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
