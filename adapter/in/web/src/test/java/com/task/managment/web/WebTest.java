@@ -1,8 +1,5 @@
 package com.task.managment.web;
 
-import com.task.managment.web.security.SessionBasedSecurityConfiguration;
-import com.task.managment.web.security.UserAuthenticationProvider;
-import com.task.managment.web.security.UserDetailServiceImpl;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -20,9 +17,10 @@ import java.lang.annotation.Target;
 @SpringBootTest(
         classes = {
                 WebTestConfiguration.class,
-                SessionBasedSecurityConfiguration.class,
-                UserDetailServiceImpl.class,
-                UserAuthenticationProvider.class,
+//                SessionBasedSecurityConfiguration.class,
+//                UserDetailServiceImpl.class,
+//                UserAuthenticationProvider.class,
+                WebTestSecurityConfiguration.class,
                 GlobalExceptionHandler.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT

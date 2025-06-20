@@ -1,4 +1,4 @@
-package com.task.managment.web;
+package com.task.management.spring;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
