@@ -15,7 +15,7 @@ export default function TextArea({
 
     return(
         <div className="mb-1 text-start">
-            <label className="label form-label mb-0" htmlFor={id}>{name}</label>
+            <label className="label form-label mb-0 small fw-bold ms-2" htmlFor={id}>{name}</label>
             <textarea
                 className={`form-control`}
                 id={id}

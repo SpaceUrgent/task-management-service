@@ -1,25 +1,44 @@
-import React, {useState} from "react";
-import {useProjectContext} from "../../contexts/ProjectContext";
-import {ProjectClient} from "../../api/ProjectClient.ts";
+import React, { useState } from "react";
+import { useProjectContext } from "../../contexts/ProjectContext";
+import { ProjectClient } from "../../api/ProjectClient.ts";
 import LabeledSelector from "../../../common/components/selectors/LabeledSelector";
+import { useFormValidation } from "../../hooks/useFormValidation";
 
 export default function ChangeProductOwnerModal({ onClose }) {
-    const { project} = useProjectContext();
+    const { project } = useProjectContext();
     const projectClient = ProjectClient.getInstance();
-
     const [isConfirmed, setIsConfirmed] = useState(false);
-    const [selectedOwnerId, setSelectedOwnerId] = useState(null);
     const [submitError, setSubmitError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Use form validation for owner selection
+    const validationRules = {
+        selectedOwnerId: (value) => !!value && value !== project.owner.id,
+    };
+    const {
+        formData,
+        validation,
+        showErrors,
+        updateField,
+        showFieldError,
+        isFormValid
+    } = useFormValidation(validationRules);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!selectedOwnerId || !isConfirmed) return;
-        if (selectedOwnerId === project.owner.id) return;
+        if (!isFormValid() || !isConfirmed) {
+            showFieldError('selectedOwnerId');
+            return;
+        }
+        setIsLoading(true);
+        setSubmitError(null);
         try {
-            await projectClient.updateMemberRole(project.id, selectedOwnerId, 'Owner');
+            await projectClient.updateMemberRole(project.id, formData.selectedOwnerId, 'Owner');
             onClose();
         } catch (error) {
             setSubmitError('Failed to update owner');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -36,13 +55,16 @@ export default function ChangeProductOwnerModal({ onClose }) {
                             <div className="mb-3">
                                 <LabeledSelector
                                     label="Owner"
-                                    value={selectedOwnerId ? selectedOwnerId : project.owner.id}
-                                    onChange={setSelectedOwnerId}
+                                    value={formData.selectedOwnerId || project.owner.id}
+                                    onChange={value => updateField('selectedOwnerId', value)}
                                     options={project?.members.map((member) => ({
                                         value: member.id,
                                         label: member.fullName,
                                     }))}
                                 />
+                                {showErrors.selectedOwnerId && !validation.selectedOwnerId && (
+                                    <span className="text-danger span-warning small">Please select a different owner</span>
+                                )}
                             </div>
                             <div className="form-check mb-3">
                                 <input
@@ -56,15 +78,19 @@ export default function ChangeProductOwnerModal({ onClose }) {
                                     I understand that this action permanently transfers project ownership.
                                 </label>
                             </div>
-                            {submitError &&
+                            {submitError && (
                                 <span className="text-danger span-warning">{submitError}</span>
-                            }
+                            )}
                             <div className="d-flex justify-content-end">
-                                <button type="button" className="btn btn-secondary me-2" onClick={onClose}>
+                                <button type="button" className="btn btn-secondary me-2" onClick={onClose} disabled={isLoading}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="btn btn-primary" disabled={!isConfirmed}>
-                                    Change Owner
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={!isConfirmed || !isFormValid() || isLoading}
+                                >
+                                    {isLoading ? 'Changing...' : 'Change Owner'}
                                 </button>
                             </div>
                         </form>

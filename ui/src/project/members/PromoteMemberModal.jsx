@@ -1,14 +1,25 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
 export default function PromoteMemberModal({ onCancel, onSubmit }) {
-    const [ isConfirmed, setIsConfirmed ] = useState(false);
+    const [isConfirmed, setIsConfirmed] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [submitError, setSubmitError] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        onSubmit();
-    }
+        if (!isConfirmed) return;
+        setIsLoading(true);
+        setSubmitError("");
+        try {
+            await onSubmit();
+        } catch (error) {
+            setSubmitError("Failed to promote member");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-    return(
+    return (
         <div className="modal show d-block" tabIndex="-1">
             <div className="modal-dialog">
                 <div className="modal-content">
@@ -38,13 +49,15 @@ export default function PromoteMemberModal({ onCancel, onSubmit }) {
                                     I understand that this action gives full admin rights.
                                 </label>
                             </div>
-                            <p/>
-                            <div className="d-flex justify-content-end">
-                                <button type="button" className="btn btn-secondary me-2" onClick={onCancel}>
+                            {submitError && (
+                                <div className="text-danger span-warning small mt-2">{submitError}</div>
+                            )}
+                            <div className="d-flex justify-content-end mt-3">
+                                <button type="button" className="btn btn-secondary me-2" onClick={onCancel} disabled={isLoading}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="btn btn-primary" disabled={!isConfirmed}>
-                                    Submit
+                                <button type="submit" className="btn btn-primary" disabled={!isConfirmed || isLoading}>
+                                    {isLoading ? 'Submitting...' : 'Submit'}
                                 </button>
                             </div>
                         </form>
@@ -52,5 +65,5 @@ export default function PromoteMemberModal({ onCancel, onSubmit }) {
                 </div>
             </div>
         </div>
-    )
+    );
 }

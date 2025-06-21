@@ -54,7 +54,7 @@ export default function TaskPreviewTable({taskPreviews = []}) {
                 ))}
                 {taskPreviews.length === 0 && (
                     <tr>
-                        <td colSpan={5} className="text-muted text-center py-3">
+                        <td colSpan={8} className="text-muted text-center py-3">
                             No tasks found.
                         </td>
                     </tr>

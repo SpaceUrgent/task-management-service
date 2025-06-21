@@ -1,39 +1,49 @@
-import React, {useEffect, useState} from "react";
+import React, { useState } from "react";
 import TextArea from "../../../common/components/TextArea";
-import {ProjectClient} from "../../api/ProjectClient.ts";
-import ValidatedInput from "../../../common/components/ValidatedInput";
+import { ProjectClient } from "../../api/ProjectClient.ts";
+import { useFormValidation } from "../../hooks/useFormValidation";
+import FormField from "../../components/FormField";
 
 export default function CreateProjectModal({ onClose, onSubmit }) {
     const projectClient = ProjectClient.getInstance();
-
-    const [title, setTitle] = useState("");
-    const [titleIsValid, setTitleIsValid] = useState(false);
-    const [showTitleError, setShowTitleError] = useState(false);
-
     const [description, setDescription] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [submitError, setSubmitError] = useState("");
 
-    useEffect(() => {
-        setTitleIsValid(title.length > 0);
-    }, [title])
+    const validationRules = {
+        title: (value) => value && value.length > 0,
+    };
+
+    const {
+        formData,
+        validation,
+        showErrors,
+        updateField,
+        showFieldError,
+        isFormValid
+    } = useFormValidation(validationRules);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!titleIsValid) {
-            setShowTitleError(true);
+        if (!isFormValid()) {
+            Object.keys(validation).forEach(field => showFieldError(field));
             return;
         }
-        console.log(`title: ${title} \ndescription: ${description}`);
-        await projectClient.createProject({title, description});
-        onClose();
-        onSubmit();
-    }
+        setIsLoading(true);
+        setSubmitError("");
+        try {
+            await projectClient.createProject({ title: formData.title, description });
+            onClose();
+            onSubmit();
+        } catch (error) {
+            setSubmitError(error.message ? error.message : "Failed to create project");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-    return(
-        <div
-            className="modal d-block"
-            tabIndex={-1}
-            role="dialog"
-        >
+    return (
+        <div className="modal d-block" tabIndex={-1} role="dialog">
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                     <form onSubmit={handleSubmit}>
@@ -41,33 +51,44 @@ export default function CreateProjectModal({ onClose, onSubmit }) {
                             <h5 className="modal-title">Create new project</h5>
                         </div>
                         <div className="modal-body">
-                            <ValidatedInput
+                            <FormField
                                 id="title"
                                 type="text"
                                 name="Title"
                                 placeholder="Project title"
-                                onChange={(value) => setTitle(value)}
-                                isValid={titleIsValid}
-                                onBlur={() => setShowTitleError(true)}
+                                value={formData.title}
+                                onChange={value => updateField('title', value)}
+                                onBlur={() => showFieldError('title')}
+                                isValid={validation.title}
+                                showError={showErrors.title}
                                 errorMessage="Please enter title"
-                                showError={showTitleError}
                                 required={true}
                             />
                             <TextArea
                                 id="description"
                                 name="Description"
                                 placeholder="Project description..."
-                                onChange={(value) => setDescription(value)}
+                                value={description}
+                                onChange={setDescription}
                                 rows={5}
                             />
                         </div>
+                        {submitError && (
+                            <div className="text-center">
+                                <span className="text-danger span-warning small">
+                                    {submitError}
+                                </span>
+                            </div>
+                        )}
                         <div className="modal-footer">
-                            <button className="btn btn-secondary" onClick={() => onClose()}>Close</button>
-                            <button className="btn btn-primary">Submit</button>
+                            <button className="btn btn-secondary" type="button" onClick={onClose} disabled={isLoading}>Close</button>
+                            <button className="btn btn-primary" type="submit" disabled={!isFormValid() || isLoading}>
+                                {isLoading ? 'Submitting...' : 'Submit'}
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-    )
+    );
 }

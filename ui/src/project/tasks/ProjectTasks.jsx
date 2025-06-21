@@ -148,12 +148,14 @@ export default function ProjectTasks() {
                 </div>
             </div>
             <TaskPreviewTable taskPreviews={tasksPage?.data} />
-            <PaginationPanel
-                currentPage={currentPage}
-                totalPages={tasksPage?.totalPages}
-                onNext={() => setCurrentPage(currentPage + 1)}
-                onPrevious={() => setCurrentPage(currentPage - 1)}
-            />
+            {tasksPage?.data?.length > 0 &&
+                <PaginationPanel
+                    currentPage={currentPage}
+                    totalPages={tasksPage?.totalPages}
+                    onNext={() => setCurrentPage(currentPage + 1)}
+                    onPrevious={() => setCurrentPage(currentPage - 1)}
+                />
+            }
         </div>
     )
 }

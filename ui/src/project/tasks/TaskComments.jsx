@@ -6,13 +6,26 @@ export default function TaskComments({
 }) {
     const [showForm, setShowForm] = useState(false);
     const [newComment, setNewComment] = useState("");
+    const [submitError, setSubmitError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!newComment.trim()) return;
-        onAddComment(newComment.trim());
-        setNewComment("");
-        setShowForm(false);
+        if (!newComment.trim()) {
+            setSubmitError("Comment cannot be empty");
+            return;
+        }
+        setIsLoading(true);
+        setSubmitError("");
+        try {
+            await onAddComment(newComment.trim());
+            setNewComment("");
+            setShowForm(false);
+        } catch (error) {
+            setSubmitError("Failed to add comment");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -41,7 +54,10 @@ export default function TaskComments({
                                     <div className="d-flex justify-content-end">
                                         <button
                                             className="btn btn-sm btn-outline-primary"
-                                            onClick={() => setShowForm(!showForm)}
+                                            onClick={() => {
+                                                setShowForm(true);
+                                                setSubmitError("");
+                                            }}
                                         >
                                             Add
                                         </button>
@@ -52,18 +68,22 @@ export default function TaskComments({
                                     <form onSubmit={handleSubmit}>
                                         <div className="">
                                             <textarea
-                                                className="form-control"
+                                                className={`form-control${submitError ? ' is-invalid' : ''}`}
                                                 rows={3}
                                                 value={newComment}
                                                 onChange={(e) => setNewComment(e.target.value)}
                                                 placeholder="Write your comment..."
+                                                disabled={isLoading}
                                             />
+                                            {submitError && (
+                                                <div className="invalid-feedback d-block">{submitError}</div>
+                                            )}
                                         </div>
                                         <div className="d-flex justify-content-end gap-3">
-                                            <button className="btn btn-sm btn-primary" type="submit">
-                                                Submit
+                                            <button className="btn btn-sm btn-primary" type="submit" disabled={!newComment.trim() || isLoading}>
+                                                {isLoading ? 'Submitting...' : 'Submit'}
                                             </button>
-                                            <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowForm(!showForm)}>
+                                            <button className="btn btn-sm btn-outline-secondary" type="button" onClick={() => { setShowForm(false); setSubmitError(""); }} disabled={isLoading}>
                                                 Cancel
                                             </button>
                                         </div>
