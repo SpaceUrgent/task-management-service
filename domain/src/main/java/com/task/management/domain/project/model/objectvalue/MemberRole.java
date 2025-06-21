@@ -22,7 +22,7 @@ public enum MemberRole {
     }
 
     public static MemberRole withRoleName(String roleName) {
-        parameterRequired(roleName, "Role name");
+        if (roleName == null) return null;
         return Arrays.stream(MemberRole.values())
                 .filter(memberRole -> Objects.equals(memberRole.roleName, roleName))
                 .findFirst()
