@@ -36,6 +36,7 @@ build/
 
 # configs
 **/application.yml
+**/docker-compose-local.yml
 
 # other
 Plan.txt
