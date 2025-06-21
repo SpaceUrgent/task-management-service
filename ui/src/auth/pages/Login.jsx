@@ -6,12 +6,11 @@ import AppConstants from "../../AppConstants.ts";
 import ValidatedInput from "../../common/components/ValidatedInput";
 import AuthLayout from "../components/AuthLayout";
 import AuthForm from "../components/AuthForm";
-// import {ProjectClient} from "../../api/ProjectClient.ts";
 
 const Login = () => {
 
     const authClient = AuthClient.getInstance();
-    const { login, logout } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
@@ -83,9 +82,11 @@ const Login = () => {
                     showError={showPasswordError}
                     required={true}
                 />
-                <button className="btn btn-primary mt-2">Sign In</button>
-                {submitError && <span className="text-danger span-warning">{submitError}</span>}
-                <div>
+                <p/>
+                <div className="text-center">
+                    <button className="btn btn-primary mt-2 w-50">Sign In</button>
+                    <p/>
+                    {submitError && <span className="text-danger span-warning small">{submitError}</span>}
                     <p className="m-1">
                         <a>Don't have an account? </a>
                         <Link to={'/register'} replace={true}>Register</Link>

@@ -18,7 +18,7 @@ export default function ValidatedInput ({
 
     return (
         <div className="mb-1 text-start">
-            <label className="label form-label mb-0" htmlFor={id}>{name}</label>
+            <label className="label form-label mb-0 small fw-bold ms-2" htmlFor={id}>{name}</label>
             <input
                 className={`form-control ${isValid ? "is-valid" : showError && "is-invalid"}`}
                 id={id}
@@ -30,7 +30,7 @@ export default function ValidatedInput ({
                 required={required}
             />
             {!isValid && showError &&
-                <span className="text-danger span-warning">{errorMessage}</span>
+                <span className="text-danger span-warning small">{errorMessage}</span>
             }
         </div>
     );
