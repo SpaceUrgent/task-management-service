@@ -1,4 +1,4 @@
-import { AuthClient, LoginError, RegisterError } from '../api/AuthClient.ts';
+import { AuthClient, AuthError } from '../api/AuthClient.ts';
 import AppConstants from '../../AppConstants.ts';
 
 export const handleLogin = async (credentials, onSuccess, onError) => {
@@ -9,7 +9,7 @@ export const handleLogin = async (credentials, onSuccess, onError) => {
         onSuccess();
     } catch (error) {
         console.error('Login error:', error);
-        const errorMessage = error instanceof LoginError 
+        const errorMessage = error instanceof AuthError
             ? error.message 
             : 'Failed to login. Please try again later';
         onError(errorMessage);
@@ -24,7 +24,7 @@ export const handleRegister = async (userData, onSuccess, onError) => {
         onSuccess();
     } catch (error) {
         console.error('Registration error:', error);
-        const errorMessage = error instanceof RegisterError 
+        const errorMessage = error instanceof AuthError
             ? error.message 
             : AppConstants.DEFAULT_REGISTER_ERROR_MESSAGE;
         onError(errorMessage);

@@ -1,77 +1,54 @@
-import axios, {AxiosResponse} from "axios";
-
-const BASE_URL = "http://localhost:8080/api";
+import axios, {AxiosInstance} from "axios";
+// @ts-ignore
+import ApiConstants from "../../ApiConstants.ts";
 
 export class AuthClient {
     private static instance: AuthClient;
-    private readonly baseUrl: string;
+    private axiosInstance: AxiosInstance;
 
-    private constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+    private constructor() {
+        this.axiosInstance = axios.create({ baseURL: ApiConstants.BASE_URL });
+        this.axiosInstance.interceptors.response.use(
+            res => res,
+            error => {
+                const status = error.response?.status;
+                const message = error.response?.data?.message;
+                if (status >= 400 && status < 500) {
+                    throw new AuthError(message);
+                }
+                throw new ServerError();
+            }
+        )
     }
 
     public static getInstance(): AuthClient {
         if (!AuthClient.instance) {
-            AuthClient.instance = new AuthClient(BASE_URL);
+            AuthClient.instance = new AuthClient();
         }
         return AuthClient.instance;
     }
 
     async registerUser(request: RegisterRequest): Promise<void> {
-        let response: AxiosResponse<any, any>;
-
-
-        try {
-            const urlEncodedRequest = this.toUrlEncodedRequest(request);
-            response = await axios.post(
-                `${this.baseUrl}/users/register`,
-                urlEncodedRequest,
-                {
-                    headers : { "Content-Type": "application/x-www-form-urlencoded" },
-                }
-            );
-            console.log(response);
-        } catch (error) {
-            this.raiseRegisterFailed();
-        }
-        this.validateRegisterResponse(response);
+        const urlEncodedRequest = this.toUrlEncodedRequest(request);
+        await this.axiosInstance.post(
+            `/users/register`,
+            urlEncodedRequest,
+            {
+                headers : { "Content-Type": "application/x-www-form-urlencoded" },
+            }
+        );
     }
 
     async login(request: LoginRequest): Promise<void> {
-        let response: AxiosResponse<any, any>;
-
-        try {
-            const urlEncodedRequest = this.toUrlEncodedRequest(request);
-            response = await axios.post(
-                `${this.baseUrl}/auth/login`,
-                urlEncodedRequest,
-                {
-                    withCredentials: true,
-                    headers : { "Content-Type": "application/x-www-form-urlencoded" }
-                }
-            )
-        } catch (error) {
-            this.raiseLoginFailed();
-        }
-        this.validateLoginResponse(response)
-    }
-
-    private validateRegisterResponse(response: AxiosResponse<any, any>) {
-        const status = response.status;
-        if (status === 201) return;
-        if (status === 400 && response.data?.message) {
-            throw new RegisterError(response.data.message);
-        }
-        this.raiseRegisterFailed();
-    }
-
-    private validateLoginResponse(response: AxiosResponse<any, any>) {
-        const status = response.status;
-        if (status === 200) return;
-        if (response.status === 401) {
-            throw new LoginError('Email or password is incorrect');
-        }
-        this.raiseLoginFailed();
+        const urlEncodedRequest = this.toUrlEncodedRequest(request);
+        await this.axiosInstance.post(
+            `/auth/login`,
+            urlEncodedRequest,
+            {
+                withCredentials: true,
+                headers : { "Content-Type": "application/x-www-form-urlencoded" }
+            }
+        );
     }
 
     private toUrlEncodedRequest(request: Object): string {
@@ -80,14 +57,6 @@ export class AuthClient {
             urlEncodedParams.append(key, request[key]);
         }
         return urlEncodedParams.toString();
-    }
-
-    private raiseRegisterFailed() {
-        throw new RegisterError('Failed to register. Please try again later');
-    }
-
-    private raiseLoginFailed() {
-        throw new LoginError('Failed to login. Please try again later');
     }
 }
 
@@ -103,16 +72,14 @@ interface LoginRequest {
     password: string;
 }
 
-export class RegisterError extends Error {
+
+export class AuthError extends Error {
 
     constructor(message: string) {
         super(message);
     }
 }
 
-export class LoginError extends Error {
+export class ServerError extends Error {
 
-    constructor(message: string) {
-        super(message);
-    }
 }
