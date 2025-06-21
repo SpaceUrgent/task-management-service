@@ -1,6 +1,7 @@
 // @ts-ignore
 import ApiConstants from "../../ApiConstants.ts";
 import axios, {AxiosInstance, AxiosResponse} from "axios";
+import Configuration from "../../common/Configuration.js"
 
 export class ProjectClient {
     private static instance: ProjectClient;
@@ -36,7 +37,7 @@ export class ProjectClient {
 
     public static getInstance(): ProjectClient {
         if (!ProjectClient.instance) {
-            this.instance = new ProjectClient(ApiConstants.BASE_URL);
+            this.instance = new ProjectClient(Configuration.apiBaseUrl);
         }
         return ProjectClient.instance;
     }

@@ -1,13 +1,14 @@
 import axios, {AxiosInstance} from "axios";
 // @ts-ignore
 import ApiConstants from "../../ApiConstants.ts";
+import Configuration from "../../common/Configuration"
 
 export class AuthClient {
     private static instance: AuthClient;
     private axiosInstance: AxiosInstance;
 
     private constructor() {
-        this.axiosInstance = axios.create({ baseURL: ApiConstants.BASE_URL });
+        this.axiosInstance = axios.create({ baseURL: Configuration.apiBaseUrl });
         this.axiosInstance.interceptors.response.use(
             res => res,
             error => {

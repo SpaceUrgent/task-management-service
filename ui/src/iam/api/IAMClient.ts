@@ -1,6 +1,7 @@
 // @ts-ignore
 import ApiConstants from "../../ApiConstants.ts";
 import axios, {AxiosInstance} from "axios";
+import Configuration from "../../common/Configuration.js"
 
 export class IAMClient {
     private static instance: IAMClient;
@@ -36,7 +37,7 @@ export class IAMClient {
 
     public static getInstance(): IAMClient {
         if (!IAMClient.instance) {
-            this.instance = new IAMClient(ApiConstants.BASE_URL);
+            this.instance = new IAMClient(Configuration.apiBaseUrl);
         }
         return IAMClient.instance;
     }

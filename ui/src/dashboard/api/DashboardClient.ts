@@ -1,6 +1,7 @@
 // @ts-ignore
 import ApiConstants from "../../ApiConstants.ts";
 import axios, {AxiosInstance} from "axios";
+import Configuration from "../../common/Configuration.js"
 
 export class DashboardClient {
     private static instance: DashboardClient;
@@ -36,7 +37,7 @@ export class DashboardClient {
 
     public static getInstance(): DashboardClient {
         if (!DashboardClient.instance) {
-            this.instance = new DashboardClient(ApiConstants.BASE_URL);
+            this.instance = new DashboardClient(Configuration.apiBaseUrl);
         }
         return DashboardClient.instance;
     }
