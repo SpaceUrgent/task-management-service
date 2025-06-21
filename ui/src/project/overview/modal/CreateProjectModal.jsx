@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import TextArea from "../../../common/components/TextArea";
 import { ProjectClient } from "../../api/ProjectClient.ts";
-import { useFormValidation } from "../../hooks/useFormValidation";
-import FormField from "../../components/FormField";
+import {useFormValidation} from "../../../common/hooks/useFormValidation";
+import FormInput from "../../../common/components/FormInput";
 
 export default function CreateProjectModal({ onClose, onSubmit }) {
     const projectClient = ProjectClient.getInstance();
@@ -51,7 +51,7 @@ export default function CreateProjectModal({ onClose, onSubmit }) {
                             <h5 className="modal-title">Create new project</h5>
                         </div>
                         <div className="modal-body">
-                            <FormField
+                            <FormInput
                                 id="title"
                                 type="text"
                                 name="Title"

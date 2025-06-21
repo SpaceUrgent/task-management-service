@@ -19,7 +19,6 @@ export const useFormValidation = (validationRules) => {
     }, []);
 
     const updateField = (field, value) => {
-        console.log(field, value);
         setFormData(prev => ({ ...prev, [field]: value }));
         const isValid = validationRules[field](value, formData);
         setValidation(prev => ({ ...prev, [field]: isValid }));

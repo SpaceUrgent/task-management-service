@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import { useProjectContext } from "../../contexts/ProjectContext";
-import { useFormValidation } from "../../hooks/useFormValidation";
-import FormField from "../../components/FormField";
+import {useFormValidation} from "../../../common/hooks/useFormValidation";
+import FormInput from "../../../common/components/FormInput";
 
 export default function AddTaskStatusModal({ statusPosition, onClose }) {
     const { project, refreshData } = useProjectContext();
@@ -54,7 +54,7 @@ export default function AddTaskStatusModal({ statusPosition, onClose }) {
                             <h5 className="modal-title">Add task status</h5>
                         </div>
                         <div className="modal-body">
-                            <FormField
+                            <FormInput
                                 id="status"
                                 type="text"
                                 name="Status name"

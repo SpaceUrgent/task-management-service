@@ -3,15 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../common/contexts/AuthContext";
 import AuthLayout from "../components/AuthLayout";
 import AuthForm from "../components/AuthForm";
-import FormField from "../components/FormField";
-import { useFormValidation, validationRules } from "../hooks/useFormValidation";
 import { handleLogin, createAuthLink } from "../utils/authFormUtils";
+import FormInput from "../../common/components/FormInput";
+import { useFormValidation } from "../../common/hooks/useFormValidation";
+import AppConstants from "../../AppConstants.ts";
 
 const Login = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState("");
+
+    const validationRules = {
+        email: (value) => value && AppConstants.VALID_EMAIL_REGEX.test(value),
+        password: (value) => !!value,
+    };
 
     const {
         formData,
@@ -20,10 +26,7 @@ const Login = () => {
         updateField,
         showFieldError,
         isFormValid
-    } = useFormValidation({
-        email: validationRules.email,
-        password: validationRules.required
-    });
+    } = useFormValidation(validationRules);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -68,7 +71,7 @@ const Login = () => {
                 showSubmitButton={true}
                 submitDisabled={!isFormValid() || isLoading}
             >
-                <FormField
+                <FormInput
                     id="email"
                     name="Email"
                     type="email"
@@ -82,7 +85,7 @@ const Login = () => {
                     required={true}
                 />
                 
-                <FormField
+                <FormInput
                     id="password"
                     name="Password"
                     type="password"

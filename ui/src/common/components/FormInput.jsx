@@ -1,7 +1,7 @@
 import React from 'react';
-import ValidatedInput from '../../common/components/ValidatedInput';
+import ValidatedInput from './ValidatedInput';
 
-const FormField = ({
+const FormInput = ({
     id,
     name,
     type = 'text',
@@ -34,4 +34,4 @@ const FormField = ({
     );
 };
 
-export default FormField; 
+export default FormInput;

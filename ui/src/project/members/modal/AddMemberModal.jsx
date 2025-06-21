@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import AppConstants from "../../../AppConstants.ts";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import { useProjectContext } from "../../contexts/ProjectContext";
-import { useFormValidation } from "../../hooks/useFormValidation";
-import FormField from "../../components/FormField";
+import {useFormValidation} from "../../../common/hooks/useFormValidation";
+import FormInput from "../../../common/components/FormInput";
 
 export default function AddMemberModal({ onClose, onSubmit }) {
     const { project } = useProjectContext();
@@ -51,7 +51,7 @@ export default function AddMemberModal({ onClose, onSubmit }) {
                             <h5 className="modal-title">Add Member</h5>
                         </div>
                         <div className="modal-body">
-                            <FormField
+                            <FormInput
                                 id="email"
                                 type="email"
                                 name="Email"

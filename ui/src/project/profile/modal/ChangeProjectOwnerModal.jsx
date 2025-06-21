@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useProjectContext } from "../../contexts/ProjectContext";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import LabeledSelector from "../../../common/components/selectors/LabeledSelector";
-import { useFormValidation } from "../../hooks/useFormValidation";
+import {useFormValidation} from "../../../common/hooks/useFormValidation";
 
 export default function ChangeProductOwnerModal({ onClose }) {
     const { project } = useProjectContext();

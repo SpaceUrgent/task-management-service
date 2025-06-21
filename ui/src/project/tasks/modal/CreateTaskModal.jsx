@@ -3,8 +3,8 @@ import TextArea from "../../../common/components/TextArea";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import { useParams } from "react-router-dom";
 import { useProjectContext } from "../../contexts/ProjectContext";
-import { useFormValidation } from "../../hooks/useFormValidation";
-import FormField from "../../components/FormField";
+import {useFormValidation} from "../../../common/hooks/useFormValidation";
+import FormInput from "../../../common/components/FormInput";
 
 export default function CreateTaskModal({ onClose, onSubmit }) {
     const { project } = useProjectContext();
@@ -71,7 +71,7 @@ export default function CreateTaskModal({ onClose, onSubmit }) {
                             <h5 className="modal-title">Create Task</h5>
                         </div>
                         <div className="modal-body">
-                            <FormField
+                            <FormInput
                                 id="title"
                                 type="text"
                                 name="Title"

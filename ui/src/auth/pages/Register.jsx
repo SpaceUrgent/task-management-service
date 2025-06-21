@@ -2,14 +2,23 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import AuthForm from "../components/AuthForm";
-import FormField from "../components/FormField";
-import { useFormValidation, validationRules } from "../hooks/useFormValidation";
 import { handleRegister, createAuthLink } from "../utils/authFormUtils";
+import { useFormValidation } from "../../common/hooks/useFormValidation";
+import FormInput from "../../common/components/FormInput";
+import AppConstants from "../../AppConstants.ts";
 
 const Register = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState("");
+
+    const validationRules = {
+        email: (value) => value && AppConstants.VALID_EMAIL_REGEX.test(value),
+        firstName: (value) => value && AppConstants.VALID_NAME_REGEX.test(value),
+        lastName: (value) => value && AppConstants.VALID_NAME_REGEX.test(value),
+        password: (value) => value && value.length >= 8,
+        confirmPassword: (value, formData) => value && value === formData.password,
+    };
 
     const {
         formData,
@@ -18,13 +27,7 @@ const Register = () => {
         updateField,
         showFieldError,
         isFormValid
-    } = useFormValidation({
-        email: validationRules.email,
-        firstName: validationRules.firstName,
-        lastName: validationRules.lastName,
-        password: validationRules.password,
-        confirmPassword: validationRules.confirmPassword
-    });
+    } = useFormValidation(validationRules);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -73,7 +76,7 @@ const Register = () => {
                 showSubmitButton={true}
                 submitDisabled={!isFormValid() || isLoading}
             >
-                <FormField
+                <FormInput
                     id="email"
                     type="email"
                     name="Email"
@@ -89,7 +92,7 @@ const Register = () => {
                 
                 <div className="row">
                     <div className="col">
-                        <FormField
+                        <FormInput
                             id="firstName"
                             type="text"
                             name="First Name"
@@ -103,7 +106,7 @@ const Register = () => {
                         />
                     </div>
                     <div className="col">
-                        <FormField
+                        <FormInput
                             id="lastName"
                             type="text"
                             name="Last Name"
@@ -120,7 +123,7 @@ const Register = () => {
                 
                 <div className="row">
                     <div className="col">
-                        <FormField
+                        <FormInput
                             id="password"
                             type="password"
                             name="Password"
@@ -134,7 +137,7 @@ const Register = () => {
                         />
                     </div>
                     <div className="col">
-                        <FormField
+                        <FormInput
                             id="confirmPassword"
                             type="password"
                             name="Confirm Password"
