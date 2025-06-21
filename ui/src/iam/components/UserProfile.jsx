@@ -70,6 +70,7 @@ export default function UserProfile() {
                 newPassword: newPassword
             });
             setShowPasswordModal(false);
+            fetchUser();
         } catch (error) {
             setUpdatePasswordError(
                 error instanceof IAMClientError ? error.message : 'Failed to update password. Try again later'
