@@ -24,7 +24,7 @@ public class TaskEntityDaoImpl extends AbstractEntityDao<TaskEntity, Long> imple
                 select count (*) > 0 from TaskEntity t\s
                 inner join t.project p\s
                 where p.id = :projectId\s
-                and t.status.name = :statusName
+                and t.status.id.name = :statusName
                 """, boolean.class);
         query.setParameter("projectId", projectId);
         query.setParameter("statusName", statusName);

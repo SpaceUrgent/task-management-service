@@ -40,13 +40,6 @@ public class ProjectEntity extends JpaEntity<Long> {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskStatusEntity> availableTaskStatuses = new ArrayList<>();
 
-//    @ElementCollection
-//    @CollectionTable(
-//            name = "available_task_statuses",
-//            joinColumns = @JoinColumn(name = "project_id")
-//    )
-//    private List<AvailableTaskStatus> availableTaskStatuses;
-
     protected ProjectEntity() {
     }
 
@@ -57,15 +50,12 @@ public class ProjectEntity extends JpaEntity<Long> {
                          String title,
                          String description,
                          List<MemberEntity> members) {
-//                         List<TaskStatusEntity> availableTaskStatuses) {
-//                         List<AvailableTaskStatus> availableTaskStatuses) {
         this.id = id;
         this.createdAt = parameterRequired(createdAt, "Created at");
         this.updatedAt = updatedAt;
         this.title = notBlank(title, "Title");
         this.description = description;
         this.members = Optional.ofNullable(members).orElse(new ArrayList<>());
-//        this.availableTaskStatuses = notEmpty(availableTaskStatuses, "Available task statuses");
     }
 
     public MemberEntity getOwner() {
