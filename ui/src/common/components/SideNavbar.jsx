@@ -14,10 +14,10 @@ export default function SideNavbar({ onSignOut }) {
         <nav className="bg-dark text-white d-flex flex-column flex-shrink-0" style={{ width: '280px', height: '100vh', position: 'sticky', top: 0 }}>
             <div className="d-flex flex-column h-100">
                 {/* Header */}
-                <div className="p-3">
-                    <span className="navbar-brand fs-4">PM Application</span>
+                <div className="text-center mt-2 mb-1">
+                    <span className="navbar-brand fs-4">Agile Application</span>
                 </div>
-                <hr className="my-2"/>
+                <hr className="my-1"/>
                 
                 {/* Navigation Links */}
                 <div className="flex-grow-1 p-3">
