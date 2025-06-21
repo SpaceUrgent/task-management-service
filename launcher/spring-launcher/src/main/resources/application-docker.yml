@@ -6,6 +6,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  session:
+    timeout: {SESSION_TIMEOUT}
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
 
 web:
   allowed-origins: ${ALLOWED_ORIGINS}
@@ -13,12 +18,12 @@ web:
 server:
   servlet:
     session:
-      timeout: 1m
+      timeout: {SESSION_TIMEOUT}
       tracking-modes: cookie
-      http-only: true
+      http-only: {SESSION_HTTP_ONLY:false}
       secure: false
       name: JSESSIONID
-      domain: localhost
+      domain: {SESSION_COOKIE_DOMAIN}
       path: /
       max-age: 600
       same-site: strict

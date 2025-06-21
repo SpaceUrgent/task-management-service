@@ -14,6 +14,9 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/task_management
       DB_USERNAME: admin
       DB_PASSWORD: dummy-password
+      SESSION_TIMEOUT: 180m
+      SESSION_HTTP_ONLY: false
+      SESSION_COOKIE_DOMAIN: localhost
     networks:
       - app-network
     depends_on:
