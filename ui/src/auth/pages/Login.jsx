@@ -1,100 +1,102 @@
-import React, {useEffect, useState} from "react";
-import {AuthClient, LoginError} from "../api/AuthClient.ts";
-import {useAuth} from "../../common/contexts/AuthContext";
-import {Link, useNavigate} from "react-router-dom";
-import AppConstants from "../../AppConstants.ts";
-import ValidatedInput from "../../common/components/ValidatedInput";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../common/contexts/AuthContext";
 import AuthLayout from "../components/AuthLayout";
 import AuthForm from "../components/AuthForm";
+import FormField from "../components/FormField";
+import { useFormValidation, validationRules } from "../hooks/useFormValidation";
+import { handleLogin, createAuthLink } from "../utils/authFormUtils";
 
 const Login = () => {
-
-    const authClient = AuthClient.getInstance();
     const { login } = useAuth();
     const navigate = useNavigate();
-
-    const [email, setEmail] = useState("");
-    const [emailIsValid, setEmailIsValid] = useState(false);
-    const [showEmailError, setShowEmailError] = useState(false);
-
-    const [password, setPassword] = useState("");
-    const [passwordIsValid, setPasswordIsValid] = useState(false);
-    const [showPasswordError, setShowPasswordError] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState("");
 
-    useEffect(() => {
-        setEmailIsValid(email && email.match(AppConstants.VALID_EMAIL_REGEX))
-    }, [email]);
+    const {
+        formData,
+        validation,
+        showErrors,
+        updateField,
+        showFieldError,
+        isFormValid
+    } = useFormValidation({
+        email: validationRules.email,
+        password: validationRules.required
+    });
 
-    useEffect(() => {
-        setPasswordIsValid(!!password);
-    }, [password]);
-
-    const submitLogin = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!inputsAreValid()) {
+        if (!isFormValid()) {
+            Object.keys(validation).forEach(field => {
+                showFieldError(field);
+            });
             return;
         }
-        try {
-            await authClient.login({email: email, password: password});
-            login();
-            // ProjectClient.getInstance().setOnUnauthorized(logout);
-            navigate("/projects", {replace: true});
-        } catch (error) {
-            console.log(error);
-            const submitError = error instanceof LoginError ? error.message : 'Failed to login. Please try again later';
-            setSubmitError(submitError);
-        }
-    }
 
-    const inputsAreValid = () => {
-        return emailIsValid && passwordIsValid;
-    }
+        setIsLoading(true);
+        setSubmitError("");
 
-    return(
+        await handleLogin(
+            { email: formData.email, password: formData.password },
+            () => {
+                login();
+                navigate("/projects", { replace: true });
+            },
+            (error) => {
+                setSubmitError(error);
+                setIsLoading(false);
+            }
+        );
+    };
+
+    const footerContent = (
+        <>
+            {createAuthLink("Don't have an account? ", "Register", "/register")}
+        </>
+    );
+
+    return (
         <AuthLayout>
             <AuthForm
-                onSubmit={submitLogin}
+                onSubmit={handleSubmit}
                 title="Sign In"
+                submitError={submitError}
+                submitButtonText="Sign In"
+                footerContent={footerContent}
+                showSubmitButton={true}
+                submitDisabled={!isFormValid() || isLoading}
             >
-                <ValidatedInput
+                <FormField
                     id="email"
                     name="Email"
                     type="email"
                     placeholder="username@domain.com"
-                    onChange={(value) => setEmail(value)}
-                    isValid={emailIsValid}
-                    onBlur={() => setShowEmailError(true)}
+                    value={formData.email}
+                    onChange={(value) => updateField('email', value)}
+                    onBlur={() => showFieldError('email')}
+                    isValid={validation.email}
+                    showError={showErrors.email}
                     errorMessage="Please enter valid email address"
-                    showError={showEmailError}
                     required={true}
                 />
-                <ValidatedInput
+                
+                <FormField
                     id="password"
                     name="Password"
                     type="password"
-                    onChange={(value) => setPassword(value)}
-                    isValid={passwordIsValid}
-                    onBlur={() => setShowPasswordError(true)}
+                    value={formData.password}
+                    onChange={(value) => updateField('password', value)}
+                    onBlur={() => showFieldError('password')}
+                    isValid={validation.password}
+                    showError={showErrors.password}
                     errorMessage="Please enter password"
-                    showError={showPasswordError}
                     required={true}
                 />
-                <p/>
-                <div className="text-center">
-                    <button className="btn btn-primary mt-2 w-50">Sign In</button>
-                    <p/>
-                    {submitError && <span className="text-danger span-warning small">{submitError}</span>}
-                    <p className="m-1">
-                        <a>Don't have an account? </a>
-                        <Link to={'/register'} replace={true}>Register</Link>
-                    </p>
-                </div>
             </AuthForm>
         </AuthLayout>
-    )
-}
+    );
+};
 
 export default Login;
