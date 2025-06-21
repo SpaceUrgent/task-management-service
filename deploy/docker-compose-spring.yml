@@ -6,11 +6,11 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile-spring
     container_name: task-manager-application
-    image: task-manager-application:latest
     ports:
-      - "9090:8080"
+      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      ALLOWED_ORIGINS: http://localhost:3000
       DB_URL: jdbc:postgresql://postgres:5432/task_management
       DB_USERNAME: admin
       DB_PASSWORD: dummy-password
