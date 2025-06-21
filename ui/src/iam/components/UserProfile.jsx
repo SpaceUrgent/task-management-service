@@ -88,7 +88,7 @@ export default function UserProfile() {
 
     return (
         <div className="container-fluid">
-            <div className="d-flex justify-content-between align-items-center m-3">
+            <div className="d-flex justify-content-between align-items-center m-0">
                 <h5>Profile</h5>
             </div>
             <hr/>

@@ -50,7 +50,7 @@ export default function AvailableProjects() {
                         onSubmit={() => fetchProjects()}
                     />
                 }
-            <div className="d-flex justify-content-between align-items-center m-3">
+            <div className="d-flex justify-content-between align-items-center m-0">
                 <h5>Available Projects</h5>
                 <button className="btn btn-sm btn-primary"
                         onClick={() => setCreateNewModalIsOpen(true)}
