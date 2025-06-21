@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  task-manager-application:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile-spring
+    container_name: task-manager-application
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      ALLOWED_ORIGINS: http://localhost:3000
+      DB_URL: jdbc:postgresql://postgres:5432/task_management
+      DB_USERNAME: admin
+      DB_PASSWORD: dummy-password
+      SESSION_TIMEOUT: 180m
+      SESSION_HTTP_ONLY: false
+      SESSION_COOKIE_DOMAIN: localhost
+    networks:
+      - app-network
+    depends_on:
+      postgres:
+        condition: service_started
+
+  ui:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile-ui
+    container_name: task_manager_ui
+    ports:
+      - "3000:80"
+    environment:
+      NODE_ENV: production
+      REACT_APP_API_URL: http://localhost:8080/api
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      task-manager-application:
+        condition: service_started
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: task_management
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: dummy-password
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
