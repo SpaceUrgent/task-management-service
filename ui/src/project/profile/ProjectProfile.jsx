@@ -19,7 +19,7 @@ export default function ProjectProfile() {
     }
 
     return(
-        <div className="container p-3">
+        <div>
             <div className="col">
                 <div className="row mb-4">
                     <ProjectOwner allowChangeOwner={currentUserRole === "Owner"}/>

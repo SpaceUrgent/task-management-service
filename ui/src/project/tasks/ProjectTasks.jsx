@@ -86,7 +86,7 @@ export default function ProjectTasks() {
     }
 
     return(
-        <div className="d-flex flex-column h-100 container py-3">
+        <div>
             {showCreateTaskModal &&
                 <CreateTaskModal
                     projectId={project.id}

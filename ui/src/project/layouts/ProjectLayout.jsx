@@ -27,39 +27,47 @@ export default function ProjectLayout({}) {
     }
 
     return (
-        <div className="container-fluid h-100 d-flex flex-column">
+        <div className="container-fluid h-100 d-flex flex-column p-0">
             <EditableTitle
                 initialValue={project.title}
                 onSave={handleUpdateProjectTitle}
                 editable={currentUserRole === "Owner"}
             />
-            <ul className="nav nav-tabs mt-1">
-                <li className="nav-item">
-                    <button
-                        className={`nav-link ${isActiveTab("profile") || !subComponentUriPath() ? "active" : ""}`}
-                        onClick={() => navigate(`/projects/${projectId}/profile`)}
-                    >
-                        Profile
-                    </button>
-                </li>
-                <li className="nav-item">
-                    <button
-                        className={`nav-link ${isActiveTab("tasks") ? "active" : ""}`}
-                        onClick={() => navigate(`/projects/${projectId}/tasks`)}
-                    >
-                        Tasks
-                    </button>
-                </li>
-                <li className="nav-item">
-                    <button
-                        className={`nav-link ${isActiveTab("members") ? "active" : ""}`}
-                        onClick={() => navigate(`/projects/${projectId}/members`)}
-                    >
-                        Members
-                    </button>
-                </li>
-            </ul>
-            <Outlet/>
+
+            <div className="card mb-4 border-0">
+                <div className="card-header bg-white">
+                    <ul className="nav nav-tabs card-header-tabs">
+                        <li className="nav-item">
+                            <button
+                                className={`nav-link ${isActiveTab("profile") || !subComponentUriPath() ? "active" : ""}`}
+                                onClick={() => navigate(`/projects/${projectId}/profile`)}
+                            >
+                                Profile
+                            </button>
+                        </li>
+                        <li className="nav-item">
+                            <button
+                                className={`nav-link ${isActiveTab("tasks") ? "active" : ""}`}
+                                onClick={() => navigate(`/projects/${projectId}/tasks`)}
+                            >
+                                Tasks
+                            </button>
+                        </li>
+                        <li className="nav-item">
+                            <button
+                                className={`nav-link ${isActiveTab("members") ? "active" : ""}`}
+                                onClick={() => navigate(`/projects/${projectId}/members`)}
+                            >
+                                Members
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div className="card-body">
+                    <Outlet/>
+                </div>
+            </div>
+
         </div>
     )
 }

@@ -52,7 +52,7 @@ export default function ProjectMembers() {
     }
 
     return(
-        <div className="container p-3">
+        <div>
             {alert && (
                 <div className="alert alert-danger" role="alert">
                     {alert}
