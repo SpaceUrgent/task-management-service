@@ -50,7 +50,7 @@ export default function SideNavbar({ onSignOut }) {
                 </div>
 
                 {/* Sign Out Button */}
-                <div className="p-3 mt-auto border-top">
+                <div className="p-3 mt-auto">
                     <button 
                         type="button" 
                         className="btn btn-outline-danger w-100"
