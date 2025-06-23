@@ -9,6 +9,7 @@ import Alert from "../../common/components/Alert";
 import LabeledSelector from "../../common/components/selectors/LabeledSelector";
 import LabeledMultiValueSelector from "../../common/components/selectors/LabeledMultiValueSelector";
 import {useSearchParams} from "react-router-dom";
+import LabeledAssigneeMultiValueSelector from "./LabeledAssigneeMultiValueSelector";
 
 export default function ProjectTasks() {
     const { project, members } = useProjectContext();
@@ -27,7 +28,8 @@ export default function ProjectTasks() {
     const [pageSize, setPageSize] = useState(Number(getParam("size", 25)));
     const [currentPage, setCurrentPage] = useState(Number(getParam("page", 1)));
     const [sortBy, setSortBy] = useState(getParam("sortBy", "createdAt:DESC"));
-    const [chosenAssigneeId, setChosenAssigneeId] = useState(getParam("assignee", ""));
+    const [chosenAssignees, setChosenAssignees] = useState([]);
+    const [chosenUnassigned, setChosenUnassigned] = useState(false);
     const [chosenStatuses, setChosenStatuses] = useState(
         getParam("statuses", "").split(",").filter(Boolean)
     );
@@ -43,7 +45,9 @@ export default function ProjectTasks() {
                 size: pageSize,
                 page: currentPage,
                 sortBy: sortBy,
-                assigneeId: chosenAssigneeId,
+                // assigneeId: chosenAssigneeId,
+                assignee: chosenAssignees,
+                unassigned: chosenUnassigned,
                 status: chosenStatuses,
             }
             const data = await projectClient.getTaskPreviews(project?.id, options);
@@ -61,16 +65,21 @@ export default function ProjectTasks() {
             size: pageSize,
             page: currentPage,
             sortBy,
-            assignee: chosenAssigneeId,
             statuses: chosenStatuses.join(","),
         };
+        if (chosenAssignees.length > 0) {
+            newParams.assignee = chosenAssignees.map(String).join(",");
+        }
+        if (chosenUnassigned) {
+            newParams.unassigned = "true";
+        }
         setSearchParams(newParams);
     };
 
     useEffect(() => {
         fetchTaskPage();
         updateParams();
-    }, [pageSize, currentPage, sortBy, chosenAssigneeId, chosenStatuses]);
+    }, [pageSize, currentPage, sortBy, chosenAssignees, chosenUnassigned, chosenStatuses]);
 
     const handleSubmitCreateTask = () => {
         setShowCreateTaskModal(false);
@@ -123,17 +132,15 @@ export default function ProjectTasks() {
                     />
                 </div>
                 <div className="col-auto">
-                    <LabeledSelector
+                    <LabeledAssigneeMultiValueSelector
                         label="Assignee"
-                        value={chosenAssigneeId}
-                        onChange={(value) => setChosenAssigneeId(value)}
-                        options={[
-                            { value: "", label: "All" },
-                            ...project.members.map(member => ({
-                                value: member.id,
-                                label: member.fullName,
-                            }))
-                        ]}
+                        members={project?.members || []}
+                        selectedAssignees={chosenAssignees}
+                        unassigned={chosenUnassigned}
+                        onChange={(assignees, unassigned) => {
+                            setChosenAssignees(assignees.map(Number));
+                            setChosenUnassigned(unassigned);
+                        }}
                     />
                 </div>
                 <div className="col-auto">

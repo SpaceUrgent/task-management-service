@@ -319,7 +319,9 @@ interface UpdateMemberRoleRequest {
 interface GetTaskPreviewsOptions {
     page?: number;
     size?: number;
-    assigneeId?: number;
+    assignee?: number[];
+    unassigned?: boolean;
+    // assigneeId?: number;
     status?: string[];
     sortBy?: string;
 }
