@@ -22,11 +22,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -199,7 +195,7 @@ class JpaTaskRepositoryTest {
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
             assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
             assertEquals(expectedTaskEntities.size(), resultPage.total());
-            assertEquals(expectedTaskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
+            assertEquals(Math.ceilDiv(expectedTaskEntities.size(), givenQuery.getPageSize()), resultPage.totalPages());
             final var expected = slice(expectedTaskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
             assertMatches(expected, resultPage.content());
             currentPage++;
@@ -231,7 +227,7 @@ class JpaTaskRepositoryTest {
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
             assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
             assertEquals(expectedTaskEntities.size(), resultPage.total());
-            assertEquals(expectedTaskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
+            assertEquals(Math.ceilDiv(expectedTaskEntities.size(), givenQuery.getPageSize()), resultPage.totalPages());
             final var expected = slice(expectedTaskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
             assertMatches(expected, resultPage.content());
             currentPage++;
@@ -243,13 +239,14 @@ class JpaTaskRepositoryTest {
             scripts = "classpath:sql/insert_tasks.sql"
     )
     @Test
-    void findProjectTasks_shouldReturnFilteredTaskPreviewPage_whenFiltersPassed() {
+    void findProjectTasks_shouldReturnFilteredTaskPreviewPage_whenFiltersByAssigneeAndStatusPassed() {
         final var projectId = getFirstProjectEntity().getId();
         final var givenAssigneeId = new UserId(getUserEntityByEmail("jsnow@mail.com").getId());
         final var givenStatuses = Set.of("To Do", "In progress");
 
         final var expectedTaskEntities = taskEntityDao.findAll().stream()
                 .filter(entity -> Objects.equals(projectId, entity.getProject().getId()))
+                .filter(entity -> Objects.nonNull(entity.getAssignee()))
                 .filter(entity -> Objects.equals(givenAssigneeId.value(), entity.getAssignee().getId()))
                 .filter(entity -> givenStatuses.contains(entity.getStatus()))
                 .toList();
@@ -262,7 +259,45 @@ class JpaTaskRepositoryTest {
                     .pageNumber(currentPage)
                     .pageSize(pageSize)
                     .statusIn(givenStatuses)
-                    .assigneeId(givenAssigneeId)
+//                    .assigneeId(givenAssigneeId)
+                    .assignees(Set.of(givenAssigneeId))
+                    .includeUnassigned(false)
+                    .build();
+            final var resultPage = taskRepository.findProjectTasks(givenQuery);
+            assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
+            assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
+            assertEquals(expectedTaskEntities.size(), resultPage.total());
+            assertEquals(expectedTaskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
+            final var expected = slice(expectedTaskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
+            assertMatches(expected, resultPage.content());
+            currentPage++;
+        }
+    }
+
+    @Sql(
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+            scripts = "classpath:sql/insert_tasks.sql"
+    )
+    @Test
+    void findProjectTasks_shouldReturnFilteredTaskPreviewPage_whenFilterUnassignedPassed() {
+        final var projectId = getFirstProjectEntity().getId();
+        final var givenStatuses = Set.of("To Do", "In progress");
+
+        final var expectedTaskEntities = taskEntityDao.findAll().stream()
+                .filter(entity -> Objects.equals(projectId, entity.getProject().getId()))
+                .filter(entity -> Objects.isNull(entity.getAssignee()))
+                .filter(entity -> givenStatuses.contains(entity.getStatus()))
+                .toList();
+        final var pageSize = 5;
+        final var totalPages = expectedTaskEntities.size() / pageSize;
+        int currentPage = 1;
+        while (currentPage <= totalPages) {
+            final var givenQuery = FindTasksQuery.builder()
+                    .projectId(new ProjectId(projectId))
+                    .pageNumber(currentPage)
+                    .pageSize(pageSize)
+//                    .assigneeId(givenAssigneeId)
+                    .includeUnassigned(true)
                     .build();
             final var resultPage = taskRepository.findProjectTasks(givenQuery);
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
@@ -382,7 +417,10 @@ class JpaTaskRepositoryTest {
         assertEquals(expected.getNumber(), actual.number().value());
         assertEquals(expected.getTitle(), actual.title());
         assertEquals(expected.getStatusName(), actual.status());
-        assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());
+        Optional.ofNullable(expected.getAssignee()).ifPresentOrElse(
+                expectedAssignee -> assertEquals(expectedAssignee.getId(), actual.assignee().id().value()),
+                () -> assertNull(actual.assignee())
+        );
     }
 
     private void assertMatches(TaskChangeLogEntity expected, TaskChangeLogView actual) {

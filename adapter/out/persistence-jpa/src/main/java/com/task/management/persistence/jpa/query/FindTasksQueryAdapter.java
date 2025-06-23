@@ -15,13 +15,14 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
-public class FindTaskEntityPageQueryAdapter implements FindPageQuery<TaskEntity> {
+public class FindTasksQueryAdapter implements FindPageQuery<TaskEntity> {
     private final FindTasksQuery query;
 
-    public FindTaskEntityPageQueryAdapter(FindTasksQuery query) {
+    public FindTasksQueryAdapter(FindTasksQuery query) {
         this.query = Objects.requireNonNull(query, "Find task query is required");
     }
 
@@ -61,9 +62,16 @@ public class FindTaskEntityPageQueryAdapter implements FindPageQuery<TaskEntity>
         final var predicates = new ArrayList<Predicate>();
         final var joinProjects = root.join("project", JoinType.INNER);
         predicates.add(criteriaBuilder.equal(joinProjects.get("id"), projectId()));
-        if (nonNull(assigneeId())) {
-            final var countJoinAssignedTo = root.join("assignee", JoinType.INNER);
-            predicates.add(criteriaBuilder.equal(countJoinAssignedTo.get("id"), assigneeId()));
+        final var joinAssignedTo = root.join("assignee", JoinType.LEFT);
+        final var assigneeOrPredicates = new ArrayList<Predicate>();
+        if (nonNull(assigneesIn()) && !assigneesIn().isEmpty()) {
+            assigneeOrPredicates.add(joinAssignedTo.get("id").in(assigneesIn()));
+        }
+        if (nonNull(query.getIncludeUnassigned()) && query.getIncludeUnassigned()) {
+            assigneeOrPredicates.add(joinAssignedTo.isNull());
+        }
+        if (!assigneeOrPredicates.isEmpty()) {
+            predicates.add(criteriaBuilder.or(assigneeOrPredicates.toArray(new Predicate[]{})));
         }
         if (nonNull(statusIn()) && !statusIn().isEmpty()) {
             predicates.add(root.get("statusName").in(statusIn()));
@@ -73,6 +81,12 @@ public class FindTaskEntityPageQueryAdapter implements FindPageQuery<TaskEntity>
 
     private Long projectId() {
         return this.query.getProjectId().value();
+    }
+
+    private Set<Long> assigneesIn() {
+        return Optional.ofNullable(query.getAssignees())
+                .map(assignees -> assignees.stream().map(UserId::value).collect(Collectors.toSet()))
+                .orElse(null);
     }
 
     private Long assigneeId() {

@@ -11,11 +11,12 @@ import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
 import com.task.management.domain.shared.model.objectvalue.TaskId;
 import com.task.management.domain.shared.model.objectvalue.TaskNumber;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.persistence.jpa.dao.*;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 import com.task.management.persistence.jpa.mapper.TaskMapper;
-import com.task.management.persistence.jpa.query.FindTaskEntityPageQueryAdapter;
+import com.task.management.persistence.jpa.query.FindTasksQueryAdapter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -72,7 +73,7 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     @Override
     public Page<TaskPreview> findProjectTasks(FindTasksQuery query) {
         requireNonNull(query, "Find tasks query is required");
-        final var taskEntityPage = taskEntityDao.findPage(new FindTaskEntityPageQueryAdapter(query));
+        final var taskEntityPage = taskEntityDao.findPage(new FindTasksQueryAdapter(query));
         return Page.<TaskPreview>builder()
                 .pageNo(query.getPageNumber())
                 .pageSize(query.getPageSize())
@@ -92,7 +93,10 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     private TaskEntity buildTaskEntity(Task task) {
         final var projectId = task.getProject().value();
         final var ownerReference = userEntityDao.getReference(task.getOwner().value());
-        final var assigneeReference = userEntityDao.getReference(task.getAssignee().value());
+        final var assigneeReference = Optional.ofNullable(task.getAssignee())
+                .map(UserId::value)
+                .map(userEntityDao::getReference)
+                .orElse(null);
         final var projectReference = projectEntityDao.getReference(projectId);
         return TaskEntity.builder()
                 .id(Optional.ofNullable(task.getId()).map(TaskId::value).orElse(null))

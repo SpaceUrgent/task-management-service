@@ -3,6 +3,7 @@ package com.task.management.persistence.jpa.mapper;
 import com.task.management.application.project.projection.TaskChangeLogView;
 import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
+import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.*;
 import com.task.management.domain.shared.model.objectvalue.ProjectId;
@@ -10,8 +11,10 @@ import com.task.management.domain.shared.model.objectvalue.TaskId;
 import com.task.management.domain.shared.model.objectvalue.TaskNumber;
 import com.task.management.persistence.jpa.entity.TaskChangeLogEntity;
 import com.task.management.persistence.jpa.entity.TaskEntity;
+import com.task.management.persistence.jpa.entity.UserEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.task.management.domain.shared.model.objectvalue.TaskPriority.withOrder;
 import static java.util.Objects.requireNonNull;
@@ -42,7 +45,7 @@ public class TaskMapper {
                 .project(getProjectId(entity))
                 .priority(withOrder(entity.getPriority()))
                 .owner(new UserId(entity.getOwner().getId()))
-                .assignee(new UserId(entity.getAssignee().getId()))
+                .assignee(toUserId(entity.getAssignee()))
                 .build();
     }
 
@@ -57,7 +60,7 @@ public class TaskMapper {
                 .title(entity.getTitle())
                 .status(entity.getStatus().getName())
                 .priority(withOrder(entity.getPriority()))
-                .assignee(userInfoMapper.toModel(entity.getAssignee()))
+                .assignee(mapAssignee(entity.getAssignee()))
                 .build();
     }
 
@@ -75,7 +78,7 @@ public class TaskMapper {
                 .priority(withOrder(entity.getPriority()))
                 .projectId(new ProjectId(entity.getProject().getId()))
                 .owner(userInfoMapper.toModel(entity.getOwner()))
-                .assignee(userInfoMapper.toModel(entity.getAssignee()))
+                .assignee(mapAssignee(entity.getAssignee()))
                 .changeLogs(toListModel(entity.getChangeLogs()))
                 .comments(taskCommentMapper.toTaskCommentViews(entity.getComments()))
                 .build();
@@ -101,8 +104,20 @@ public class TaskMapper {
         return new TaskId(entity.getId());
     }
 
-
     private static ProjectId getProjectId(TaskEntity entity) {
         return new ProjectId(entity.getProject().getId());
+    }
+
+    private UserId toUserId(UserEntity assignee) {
+        return Optional.ofNullable(assignee)
+                .map(UserEntity::getId)
+                .map(UserId::new)
+                .orElse(null);
+    }
+
+    private UserInfo mapAssignee(UserEntity assignee) {
+        return Optional.ofNullable(assignee)
+                .map(userInfoMapper::toModel)
+                .orElse(null);
     }
 }

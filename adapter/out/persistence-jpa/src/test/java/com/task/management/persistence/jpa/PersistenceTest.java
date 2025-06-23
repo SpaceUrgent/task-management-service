@@ -13,6 +13,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Transactional
 @SpringBootTest(classes = JpaTestConfiguration.class)
-@TestPropertySource(properties = {"spring.jpa.hibernate.ddl-auto=update"})
+@TestPropertySource(properties = {
+        "spring.jpa.hibernate.ddl-auto=update",
+        "spring.jpa.show-sql=true",
+        "spring.jpa.properties.hibernate.format_sql=true"
+})
 public @interface PersistenceTest {
 }

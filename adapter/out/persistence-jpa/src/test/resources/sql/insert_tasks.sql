@@ -158,3 +158,13 @@ values (now(), 20, 'Task 20', 'Task 20 Description', 'Done', 2,
 (select id from projects where title = 'Project'),
 (select id from users where email = 'jdoe@mail.com'),
 (select id from users where email = 'bbeggins@mail.com'));
+
+insert into tasks (created_at, number, title, description, status, priority, project_id, owner_id)
+values (now(), 21, 'Task 21', 'Task 21 Description', 'To do', 2,
+(select id from projects where title = 'Project'),
+(select id from users where email = 'jdoe@mail.com'));
+
+insert into tasks (created_at, number, title, description, status, priority, project_id, owner_id)
+values (now(), 22, 'Task 22', 'Task 22 Description', 'Done', 2,
+(select id from projects where title = 'Project'),
+(select id from users where email = 'jdoe@mail.com'));

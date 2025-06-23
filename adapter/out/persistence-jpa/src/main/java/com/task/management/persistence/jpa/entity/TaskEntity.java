@@ -82,7 +82,7 @@ public class TaskEntity extends JpaEntity<Long> {
     private UserEntity owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assignee_id", nullable = false)
+    @JoinColumn(name = "assignee_id")
     private UserEntity assignee;
 
     @OneToMany(
@@ -125,8 +125,7 @@ public class TaskEntity extends JpaEntity<Long> {
         this.statusName = notBlank(statusName, "Status");
         this.priority = parameterRequired(priority, "Priority");
         this.owner = parameterRequired(owner, "Owner");
-        this.assignee = parameterRequired(assignee, "Assignee");
+        this.assignee = assignee;
         this.project = parameterRequired(project, "Project");
     }
-
 }
