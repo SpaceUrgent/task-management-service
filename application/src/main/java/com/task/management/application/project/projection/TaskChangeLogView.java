@@ -19,7 +19,6 @@ public record TaskChangeLogView(
     @Builder
     public TaskChangeLogView {
         parameterRequired(time, "Time");
-        parameterRequired(actor, "Actor");
         parameterRequired(targetProperty, "Target property");
     }
 }

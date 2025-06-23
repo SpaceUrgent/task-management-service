@@ -17,7 +17,6 @@ public record CreateTaskCommand(
         @NotBlank(message = "Title is required")
         String title,
         String description,
-        @NotNull(message = "Assignee id is required")
         UserId assigneeId,
         @NotNull(message = "Priority is required")
         TaskPriority priority,

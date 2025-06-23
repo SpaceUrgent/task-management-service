@@ -42,7 +42,6 @@ public record TaskDetails(
         notBlank(status, "Status");
         parameterRequired(priority, "Priority");
         parameterRequired(owner, "owner");
-        parameterRequired(assignee, "assignee");
         Optional.ofNullable(changeLogs).orElseGet(ArrayList::new);
         Optional.ofNullable(comments).orElseGet(ArrayList::new);
     }

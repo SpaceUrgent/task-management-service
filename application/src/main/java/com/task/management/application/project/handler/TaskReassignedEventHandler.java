@@ -31,6 +31,7 @@ public class TaskReassignedEventHandler extends TaskUpdatedEventHandler<TaskReas
 
     @Override
     protected String mapToString(UserId source) throws EventHandlingException {
+        if (source == null) return null;
         return userInfoRepositoryPort.find(source)
                 .map(UserInfo::fullName)
                 .orElseThrow(() -> new EventHandlingException("User with id value %s not found".formatted(source.value())));

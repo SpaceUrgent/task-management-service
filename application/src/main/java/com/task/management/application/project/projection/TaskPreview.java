@@ -31,6 +31,5 @@ public record TaskPreview(
         notBlank(title, "Title");
         parameterRequired(status, "Status");
         parameterRequired(priority, "Priority");
-        parameterRequired(assignee, "Assignee");
     }
 }

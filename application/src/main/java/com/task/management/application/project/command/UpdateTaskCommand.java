@@ -16,7 +16,6 @@ public record UpdateTaskCommand(
         String taskStatus,
         @NotNull(message = "Task priority is required")
         TaskPriority priority,
-        @NotNull
         UserId assigneeId,
         LocalDate dueDate
 ) {

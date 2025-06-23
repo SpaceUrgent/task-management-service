@@ -45,7 +45,10 @@ public class TaskService implements TaskUseCase {
         parameterRequired(projectId, "Project id");
         validationService.validate(command);
         projectService.checkIsMember(actorId, projectId);
-        checkAssigneeIsMember(command.assigneeId(), projectId);
+        final var assigneeId = command.assigneeId();
+        if (assigneeId != null) {
+            checkAssigneeIsMember(assigneeId, projectId);
+        }
         var task = Task.builder()
                 .createdAt(Instant.now())
                 .dueDate(command.dueDate())
@@ -54,7 +57,7 @@ public class TaskService implements TaskUseCase {
                 .description(command.description())
                 .status(projectService.getInitialTaskStatus(projectId).name())
                 .owner(actorId)
-                .assignee(command.assigneeId())
+                .assignee(assigneeId)
                 .priority(command.priority())
                 .build();
         taskRepositoryPort.save(task);
@@ -119,10 +122,11 @@ public class TaskService implements TaskUseCase {
                            final UserId assigneeId) throws UseCaseException {
         actorIdRequired(actorId);
         taskIdRequired(taskId);
-        parameterRequired(assigneeId, "Assignee id is required");
         final var task = findOrThrow(taskId);
         projectService.checkIsMember(actorId, task.getProject());
-        checkAssigneeIsMember(assigneeId, task.getProject());
+        if (assigneeId != null) {
+            checkAssigneeIsMember(assigneeId, task.getProject());
+        }
         task.assignTo(actorId, assigneeId);
         taskRepositoryPort.save(task);
         eventPublisher.publish(task.flushEvents());
