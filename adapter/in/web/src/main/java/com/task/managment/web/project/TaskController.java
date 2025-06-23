@@ -15,6 +15,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
@@ -51,7 +53,11 @@ public class TaskController extends BaseController {
     @PatchMapping("/{taskId}/assign")
     public void assignTask(@PathVariable Long taskId,
                            @RequestBody @Valid @NotNull AssignTaskRequest request) throws UseCaseException {
-        taskUseCase.assignTask(actor(), new TaskId(taskId), new UserId(request.getAssigneeId()));
+        final var assignee = Optional
+                .ofNullable(request.getAssigneeId())
+                .map(UserId::new)
+                .orElse(null);
+        taskUseCase.assignTask(actor(), new TaskId(taskId), assignee);
     }
 
     @PatchMapping("/{taskId}/priority")

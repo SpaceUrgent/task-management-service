@@ -6,6 +6,7 @@ import com.task.management.application.project.projection.TaskDetails;
 import com.task.management.application.project.projection.TaskPreview;
 import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
+import com.task.managment.web.shared.dto.UserInfoDto;
 import com.task.managment.web.shared.mapper.UserInfoMapper;
 import com.task.managment.web.project.dto.TaskChangeLogDto;
 import com.task.managment.web.project.dto.TaskCommentDto;
@@ -14,9 +15,6 @@ import com.task.managment.web.project.dto.TaskPreviewDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +34,7 @@ public class TaskMapper {
                 .title(taskPreview.title())
                 .status(taskPreview.status())
                 .priority(taskPreview.priority().priorityName())
-                .assignee(userInfoMapper.toDto(taskPreview.assignee()))
+                .assignee(mapAssignee(taskPreview.assignee()))
                 .build();
     }
 
@@ -52,11 +50,15 @@ public class TaskMapper {
                 .projectId(taskDetails.projectId().value())
                 .status(taskDetails.status())
                 .priority(taskDetails.priority().priorityName())
-                .assignee(userInfoMapper.toDto(taskDetails.assignee()))
+                .assignee(mapAssignee(taskDetails.assignee()))
                 .owner(userInfoMapper.toDto(taskDetails.owner()))
                 .changeLogs(toDtos(taskDetails.changeLogs()))
                 .comments(toDto(taskDetails.comments()))
                 .build();
+    }
+
+    private UserInfoDto mapAssignee(UserInfo assignee) {
+        return Optional.ofNullable(assignee).map(userInfoMapper::toDto).orElse(null);
     }
 
     private List<TaskChangeLogDto> toDtos(List<TaskChangeLogView> taskChangeLogViews) {
@@ -68,9 +70,9 @@ public class TaskMapper {
     public TaskChangeLogDto toDto(TaskChangeLogView changeLog) {
         return TaskChangeLogDto.builder()
                 .occurredAt(changeLog.time())
-                .logMessage(mapLogMessage(changeLog.actor(), changeLog.targetProperty()))
-                .oldValue(changeLog.initialValue())
-                .newValue(changeLog.newValue())
+                .logMessage(mapLogMessage(changeLog))
+                .oldValue(mapLogPropertyValue(changeLog.targetProperty(), changeLog.initialValue()))
+                .newValue(mapLogPropertyValue(changeLog.targetProperty(), changeLog.newValue()))
                 .build();
     }
 
@@ -89,7 +91,8 @@ public class TaskMapper {
                 .build();
     }
 
-    private String mapLogMessage(UserInfo actor, TaskProperty taskProperty) {
+    private String mapLogMessage(TaskChangeLogView changeLog) {
+        final var taskProperty = changeLog.targetProperty();
         final var actionDescription = switch (taskProperty) {
             case TITLE -> "title";
             case DESCRIPTION -> "description";
@@ -98,13 +101,14 @@ public class TaskMapper {
             case STATUS -> "status";
             case PRIORITY -> "priority";
         };
-        return "%s updated %s".formatted(actor.fullName(), actionDescription);
+        final var actorFullName = Optional.ofNullable(changeLog.actor()).map(UserInfo::fullName).orElse("");
+        return "%s updated %s".formatted(actorFullName, actionDescription).trim();
     }
 
-    private String format(Instant source) {
-        return Optional.ofNullable(source)
-                .map(instant -> instant.atZone(ZoneId.systemDefault()))
-                .map(zonedDateTime -> zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                .orElse(null);
+    private String mapLogPropertyValue(TaskProperty taskProperty, String value) {
+        if (TaskProperty.ASSIGNEE == taskProperty) {
+            return Optional.ofNullable(value).orElse("Unassigned");
+        }
+        return value;
     }
 }

@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -117,15 +118,20 @@ public class ProjectController extends BaseController {
     public PagedResponse<TaskPreviewDto> getTasks(@PathVariable Long projectId,
                                                   @RequestParam(name = "page", defaultValue = "1") Integer page,
                                                   @RequestParam(name = "size", defaultValue = "50") Integer size,
-                                                  @RequestParam(name = "assigneeId", required = false) Long assigneeId,
+                                                  @RequestParam(name = "assignee", required = false) Set<Long> assignee,
+                                                  @RequestParam(name = "unassigned", required = false) Boolean unassigned,
                                                   @RequestParam(name = "status", required = false) Set<String> statusList,
                                                   @RequestParam(name = "sortBy", defaultValue = "createdAt:DESC") List<String> sortBy) throws UseCaseException {
         final var sortList = toSortList(sortBy);
+        final var assignees = Optional.ofNullable(assignee)
+                .map(assigneeIdSet -> assigneeIdSet.stream().map(UserId::new).collect(Collectors.toSet()))
+                .orElse(null);
         final var query = FindTasksQuery.builder()
                 .pageNumber(page)
                 .pageSize(size)
                 .projectId(new ProjectId(projectId))
-                .assigneeId(Optional.ofNullable(assigneeId).map(UserId::new).orElse(null))
+                .assignees(assignees)
+                .includeUnassigned(unassigned)
                 .statusIn(statusList)
                 .sortBy(sortList)
                 .build();

@@ -58,7 +58,7 @@ public class TaskDetailsDto {
         this.status = parameterRequired(status, "Status");
         this.priority = parameterRequired(priority, "Priority");
         this.owner = parameterRequired(owner, "Owner");
-        this.assignee = parameterRequired(assignee, "Assignee");
+        this.assignee = assignee;
         this.changeLogs = changeLogs;
         this.comments = comments;
     }

@@ -45,6 +45,6 @@ public class TaskPreviewDto {
         this.title = notBlank(title, "Title");
         this.status = parameterRequired(status, "Status");
         this.priority = parameterRequired(priority, "Priority");
-        this.assignee = parameterRequired(assignee, "Assignee");
+        this.assignee = assignee;
     }
 }
