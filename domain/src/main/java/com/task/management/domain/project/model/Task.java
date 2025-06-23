@@ -58,7 +58,7 @@ public class Task extends DomainEventAggregate {
         this.status = notBlank(status, "Status");
         this.priority = requireNonNull(priority, "Priority");
         this.owner = parameterRequired(owner, "Owner");
-        this.assignee = parameterRequired(assignee, "Assignee");
+        this.assignee = assignee;
         this.validateSelf();
     }
 
@@ -104,10 +104,10 @@ public class Task extends DomainEventAggregate {
 
     public void assignTo(UserId actor, UserId assignee) {
         actorIdRequired(actor);
-        if (this.assignee.equals(assignee)) return;
+        if (Objects.equals(this.assignee, assignee)) return;
         recordUpdateTime();
         this.add(new TaskReassignedEvent(this.id, actor, this.assignee, assignee));
-        this.assignee = parameterRequired(assignee, "Assignee");
+        this.assignee = assignee;
     }
 
     private void recordUpdateTime() {

@@ -11,8 +11,8 @@ public class TaskReassignedEvent extends TaskUpdatedEvent<UserId> {
         super(
                 taskId,
                 actorId,
-                parameterRequired(initialValue, "Initial assignee id"),
-                parameterRequired(newValue, "New assignee id")
+                initialValue,
+                newValue
         );
     }
 }

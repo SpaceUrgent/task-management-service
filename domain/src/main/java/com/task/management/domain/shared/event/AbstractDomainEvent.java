@@ -11,11 +11,9 @@ import static com.task.management.domain.shared.validation.Validation.parameterR
 public abstract class AbstractDomainEvent<EntityId> implements DomainEvent {
     protected final Instant occurredAt;
     protected final EntityId entityId;
-    protected final UserId actorId;
 
-    public AbstractDomainEvent(EntityId entityId, UserId actorId) {
+    public AbstractDomainEvent(EntityId entityId) {
         this.occurredAt = Instant.now();
         this.entityId = parameterRequired(entityId, "Entity id");
-        this.actorId = parameterRequired(actorId, "Actor id");
     }
 }

@@ -11,6 +11,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public abstract class TaskUpdatedEvent<T> extends AbstractDomainEvent<TaskId> {
+    private final UserId actorId;
     private final T initialValue;
     private final T newValue;
 
@@ -18,8 +19,10 @@ public abstract class TaskUpdatedEvent<T> extends AbstractDomainEvent<TaskId> {
                                UserId actorId,
                                T initialValue,
                                T newValue) {
-        super(taskId, actorId);
+        super(taskId);
+        this.actorId = actorId;
         this.initialValue = initialValue;
         this.newValue = newValue;
+
     }
 }
