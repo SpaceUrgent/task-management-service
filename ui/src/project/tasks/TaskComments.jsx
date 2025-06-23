@@ -79,7 +79,7 @@ export default function TaskComments({
                                                 <div className="invalid-feedback d-block">{submitError}</div>
                                             )}
                                         </div>
-                                        <div className="d-flex justify-content-end gap-3">
+                                        <div className="d-flex justify-content-end gap-3 mt-2">
                                             <button className="btn btn-sm btn-primary" type="submit" disabled={!newComment.trim() || isLoading}>
                                                 {isLoading ? 'Submitting...' : 'Submit'}
                                             </button>
@@ -87,7 +87,7 @@ export default function TaskComments({
                                                 Cancel
                                             </button>
                                         </div>
-                                        <hr />
+                                        <hr/>
                                     </form>
                                 )}
                             </div>

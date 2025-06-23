@@ -92,7 +92,8 @@ export default function Task() {
     }
 
     const handleChangeAssignee = async (value) => {
-        if (value === task.assignee.id) return;
+        value = value === "Unassigned" ? null : value;
+        if (value === task.assignee?.id) return;
         await projectClient.assignTask(task.id, value);
         fetchTask();
     }
@@ -109,7 +110,7 @@ export default function Task() {
         await projectClient.updateTask(task.id, {
             title: task.title,
             description: task.description,
-            assigneeId: task.assignee.id,
+            assigneeId: task.assignee?.id,
             dueDate: value,
             priority: task.priority,
             status: task.status
@@ -136,7 +137,7 @@ export default function Task() {
     }
 
     return (
-        <div className="container-fluid mt-2">
+        <div className="container-fluid mt-0">
             <div className="p-1">
                 <div className="row align-items-start">
                     <div className="col-sm ms-3 mb-2">
@@ -207,12 +208,14 @@ export default function Task() {
                         <div className="col-md-3">
                             <LabeledSelector
                                 label="Assignee"
-                                value={task.assignee.id}
+                                value={task.assignee?.id}
                                 onChange={handleChangeAssignee}
-                                options={project?.members.map((member) => ({
-                                    value: member.id,
-                                    label: member.fullName,
-                                }))}
+                                options={[
+                                    { value: null, label: 'Unassigned' },
+                                    ...(project?.members.map((member) => (
+                                        { value: member.id, label: member.fullName}
+                                    )))
+                                ]}
                             />
                         </div>
                     </div>
