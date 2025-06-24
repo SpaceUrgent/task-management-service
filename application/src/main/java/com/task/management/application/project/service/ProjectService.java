@@ -128,6 +128,29 @@ public class ProjectService implements ProjectMemberUseCase, ProjectUseCase {
 
     @UseCase
     @Override
+    public void leaveProject(UserId actorId, ProjectId projectId) throws UseCaseException {
+        actorIdRequired(actorId);
+        projectIdRequired(projectId);
+        final var actingMember = getActingMember(projectId, actorId);
+        if (actingMember.isOwner()) raiseOperationNotAllowed();
+        removeMemberFromProject(actorId, projectId);
+    }
+
+    @UseCase
+    @Override
+    public void excludeMember(UserId actorId, ProjectId projectId, UserId memberId) throws UseCaseException {
+        actorIdRequired(actorId);
+        projectIdRequired(projectId);
+        parameterRequired(memberId, "Member id");
+        final var actor = getActingMember(projectId, actorId);
+        if (!actor.isOwnerOrAdmin()) raiseOperationNotAllowed();
+        final var member = getProjectMember(projectId, memberId);
+        if (!actor.isOwner() && member.isOwnerOrAdmin()) raiseOperationNotAllowed();
+        removeMemberFromProject(member.getId(), projectId);
+    }
+
+    @UseCase
+    @Override
     public void updateMemberRole(UserId actorId, UpdateMemberRoleCommand command) throws UseCaseException {
         actorIdRequired(actorId);
         validationService.validate(command);
@@ -151,6 +174,11 @@ public class ProjectService implements ProjectMemberUseCase, ProjectUseCase {
         projectIdRequired(projectId);
         checkIsMember(actorId, projectId);
         return getProjectDetails(projectId);
+    }
+
+    private void removeMemberFromProject(UserId actorId, ProjectId projectId) {
+        taskRepositoryPort.unassignTasksFrom(actorId, projectId);
+        memberRepositoryPort.delete(actorId, projectId);
     }
 
     public boolean isMember(UserId userId, ProjectId projectId) {

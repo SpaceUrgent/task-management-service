@@ -8,6 +8,7 @@ import com.task.management.domain.project.model.Task;
 import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.project.model.objectvalue.TaskChangeLog;
 import com.task.management.domain.shared.model.objectvalue.TaskId;
+import com.task.management.domain.shared.model.objectvalue.UserId;
 
 import java.util.Optional;
 
@@ -23,4 +24,6 @@ public interface TaskRepositoryPort {
     Page<TaskPreview> findProjectTasks(FindTasksQuery query);
 
     boolean projectTaskWithStatusExists(ProjectId projectId, String statusName);
+
+    void unassignTasksFrom(UserId assigneeId, ProjectId projectId);
 }

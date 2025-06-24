@@ -11,4 +11,6 @@ public interface MemberRepositoryPort {
     Member save(Member member);
 
     Optional<Member> find(ProjectId projectId, UserId memberId);
+
+    void delete(UserId memberId, ProjectId projectId);
 }

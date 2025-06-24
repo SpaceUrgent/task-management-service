@@ -27,4 +27,7 @@ public interface ProjectUseCase {
 
     void addMember(UserId actorId, ProjectId projectId, Email email) throws UseCaseException;
 
+    void leaveProject(UserId actorId, ProjectId projectId) throws UseCaseException;
+
+    void excludeMember(UserId actorId, ProjectId projectId, UserId memberId) throws UseCaseException;
 }
