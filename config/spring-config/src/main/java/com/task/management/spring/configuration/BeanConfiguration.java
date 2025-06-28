@@ -1,10 +1,10 @@
 package com.task.management.spring.configuration;
 
-import com.task.management.application.shared.DomainEventHandlerFactory;
 import com.task.management.application.shared.annotation.AppComponent;
-import com.task.management.application.shared.port.in.DomainEventHandlerPort;
+import com.task.management.application.shared.event.SimpleDomainEventPublisher;
+import com.task.management.application.shared.event.DomainEventHandler;
 import com.task.management.application.shared.port.out.DomainEventPublisherPort;
-import com.task.management.application.shared.service.DomainEventService;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,12 +30,14 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public DomainEventHandlerFactory domainEventHandlerFactory(List<DomainEventHandlerPort<?>> eventHandlerPorts) {
-        return new DomainEventHandlerFactory(eventHandlerPorts);
+    public DomainEventPublisherPort domainEventPublisherPort() {
+        return new SimpleDomainEventPublisher();
     }
 
     @Bean
-    public DomainEventPublisherPort domainEventPublisherPort(DomainEventHandlerFactory eventHandlerFactory) {
-        return new DomainEventService(eventHandlerFactory);
+    public InitializingBean wireEventHandlers(SimpleDomainEventPublisher domainEventPublisher, List<DomainEventHandler<?>> eventHandlers) {
+        return () -> {
+            domainEventPublisher.register(eventHandlers);
+        };
     }
 }
