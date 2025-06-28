@@ -8,6 +8,7 @@ import com.task.management.domain.shared.event.DomainEvent;
 
 import java.util.List;
 
+@Deprecated(forRemoval = true)
 public class DomainEventService implements DomainEventPublisherPort {
     private final DomainEventHandlerFactory domainEventHandlerFactory;
 
@@ -18,8 +19,7 @@ public class DomainEventService implements DomainEventPublisherPort {
     @Override
     public void publish(DomainEvent event) {
         try {
-            final var eventHandler = domainEventHandlerFactory.supplyHandlerFor(event);
-            eventHandler.handle(event);
+            domainEventHandlerFactory.supplyHandlerFor(event);
         } catch (EventHandlingException e) {
             throw new DomainEventPublishingException("Failed publish event", e);
         }

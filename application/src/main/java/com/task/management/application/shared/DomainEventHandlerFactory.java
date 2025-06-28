@@ -1,6 +1,6 @@
 package com.task.management.application.shared;
 
-import com.task.management.application.shared.port.in.DomainEventHandlerPort;
+import com.task.management.application.shared.event.DomainEventHandler;
 import com.task.management.domain.shared.event.DomainEvent;
 
 import java.util.List;
@@ -10,16 +10,16 @@ import static com.task.management.domain.shared.validation.Validation.eventRequi
 
 public class DomainEventHandlerFactory {
 
-    private final List<DomainEventHandlerPort<? extends DomainEvent>> eventHandlers;
+    private final List<DomainEventHandler<? extends DomainEvent>> eventHandlers;
 
-    public DomainEventHandlerFactory(List<DomainEventHandlerPort<? extends DomainEvent>> eventHandlers) {
+    public DomainEventHandlerFactory(List<DomainEventHandler<? extends DomainEvent>> eventHandlers) {
         this.eventHandlers = eventHandlers;
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends DomainEvent> DomainEventHandlerPort<T> supplyHandlerFor(T event) throws EventHandlingException {
+    public <T extends DomainEvent> DomainEventHandler<T> supplyHandlerFor(T event) throws EventHandlingException {
         eventRequired(event);
-        return (DomainEventHandlerPort<T>) eventHandlers.stream()
+        return (DomainEventHandler<T>) eventHandlers.stream()
                 .filter(handler -> Objects.equals(event.getClass(), handler.eventType()))
                 .findAny()
                 .orElseThrow(() -> new EventHandlingException("Appropriate vent handler not found"));

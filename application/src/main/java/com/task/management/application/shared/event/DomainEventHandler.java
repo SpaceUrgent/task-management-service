@@ -1,9 +1,9 @@
-package com.task.management.application.shared.port.in;
+package com.task.management.application.shared.event;
 
 import com.task.management.application.shared.EventHandlingException;
 import com.task.management.domain.shared.event.DomainEvent;
 
-public interface DomainEventHandlerPort<T extends DomainEvent> {
+public interface DomainEventHandler<T extends DomainEvent> {
 
     void handle(T event) throws EventHandlingException;
 

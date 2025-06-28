@@ -7,5 +7,9 @@ import java.util.List;
 public interface DomainEventPublisherPort {
     void publish(DomainEvent event);
 
-    void publish(List<DomainEvent> events);
+    default void publish(List<DomainEvent> events) {
+        if (events != null) {
+            events.forEach(this::publish);
+        }
+    }
 }
