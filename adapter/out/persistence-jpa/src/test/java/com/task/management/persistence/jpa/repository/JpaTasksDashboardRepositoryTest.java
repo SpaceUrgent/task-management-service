@@ -15,6 +15,8 @@ import org.springframework.test.context.jdbc.Sql;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,6 +43,7 @@ class JpaTasksDashboardRepositoryTest {
     void getAssignedToSummary() {
         final var taskEntities = taskEntityDao.findAll();
         final var filteredByAssigneeTaskEntities = taskEntities.stream()
+                .filter(entity -> Objects.nonNull(entity.getAssignee()))
                 .collect(Collectors.groupingBy(
                         taskEntity -> taskEntity.getAssignee().getId(),
                         Collectors.toList()))
@@ -102,6 +105,7 @@ class JpaTasksDashboardRepositoryTest {
         final var taskEntities = taskEntityDao.findAll();
         final var expectedTaskEntities = taskEntities.stream()
                 .filter(entity -> !entity.getStatus().isFinal())
+                .filter(entity -> Objects.nonNull(entity.getAssignee()))
                 .collect(Collectors.groupingBy(
                         taskEntity -> taskEntity.getAssignee().getId(),
                         Collectors.toList()))
@@ -274,7 +278,9 @@ class JpaTasksDashboardRepositoryTest {
         assertEquals(expected.getPriority(), actual.priority().order());
         assertFalse(expected.getStatus().isFinal());
         assertEquals(expected.getStatusName(), actual.status());
-        assertEquals(expected.getAssignee().getId(), actual.assignee().id().value());
+        Optional.ofNullable(expected.getAssignee()).ifPresent(expectedAssignee ->
+                assertEquals(expectedAssignee.getId(), actual.assignee().id().value())
+        );
     }
 
     private static <T> List<T> slice (List<T> target, int page, int size) {

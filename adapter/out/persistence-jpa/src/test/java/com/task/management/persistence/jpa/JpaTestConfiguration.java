@@ -1,13 +1,8 @@
 package com.task.management.persistence.jpa;
 
-import com.task.management.persistence.jpa.repository.JpaUserInfoRepositoryAdapter;
+import com.task.management.persistence.jpa.repository.*;
 import com.task.management.persistence.jpa.dao.*;
 import com.task.management.persistence.jpa.dao.impl.*;
-import com.task.management.persistence.jpa.repository.JpaTasksDashboardRepositoryAdapter;
-import com.task.management.persistence.jpa.repository.JpaUserRepositoryAdapter;
-import com.task.management.persistence.jpa.repository.JpaProjectRepositoryAdapter;
-import com.task.management.persistence.jpa.repository.JpaTaskCommentRepositoryAdapter;
-import com.task.management.persistence.jpa.repository.JpaTaskRepositoryAdapter;
 import jakarta.persistence.EntityManager;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -75,6 +70,13 @@ public class JpaTestConfiguration {
     @Bean
     public JpaTasksDashboardRepositoryAdapter jpaTasksDashboardRepositoryAdapter(TaskEntityDao taskEntityDao) {
         return new JpaTasksDashboardRepositoryAdapter(taskEntityDao);
+    }
+
+    @Bean
+    public JpaMemberRepositoryAdapter jpaMemberRepositoryAdapter(MemberEntityDao memberEntityDao,
+                                                                 UserEntityDao userEntityDao,
+                                                                 ProjectEntityDao projectEntityDao) {
+        return new JpaMemberRepositoryAdapter(memberEntityDao, userEntityDao, projectEntityDao);
     }
 
     @Bean

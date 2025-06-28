@@ -25,12 +25,22 @@ public class MemberEntityDaoImpl implements MemberEntityDao {
 
     @Override
     public MemberEntity save(MemberEntity entity) {
-        parameterRequired(entity, "Entity");
+        memberEntityRequired(entity);
         if (entity.getId() == null) {
             entityManager.persist(entity);
         } else {
             entityManager.merge(entity);
         }
         return entity;
+    }
+
+    @Override
+    public void delete(MemberEntity entity) {
+        memberEntityRequired(entity);
+        entityManager.remove(entity);
+    }
+
+    private static void memberEntityRequired(MemberEntity entity) {
+        parameterRequired(entity, "Entity");
     }
 }

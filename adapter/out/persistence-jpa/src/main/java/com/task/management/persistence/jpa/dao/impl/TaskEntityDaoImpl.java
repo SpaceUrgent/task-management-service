@@ -1,11 +1,14 @@
 package com.task.management.persistence.jpa.dao.impl;
 
 import com.task.management.application.shared.annotation.AppComponent;
+import com.task.management.domain.project.model.Task;
 import com.task.management.persistence.jpa.dao.AbstractEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.entity.TaskEntity;
 import com.task.management.persistence.jpa.view.TasksSummaryView;
 import jakarta.persistence.EntityManager;
+
+import java.util.stream.Stream;
 
 @AppComponent
 public class TaskEntityDaoImpl extends AbstractEntityDao<TaskEntity, Long> implements TaskEntityDao {
@@ -16,6 +19,18 @@ public class TaskEntityDaoImpl extends AbstractEntityDao<TaskEntity, Long> imple
     @Override
     protected Class<TaskEntity> entityClass() {
         return TaskEntity.class;
+    }
+
+    @Override
+    public Stream<TaskEntity> findAllByAssigneeIdAndProjectId(Long assigneeId, Long projectId) {
+        return entityManager.createQuery("""
+                from TaskEntity t\s
+                where t.assignee.id = :assigneeId\s
+                and t.project.id = :projectId
+                """, TaskEntity.class)
+                .setParameter("assigneeId", assigneeId)
+                .setParameter("projectId", projectId)
+                .getResultStream();
     }
 
     @Override
@@ -61,6 +76,18 @@ public class TaskEntityDaoImpl extends AbstractEntityDao<TaskEntity, Long> imple
         query.setParameter("ownerId", ownerId);
         final var result = query.getSingleResult();
         return toTaskSummaryView(result);
+    }
+
+    @Override
+    public void removeAssignee(Long assigneeId, Long projectId) {
+        entityManager.createQuery("""
+                update TaskEntity t\s
+                set t.assignee = null
+                where t.assignee.id = :assigneeId and t.project.id = :projectId
+                """)
+                .setParameter("assigneeId", assigneeId)
+                .setParameter("projectId", projectId)
+                .executeUpdate();
     }
 
     private TasksSummaryView toTaskSummaryView(Object source) {

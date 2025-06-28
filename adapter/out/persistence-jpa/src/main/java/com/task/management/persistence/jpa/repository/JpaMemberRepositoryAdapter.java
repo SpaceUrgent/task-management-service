@@ -9,6 +9,7 @@ import com.task.management.persistence.jpa.dao.MemberEntityDao;
 import com.task.management.persistence.jpa.dao.ProjectEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.MemberEntity;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -36,10 +37,17 @@ public class JpaMemberRepositoryAdapter implements MemberRepositoryPort {
 
     @Override
     public Optional<Member> find(ProjectId projectId, UserId memberId) {
-        parameterRequired(projectId, "Project id");
-        parameterRequired(memberId, "Member id");
+        projectIdRequired(projectId);
+        memberIdRequired(memberId);
         final var memberPK = new MemberEntity.MemberPK(projectId.value(), memberId.value());
-        return memberDao.findById(memberPK).map(JpaMemberRepositoryAdapter::toMember);
+        return findMemberEntity(memberPK).map(JpaMemberRepositoryAdapter::toMember);
+    }
+
+    @Override
+    public void delete(UserId memberId, ProjectId projectId) {
+        memberIdRequired(memberId);
+        projectIdRequired(projectId);
+        memberDao.delete(get(new MemberEntity.MemberPK(projectId.value(), memberId.value())));
     }
 
     private static Member toMember(MemberEntity memberEntity) {
@@ -48,5 +56,21 @@ public class JpaMemberRepositoryAdapter implements MemberRepositoryPort {
                 .id(new UserId(memberEntity.getId().getMemberId()))
                 .role(memberEntity.getRole())
                 .build();
+    }
+
+    private MemberEntity get(MemberEntity.MemberPK memberPK) {
+        return findMemberEntity(memberPK).orElseThrow(EntityNotFoundException::new);
+    }
+
+    private Optional<MemberEntity> findMemberEntity(MemberEntity.MemberPK memberPK) {
+        return memberDao.findById(memberPK);
+    }
+
+    private static void projectIdRequired(ProjectId projectId) {
+        parameterRequired(projectId, "Project id");
+    }
+
+    private static void memberIdRequired(UserId memberId) {
+        parameterRequired(memberId, "Member id");
     }
 }

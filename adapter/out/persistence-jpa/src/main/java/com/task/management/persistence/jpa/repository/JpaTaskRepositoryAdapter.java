@@ -20,6 +20,7 @@ import com.task.management.persistence.jpa.query.FindTasksQueryAdapter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.task.management.domain.shared.validation.Validation.notBlank;
 import static com.task.management.domain.shared.validation.Validation.parameterRequired;
@@ -71,6 +72,15 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
     }
 
     @Override
+    public Stream<Task> findAllByAssigneeAndProject(UserId assigneeId, ProjectId projectId) {
+        parameterRequired(assigneeId, "Assignee id");
+        parameterRequired(projectId, "Project id");
+        return taskEntityDao
+                .findAllByAssigneeIdAndProjectId(assigneeId.value(), projectId.value())
+                .map(taskMapper::toTask);
+    }
+
+    @Override
     public Page<TaskPreview> findProjectTasks(FindTasksQuery query) {
         requireNonNull(query, "Find tasks query is required");
         final var taskEntityPage = taskEntityDao.findPage(new FindTasksQueryAdapter(query));
@@ -88,6 +98,13 @@ public class JpaTaskRepositoryAdapter implements TaskRepositoryPort {
         parameterRequired(projectId, "Project id");
         notBlank(statusName, "Status name");
         return taskEntityDao.existsWithProjectIdAndStatus(projectId.value(), statusName);
+    }
+
+    @Override
+    public void unassignTasksFrom(UserId assigneeId, ProjectId projectId) {
+        parameterRequired(assigneeId, "Assignee id");
+        parameterRequired(projectId, "Project id");
+        taskEntityDao.removeAssignee(assigneeId.value(), projectId.value());
     }
 
     private TaskEntity buildTaskEntity(Task task) {

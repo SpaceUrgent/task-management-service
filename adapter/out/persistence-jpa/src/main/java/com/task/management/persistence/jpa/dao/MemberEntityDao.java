@@ -9,4 +9,6 @@ public interface MemberEntityDao {
     Optional<MemberEntity> findById(MemberEntity.MemberPK id);
 
     MemberEntity save(MemberEntity entity);
+
+    void delete(MemberEntity id);
 }

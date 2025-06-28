@@ -16,6 +16,7 @@ import com.task.management.persistence.jpa.dao.TaskChangeLogEntityDao;
 import com.task.management.persistence.jpa.dao.TaskEntityDao;
 import com.task.management.persistence.jpa.dao.UserEntityDao;
 import com.task.management.persistence.jpa.entity.*;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -33,6 +34,8 @@ import static org.junit.jupiter.api.Assertions.*;
 )
 @PersistenceTest
 class JpaTaskRepositoryTest {
+    @Autowired
+    private EntityManager entityManager;
     @Autowired
     private UserEntityDao userEntityDao;
     @Autowired
@@ -248,7 +251,7 @@ class JpaTaskRepositoryTest {
                 .filter(entity -> Objects.equals(projectId, entity.getProject().getId()))
                 .filter(entity -> Objects.nonNull(entity.getAssignee()))
                 .filter(entity -> Objects.equals(givenAssigneeId.value(), entity.getAssignee().getId()))
-                .filter(entity -> givenStatuses.contains(entity.getStatus()))
+                .filter(entity -> givenStatuses.contains(entity.getStatus().getName()))
                 .toList();
         final var pageSize = 5;
         final var totalPages = expectedTaskEntities.size() / pageSize;
@@ -259,7 +262,6 @@ class JpaTaskRepositoryTest {
                     .pageNumber(currentPage)
                     .pageSize(pageSize)
                     .statusIn(givenStatuses)
-//                    .assigneeId(givenAssigneeId)
                     .assignees(Set.of(givenAssigneeId))
                     .includeUnassigned(false)
                     .build();
@@ -267,7 +269,7 @@ class JpaTaskRepositoryTest {
             assertEquals(givenQuery.getPageNumber(), resultPage.pageNo());
             assertEquals(givenQuery.getPageSize(), resultPage.pageSize());
             assertEquals(expectedTaskEntities.size(), resultPage.total());
-            assertEquals(expectedTaskEntities.size() / givenQuery.getPageSize(), resultPage.totalPages());
+            assertEquals(Math.ceilDiv(expectedTaskEntities.size(), givenQuery.getPageSize()), resultPage.totalPages());
             final var expected = slice(expectedTaskEntities, givenQuery.getPageNumber() - 1, givenQuery.getPageSize());
             assertMatches(expected, resultPage.content());
             currentPage++;
@@ -286,7 +288,7 @@ class JpaTaskRepositoryTest {
         final var expectedTaskEntities = taskEntityDao.findAll().stream()
                 .filter(entity -> Objects.equals(projectId, entity.getProject().getId()))
                 .filter(entity -> Objects.isNull(entity.getAssignee()))
-                .filter(entity -> givenStatuses.contains(entity.getStatus()))
+                .filter(entity -> givenStatuses.contains(entity.getStatus().getName()))
                 .toList();
         final var pageSize = 5;
         final var totalPages = expectedTaskEntities.size() / pageSize;
@@ -296,7 +298,6 @@ class JpaTaskRepositoryTest {
                     .projectId(new ProjectId(projectId))
                     .pageNumber(currentPage)
                     .pageSize(pageSize)
-//                    .assigneeId(givenAssigneeId)
                     .includeUnassigned(true)
                     .build();
             final var resultPage = taskRepository.findProjectTasks(givenQuery);
@@ -328,6 +329,27 @@ class JpaTaskRepositoryTest {
     void projectTaskWithStatusExists_shouldReturnFalse() {
         final var taskEntity = getFirstTaskEntity();
         assertFalse(taskRepository.projectTaskWithStatusExists(new ProjectId(taskEntity.getProject().getId()), "Non-existing status"));
+    }
+
+    @Sql(
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+            scripts = "classpath:sql/insert_tasks.sql"
+    )
+    @Test
+    void unassignTasksFrom() {
+        final var taskEntity = getFirstTaskEntity();
+        final var assigneeId = taskEntity.getAssignee().getId();
+        final var projectId = taskEntity.getProject().getId();
+        taskRepository.unassignTasksFrom(new UserId(assigneeId), new ProjectId(projectId));
+        entityManager.flush();
+        entityManager.clear();
+        final var assigneeRemovedFromAllProjectTasks = taskEntityDao.findAll().stream()
+                .filter(task -> Objects.equals(task.getProject().getId(), projectId))
+                .filter(task -> Objects.nonNull(task.getAssignee()))
+                .noneMatch(task ->
+                    Objects.equals(assigneeId, task.getAssignee().getId()) && Objects.equals(projectId, task.getProject().getId())
+                );
+        assertTrue(assigneeRemovedFromAllProjectTasks);
     }
 
     private ProjectEntity getFirstProjectEntity() {

@@ -1,12 +1,15 @@
 package com.task.management.persistence.jpa.mapper;
 
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;
+import com.task.management.domain.shared.model.UserInfo;
 import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.shared.model.objectvalue.TaskId;
 import com.task.management.domain.shared.model.objectvalue.TaskNumber;
 import com.task.management.persistence.jpa.entity.TaskEntity;
+import com.task.management.persistence.jpa.entity.UserEntity;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static com.task.management.domain.shared.model.objectvalue.TaskPriority.withOrder;
 import static java.util.Objects.nonNull;
@@ -33,7 +36,14 @@ public class DashboardTaskMapper {
                 .isOverdue(nonNull(dueDate) && dueDate.isBefore(LocalDate.now()))
                 .priority(withOrder(entity.getPriority()))
                 .status(entity.getStatusName())
-                .assignee(userInfoMapper.toModel(entity.getAssignee()))
+                .assignee(mapAssignee(entity))
                 .build();
+    }
+
+    private UserInfo mapAssignee(TaskEntity taskEntity) {
+        return Optional.of(taskEntity)
+                .map(TaskEntity::getAssignee)
+                .map(userInfoMapper::toModel)
+                .orElse(null);
     }
 }
