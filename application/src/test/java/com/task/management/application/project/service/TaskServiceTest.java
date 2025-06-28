@@ -1,6 +1,6 @@
 package com.task.management.application.project.service;
 
-import com.task.management.application.common.TestUtils;
+import com.task.management.application.shared.TestUtils;
 import com.task.management.application.shared.UseCaseException;
 import com.task.management.application.project.port.out.TaskCommentRepositoryPort;
 import com.task.management.domain.shared.event.DomainEvent;

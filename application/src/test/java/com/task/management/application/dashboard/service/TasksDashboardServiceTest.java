@@ -18,7 +18,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.stream.IntStream;
 
-import static com.task.management.application.common.TestUtils.*;
+import static com.task.management.application.shared.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;

@@ -1,11 +1,14 @@
 package com.task.management.application.project.service;
 
-import com.task.management.application.common.TestUtils;
+import com.task.management.application.shared.TestUtils;
 import com.task.management.application.shared.UseCaseException;
 import com.task.management.application.project.ProjectConstants;
 import com.task.management.application.project.RemoveTaskStatusException;
 import com.task.management.application.project.command.AddTaskStatusCommand;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
+import com.task.management.application.shared.port.out.DomainEventPublisherPort;
+import com.task.management.domain.project.event.MemberLeftProjectEvent;
+import com.task.management.domain.shared.event.DomainEvent;
 import com.task.management.domain.shared.model.objectvalue.Email;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.application.shared.service.UserInfoService;
@@ -32,8 +35,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static com.task.management.application.common.TestUtils.randomProjectId;
-import static com.task.management.application.common.TestUtils.randomUserId;
+import static com.task.management.application.shared.TestUtils.randomProjectId;
+import static com.task.management.application.shared.TestUtils.randomUserId;
 import static com.task.management.application.project.ProjectTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,6 +57,8 @@ class ProjectServiceTest {
     private TaskRepositoryPort taskRepositoryPort;
     @Mock
     private MemberRepositoryPort memberRepositoryPort;
+    @Mock
+    private DomainEventPublisherPort publisherPort;
     @InjectMocks
     private ProjectService projectService;
 
@@ -299,8 +304,13 @@ class ProjectServiceTest {
                 .when(memberRepositoryPort)
                 .find(eq(givenProjectId), eq(givenActorId));
         projectService.leaveProject(givenActorId, givenProjectId);
-        verify(taskRepositoryPort).unassignTasksFrom(eq(givenActorId), eq(givenProjectId));
         verify(memberRepositoryPort).delete(eq(givenActorId), eq(givenProjectId));
+        ArgumentCaptor<DomainEvent> eventCaptor = ArgumentCaptor.captor();
+        verify(publisherPort).publish(eventCaptor.capture());
+        final var memberLeftProjectEvent = assertInstanceOf(MemberLeftProjectEvent.class, eventCaptor.getValue());
+        assertNotNull(memberLeftProjectEvent.getOccurredAt());
+        assertEquals(givenActorId, memberLeftProjectEvent.getMemberId());
+        assertEquals(givenProjectId, memberLeftProjectEvent.getProjectId());
     }
 
     @Test
@@ -360,8 +370,13 @@ class ProjectServiceTest {
                 .when(memberRepositoryPort)
                 .find(eq(givenProjectId), eq(givenMemberId));
         projectService.excludeMember(givenActorId, givenProjectId, givenMemberId);
-        verify(taskRepositoryPort).unassignTasksFrom(eq(givenMemberId), eq(givenProjectId));
         verify(memberRepositoryPort).delete(eq(givenMemberId), eq(givenProjectId));
+        ArgumentCaptor<DomainEvent> eventCaptor = ArgumentCaptor.captor();
+        verify(publisherPort).publish(eventCaptor.capture());
+        final var memberLeftProjectEvent = assertInstanceOf(MemberLeftProjectEvent.class, eventCaptor.getValue());
+        assertNotNull(memberLeftProjectEvent.getOccurredAt());
+        assertEquals(givenMemberId, memberLeftProjectEvent.getMemberId());
+        assertEquals(givenProjectId, memberLeftProjectEvent.getProjectId());
     }
 
     @Test

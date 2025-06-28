@@ -11,6 +11,7 @@ import com.task.management.domain.shared.model.objectvalue.TaskId;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public interface TaskRepositoryPort {
     Task save(Task task);
@@ -20,6 +21,8 @@ public interface TaskRepositoryPort {
     Optional<Task> find(TaskId id);
 
     Optional<TaskDetails> findTaskDetails(TaskId id);
+
+    Stream<Task> findAllByAssigneeAndProject(UserId assigneeId, ProjectId projectId);
 
     Page<TaskPreview> findProjectTasks(FindTasksQuery query);
 

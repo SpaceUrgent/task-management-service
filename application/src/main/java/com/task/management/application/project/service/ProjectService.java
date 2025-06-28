@@ -3,6 +3,7 @@ package com.task.management.application.project.service;
 import com.task.management.application.shared.UseCaseException;
 import com.task.management.application.shared.annotation.AppComponent;
 import com.task.management.application.shared.annotation.UseCase;
+import com.task.management.application.shared.port.out.DomainEventPublisherPort;
 import com.task.management.application.shared.service.UserInfoService;
 import com.task.management.application.shared.validation.ValidationService;
 import com.task.management.application.project.RemoveTaskStatusException;
@@ -16,6 +17,7 @@ import com.task.management.application.project.port.out.ProjectRepositoryPort;
 import com.task.management.application.project.port.out.TaskRepositoryPort;
 import com.task.management.application.project.projection.ProjectDetails;
 import com.task.management.application.project.projection.ProjectPreview;
+import com.task.management.domain.project.event.MemberLeftProjectEvent;
 import com.task.management.domain.shared.model.objectvalue.Email;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.project.model.Member;
@@ -44,6 +46,7 @@ public class ProjectService implements ProjectMemberUseCase, ProjectUseCase {
     private final ProjectRepositoryPort projectRepositoryPort;
     private final TaskRepositoryPort taskRepositoryPort;
     private final MemberRepositoryPort memberRepositoryPort;
+    private final DomainEventPublisherPort publisherPort;
 
     @UseCase
     @Override
@@ -176,9 +179,9 @@ public class ProjectService implements ProjectMemberUseCase, ProjectUseCase {
         return getProjectDetails(projectId);
     }
 
-    private void removeMemberFromProject(UserId actorId, ProjectId projectId) {
-        taskRepositoryPort.unassignTasksFrom(actorId, projectId);
-        memberRepositoryPort.delete(actorId, projectId);
+    private void removeMemberFromProject(UserId memberId, ProjectId projectId) {
+        publisherPort.publish(new MemberLeftProjectEvent(memberId, projectId));
+        memberRepositoryPort.delete(memberId, projectId);
     }
 
     public boolean isMember(UserId userId, ProjectId projectId) {
