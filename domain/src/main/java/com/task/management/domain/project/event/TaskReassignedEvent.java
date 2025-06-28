@@ -3,8 +3,6 @@ package com.task.management.domain.project.event;
 import com.task.management.domain.shared.model.objectvalue.UserId;
 import com.task.management.domain.shared.model.objectvalue.TaskId;
 
-import static com.task.management.domain.shared.validation.Validation.parameterRequired;
-
 public class TaskReassignedEvent extends TaskUpdatedEvent<UserId> {
 
     public TaskReassignedEvent(TaskId taskId, UserId actorId, UserId initialValue, UserId newValue) {

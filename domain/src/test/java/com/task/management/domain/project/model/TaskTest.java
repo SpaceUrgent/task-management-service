@@ -29,7 +29,7 @@ class TaskTest {
         var event  = assertInstanceOf(TaskTitleUpdatedEvent.class, domainEvents.getFirst());
         assertNotNull(event.getOccurredAt());
         assertEquals(givenActorId, event.getActorId());
-        assertEquals(task.getId(), event.getEntityId());
+        assertEquals(task.getId(), event.getTaskId());
         assertEquals(initialValue, event.getInitialValue());
         assertEquals(givenValue, event.getNewValue());
     }
@@ -64,7 +64,7 @@ class TaskTest {
 
         assertNotNull(event.getOccurredAt());
         assertEquals(givenActorId, event.getActorId());
-        assertEquals(task.getId(), event.getEntityId());
+        assertEquals(task.getId(), event.getTaskId());
         assertEquals(initialValue, event.getInitialValue());
         assertEquals(givenValue, event.getNewValue());
     }
@@ -98,7 +98,7 @@ class TaskTest {
         var event  = assertInstanceOf(TaskDueDateUpdatedEvent.class, domainEvents.getFirst());
         assertNotNull(event.getOccurredAt());
         assertEquals(givenActorId, event.getActorId());
-        assertEquals(task.getId(), event.getEntityId());
+        assertEquals(task.getId(), event.getTaskId());
         assertEquals(initialValue, event.getInitialValue());
         assertEquals(givenValue, event.getNewValue());
     }
@@ -132,7 +132,7 @@ class TaskTest {
         var event  = assertInstanceOf(TaskStatusUpdatedEvent.class, domainEvents.getFirst());
         assertNotNull(event.getOccurredAt());
         assertEquals(givenActorId, event.getActorId());
-        assertEquals(task.getId(), event.getEntityId());
+        assertEquals(task.getId(), event.getTaskId());
         assertEquals(initialValue, event.getInitialValue());
         assertEquals(givenValue, event.getNewValue());
     }
@@ -166,7 +166,7 @@ class TaskTest {
         var event  = assertInstanceOf(TaskPriorityUpdatedEvent.class, domainEvents.getFirst());
         assertNotNull(event.getOccurredAt());
         assertEquals(givenActorId, event.getActorId());
-        assertEquals(task.getId(), event.getEntityId());
+        assertEquals(task.getId(), event.getTaskId());
         assertEquals(initialValue, event.getInitialValue());
         assertEquals(givenValue, event.getNewValue());
     }
@@ -201,7 +201,7 @@ class TaskTest {
         var event  = assertInstanceOf(TaskReassignedEvent.class, domainEvents.getFirst());
         assertNotNull(event.getOccurredAt());
         assertEquals(givenActorId, event.getActorId());
-        assertEquals(task.getId(), event.getEntityId());
+        assertEquals(task.getId(), event.getTaskId());
         assertEquals(initialValue, event.getInitialValue());
         assertEquals(givenValue, event.getNewValue());
     }
