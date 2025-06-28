@@ -128,6 +128,15 @@ class ProjectControllerTest {
 
     @MockUser
     @Test
+    void leaveProject() throws Exception {
+        final var givenProjectId = randomProjectId();
+        mockMvc.perform(post("/api/projects/{projectId}/leave", givenProjectId.value()))
+                .andExpect(status().isOk());
+        verify(projectUseCase).leaveProject(eq(new UserId(DEFAULT_USER_ID_VALUE)), eq(givenProjectId));
+    }
+
+    @MockUser
+    @Test
     void addMember() throws Exception {
         final var givenRequest = getAddMemberRequest();
         final var givenProjectId = randomProjectId();
@@ -154,6 +163,16 @@ class ProjectControllerTest {
                         .content(objectMapper.writeValueAsString(givenRequest)))
                         .andExpect(status().isOk());
         verify(memberRoleUseCase).updateMemberRole(eq(USER_ID), eq(expectedCommand));
+    }
+
+    @MockUser
+    @Test
+    void excludeMember() throws Exception {
+        final var givenProjectId = randomProjectId();
+        final var givenMemberId = randomUserId();
+        mockMvc.perform(delete("/api/projects/{projectId}/members/{memberId}", givenProjectId.value(), givenMemberId.value()))
+                .andExpect(status().isOk());
+        verify(projectUseCase).excludeMember(eq(USER_ID), eq(givenProjectId), eq(givenMemberId));
     }
 
     @MockUser
@@ -237,7 +256,7 @@ class ProjectControllerTest {
                 .pageNumber(2)
                 .pageSize(10)
                 .projectId(givenProjectId)
-                .assigneeId(givenAssigneeId)
+                .assignees(Set.of(givenAssigneeId))
                 .statusIn(givenTaskStatus)
                 .sortByCreatedAt(Sort.Direction.ASC)
                 .build();
@@ -253,7 +272,7 @@ class ProjectControllerTest {
         final var responseBody = mockMvc.perform(get("/api/projects/{projectId}/tasks", givenProjectId.value())
                         .param("page", "2")
                         .param("size", "10")
-                        .param("assigneeId", givenAssigneeId.value().toString())
+                        .param("assignee", givenAssigneeId.value().toString())
                         .param("status", givenTaskStatus.toArray(new String[]{}))
                         .param("sortBy", "createdAt:ASC"))
                 .andExpect(status().isOk())

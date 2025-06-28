@@ -79,6 +79,11 @@ public class ProjectController extends BaseController {
         projectUseCase.updateProject(actor(), new ProjectId(projectId), command);
     }
 
+    @PostMapping("/{projectId}/leave")
+    public void leaveProject(@PathVariable Long projectId) throws UseCaseException {
+        projectUseCase.leaveProject(actor(), new ProjectId(projectId));
+    }
+
     @PostMapping("/{projectId}/members")
     public void addProjectMember(@PathVariable Long projectId,
                                  @RequestBody @Valid @NotNull AddProjectMemberRequest request) throws UseCaseException {
@@ -96,6 +101,12 @@ public class ProjectController extends BaseController {
                 .role(MemberRole.withRoleName(request.getRole()))
                 .build();
         projectMemberUseCase.updateMemberRole(actor(), command);
+    }
+
+    @DeleteMapping("/{projectId}/members/{memberId}")
+    public void excludeMember(@PathVariable Long projectId,
+                              @PathVariable Long memberId) throws UseCaseException {
+        projectUseCase.excludeMember(actor(), new ProjectId(projectId), new UserId(memberId));
     }
 
     @PutMapping("/{projectId}/available-statuses")
