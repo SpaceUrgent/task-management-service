@@ -7,9 +7,6 @@ import com.task.management.application.shared.event.DomainEventHandler;
 import com.task.management.application.shared.port.out.DomainEventPublisherPort;
 import com.task.management.domain.project.event.MemberLeftProjectEvent;
 import com.task.management.domain.project.event.TaskReassignedEvent;
-import com.task.management.domain.shared.model.DomainEventAggregate;
-
-import java.util.List;
 
 import static com.task.management.domain.shared.validation.Validation.eventRequired;
 
@@ -30,9 +27,7 @@ public class MemberLeftProjectEventHandler implements DomainEventHandler<MemberL
         final var memberId = event.getMemberId();
         final var projectId = event.getProjectId();
         final var events = taskRepositoryPort.findAllByAssigneeAndProject(memberId, projectId)
-                .peek(task -> new TaskReassignedEvent(task.getId(), null, task.getAssignee(), null))
-                .map(DomainEventAggregate::flushEvents)
-                .flatMap(List::stream)
+                .map(task -> new TaskReassignedEvent(task.getId(), null, task.getAssignee(), null))
                 .toList();
         publisherPort.publish(events);
         taskRepositoryPort.unassignTasksFrom(memberId, projectId);

@@ -26,7 +26,7 @@ public class DomainEventService implements DomainEventPublisherPort {
     }
 
     @Override
-    public void publish(List<DomainEvent> events) {
+    public void publish(List<? extends DomainEvent> events) {
         events.forEach(this::publish);
     }
 }

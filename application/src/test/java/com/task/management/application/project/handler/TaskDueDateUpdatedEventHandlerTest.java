@@ -15,8 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static com.task.management.application.common.TestUtils.randomTaskId;
-import static com.task.management.application.common.TestUtils.randomUserId;
+import static com.task.management.application.shared.TestUtils.randomTaskId;
+import static com.task.management.application.shared.TestUtils.randomUserId;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +37,7 @@ class TaskDueDateUpdatedEventHandlerTest {
         );
         final var expectedChangeLog = TaskChangeLog.builder()
                 .time(givenEvent.getOccurredAt())
-                .taskId(givenEvent.getEntityId())
+                .taskId(givenEvent.getTaskId())
                 .actorId(givenEvent.getActorId())
                 .targetProperty(TaskProperty.DUE_DATE)
                 .initialValue(givenEvent.getInitialValue().format(DateTimeFormatter.ISO_DATE))

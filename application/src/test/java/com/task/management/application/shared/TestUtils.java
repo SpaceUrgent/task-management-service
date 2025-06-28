@@ -1,4 +1,4 @@
-package com.task.management.application.common;
+package com.task.management.application.shared;
 
 import com.task.management.domain.shared.model.objectvalue.ProjectId;
 import com.task.management.domain.shared.model.objectvalue.TaskId;

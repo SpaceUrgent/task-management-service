@@ -9,17 +9,12 @@ import java.util.Objects;
 
 import static com.task.management.domain.shared.validation.Validation.eventRequired;
 
-//@AppComponent
 public class EventBus {
     private final List<DomainEventHandler<? extends DomainEvent>> eventHandlers;
 
     public EventBus() {
         this.eventHandlers = new ArrayList<>();
     }
-
-//    public EventBus(List<DomainEventHandlerPort<? extends DomainEvent>> eventHandlers) {
-//        this.eventHandlers = eventHandlers;
-//    }
 
     public void register(List<DomainEventHandler<? extends DomainEvent>> eventHandlers) {
         this.eventHandlers.addAll(eventHandlers);

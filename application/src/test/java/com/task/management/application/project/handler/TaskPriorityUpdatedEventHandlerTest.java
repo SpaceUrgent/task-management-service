@@ -13,8 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static com.task.management.application.common.TestUtils.randomTaskId;
-import static com.task.management.application.common.TestUtils.randomUserId;
+import static com.task.management.application.shared.TestUtils.randomTaskId;
+import static com.task.management.application.shared.TestUtils.randomUserId;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,7 +34,7 @@ class TaskPriorityUpdatedEventHandlerTest {
         );
         final var expectedChangeLog = TaskChangeLog.builder()
                 .time(givenEvent.getOccurredAt())
-                .taskId(givenEvent.getEntityId())
+                .taskId(givenEvent.getTaskId())
                 .actorId(givenEvent.getActorId())
                 .targetProperty(TaskProperty.PRIORITY)
                 .initialValue(givenEvent.getInitialValue().name())

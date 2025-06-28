@@ -1,7 +1,7 @@
 package com.task.management.application.project.handler;
 
 import com.task.management.application.shared.EventHandlingException;
-import com.task.management.application.common.TestUtils;
+import com.task.management.application.shared.TestUtils;
 import com.task.management.application.shared.port.out.UserInfoRepositoryPort;
 import com.task.management.domain.project.event.TaskReassignedEvent;
 import com.task.management.domain.project.model.objectvalue.TaskProperty;
@@ -45,7 +45,7 @@ class TaskReassignedEventHandlerTest {
 
         final var expectedChangeLog = TaskChangeLog.builder()
                 .time(givenEvent.getOccurredAt())
-                .taskId(givenEvent.getEntityId())
+                .taskId(givenEvent.getTaskId())
                 .actorId(givenEvent.getActorId())
                 .targetProperty(TaskProperty.ASSIGNEE)
                 .initialValue(initialAssigneeInfo.fullName())
