@@ -35,7 +35,9 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
     public Project save(Project project) {
         projectRequired(project);
         var projectEntity = buildProjectEntity(project);
-        projectEntity.setTaskNumberSequence(new TaskNumberSequence(projectEntity));
+        if (project.getId() == null) {
+            projectEntity.setTaskNumberSequence(new TaskNumberSequence(projectEntity));
+        }
         final var owner = userEntityDao.getReference(project.getOwnerId().value());
         projectEntity.addMember(owner, MemberRole.OWNER);
         projectEntity = projectEntityDao.save(projectEntity);
