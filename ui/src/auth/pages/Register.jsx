@@ -5,7 +5,7 @@ import AuthForm from "../components/AuthForm";
 import { handleRegister, createAuthLink } from "../utils/authFormUtils";
 import { useForm } from "react-hook-form";
 import AppConstants from "../../AppConstants.ts";
-import ValidatedFormInput from "../../common/components/ValidatedFormInput";
+import ValidatedFormInput from "../../shared/components/ValidatedFormInput";
 
 const Register = () => {
     const navigate = useNavigate();

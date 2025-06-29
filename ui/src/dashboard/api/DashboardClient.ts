@@ -1,7 +1,7 @@
 // @ts-ignore
 import ApiConstants from "../../ApiConstants.ts";
 import axios, {AxiosInstance} from "axios";
-import Configuration from "../../common/Configuration.js"
+import Configuration from "../../shared/Configuration.js"
 
 export class DashboardClient {
     private static instance: DashboardClient;

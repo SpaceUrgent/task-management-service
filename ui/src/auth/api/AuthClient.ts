@@ -1,7 +1,7 @@
 import axios, {AxiosInstance} from "axios";
 // @ts-ignore
 import ApiConstants from "../../ApiConstants.ts";
-import Configuration from "../../common/Configuration"
+import Configuration from "../../shared/Configuration"
 
 export class AuthClient {
     private static instance: AuthClient;

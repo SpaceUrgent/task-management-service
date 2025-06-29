@@ -2,8 +2,8 @@ import React, { useEffect, useState} from "react";
 import CreateProjectModal from "./modal/CreateProjectModal";
 import {ProjectClient} from "../api/ProjectClient.ts";
 import ProjectPreview from "./ProjectPreview";
-import LoadingSpinner from "../../common/components/LoadingSpinner";
-import Alert from "../../common/components/Alert";
+import LoadingSpinner from "../../shared/components/LoadingSpinner";
+import Alert from "../../shared/components/Alert";
 
 export default function AvailableProjects() {
     const projectClient = ProjectClient.getInstance();

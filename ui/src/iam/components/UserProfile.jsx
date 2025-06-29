@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {IAMClient, IAMClientError} from "../api/IAMClient.ts";
-import LabeledValue from "../../common/components/LabeledValue";
-import EditableLabeledValue from "../../common/components/EditableLabeledValue";
-import LoadingSpinner from "../../common/components/LoadingSpinner";
-import Alert from "../../common/components/Alert";
+import LabeledValue from "../../shared/components/LabeledValue";
+import EditableLabeledValue from "../../shared/components/EditableLabeledValue";
+import LoadingSpinner from "../../shared/components/LoadingSpinner";
+import Alert from "../../shared/components/Alert";
 import ChangePasswordModal from "./ChangePasswordModal";
 import {c} from "react/compiler-runtime";
 

@@ -1,6 +1,6 @@
 import React from "react";
 import {useNavigate, useParams} from "react-router-dom";
-import {formatDate} from "../../common/Time";
+import {formatDate} from "../../shared/Time";
 
 export default function TaskPreviewTable({taskPreviews = []}) {
     const { projectId } = useParams();

@@ -1,5 +1,5 @@
 import React from "react";
-import {formatDateTime} from "../../common/Time";
+import {formatDateTime} from "../../shared/Time";
 
 export default function TaskChangeLogs({
     isExpanded = true, onToggleExpand, changeLogs = []

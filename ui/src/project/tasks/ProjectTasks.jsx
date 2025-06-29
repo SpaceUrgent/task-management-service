@@ -4,10 +4,10 @@ import CreateTaskModal from "./modal/CreateTaskModal";
 import TaskPreviewTable from "./TaskPreviewTable";
 import {useProjectContext} from "../contexts/ProjectContext";
 import PaginationPanel from "../shared/PaginationPanel";
-import LoadingSpinner from "../../common/components/LoadingSpinner";
-import Alert from "../../common/components/Alert";
-import LabeledSelector from "../../common/components/selectors/LabeledSelector";
-import LabeledMultiValueSelector from "../../common/components/selectors/LabeledMultiValueSelector";
+import LoadingSpinner from "../../shared/components/LoadingSpinner";
+import Alert from "../../shared/components/Alert";
+import LabeledSelector from "../../shared/components/selectors/LabeledSelector";
+import LabeledMultiValueSelector from "../../shared/components/selectors/LabeledMultiValueSelector";
 import {useSearchParams} from "react-router-dom";
 import LabeledAssigneeMultiValueSelector from "./LabeledAssigneeMultiValueSelector";
 

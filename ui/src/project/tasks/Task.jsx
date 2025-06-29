@@ -2,16 +2,16 @@ import React, {useEffect, useState} from "react";
 import {Link, useParams, useSearchParams} from "react-router-dom";
 import {useProjectContext} from "../contexts/ProjectContext";
 import {ProjectClient} from "../api/ProjectClient.ts";
-import LoadingSpinner from "../../common/components/LoadingSpinner";
-import Alert from "../../common/components/Alert";
-import LabeledSelector from "../../common/components/selectors/LabeledSelector";
+import LoadingSpinner from "../../shared/components/LoadingSpinner";
+import Alert from "../../shared/components/Alert";
+import LabeledSelector from "../../shared/components/selectors/LabeledSelector";
 import EditableTitle from "../shared/EditableTitle";
 import EditableDescription from "../shared/EditableDescription";
-import DateSelector from "../../common/components/selectors/DateSelector";
+import DateSelector from "../../shared/components/selectors/DateSelector";
 import TaskChangeLogs from "./TaskChangeLogs";
 import TaskComments from "./TaskComments";
-import {formatDateTime} from "../../common/Time";
-import LabeledValue from "../../common/components/LabeledValue";
+import {formatDateTime} from "../../shared/Time";
+import LabeledValue from "../../shared/components/LabeledValue";
 
 export default function Task() {
     const projectClient = ProjectClient.getInstance();

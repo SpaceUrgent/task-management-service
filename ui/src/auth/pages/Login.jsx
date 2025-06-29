@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../common/contexts/AuthContext";
+import { useAuth } from "../../shared/contexts/AuthContext";
 import AuthLayout from "../components/AuthLayout";
 import AuthForm from "../components/AuthForm";
 import { handleLogin, createAuthLink } from "../utils/authFormUtils";
 import {useForm} from "react-hook-form";
-import ValidatedFormInput from "../../common/components/ValidatedFormInput";
+import ValidatedFormInput from "../../shared/components/ValidatedFormInput";
 import AppConstants from "../../AppConstants.ts";
 
 const Login = () => {

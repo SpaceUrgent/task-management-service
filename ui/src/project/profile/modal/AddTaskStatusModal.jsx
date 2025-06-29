@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import { useProjectContext } from "../../contexts/ProjectContext";
-import ValidatedFormInput from "../../../common/components/ValidatedFormInput";
+import ValidatedFormInput from "../../../shared/components/ValidatedFormInput";
 import {useForm} from "react-hook-form";
 
 export default function AddTaskStatusModal({ statusPosition, onClose }) {

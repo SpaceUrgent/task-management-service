@@ -1,7 +1,7 @@
 // @ts-ignore
 import ApiConstants from "../../ApiConstants.ts";
 import axios, {AxiosInstance, AxiosResponse} from "axios";
-import Configuration from "../../common/Configuration.js"
+import Configuration from "../../shared/Configuration.js"
 
 export class ProjectClient {
     private static instance: ProjectClient;

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import TextArea from "../../../common/components/TextArea";
+import TextArea from "../../../shared/components/TextArea";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import {useForm} from "react-hook-form";
-import ValidatedFormInput from "../../../common/components/ValidatedFormInput";
+import ValidatedFormInput from "../../../shared/components/ValidatedFormInput";
 
 export default function CreateProjectModal({ onClose, onSubmit }) {
     const projectClient = ProjectClient.getInstance();

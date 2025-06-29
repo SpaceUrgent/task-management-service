@@ -1,9 +1,9 @@
 import AvailableProjects from "./project/overview/AvailableProjects";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import MainLayout from "./common/components/MainLayout";
+import MainLayout from "./shared/components/MainLayout";
 import Login from "./auth/pages/Login";
 import Register from "./auth/pages/Register";
-import {AuthProvider} from "./common/contexts/AuthContext";
+import {AuthProvider} from "./shared/contexts/AuthContext";
 import PublicRoute from "./routes/PublicRoute";
 import ProjectLayout from "./project/layouts/ProjectLayout";
 import ProjectTasks from "./project/tasks/ProjectTasks";

@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {useProjectContext} from "../contexts/ProjectContext";
 import ChangeProjectOwnerModal from "./modal/ChangeProjectOwnerModal";
-import LabeledValue from "../../common/components/LabeledValue";
+import LabeledValue from "../../shared/components/LabeledValue";
 
 export default function ProjectOwner({ allowChangeOwner = false }) {
     const {project, refreshData} = useProjectContext();

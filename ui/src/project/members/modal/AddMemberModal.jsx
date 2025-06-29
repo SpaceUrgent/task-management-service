@@ -3,7 +3,7 @@ import AppConstants from "../../../AppConstants.ts";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import { useProjectContext } from "../../contexts/ProjectContext";
 import {useForm} from "react-hook-form";
-import ValidatedFormInput from "../../../common/components/ValidatedFormInput";
+import ValidatedFormInput from "../../../shared/components/ValidatedFormInput";
 
 export default function AddMemberModal({ onClose, onSubmit }) {
     const { project } = useProjectContext();

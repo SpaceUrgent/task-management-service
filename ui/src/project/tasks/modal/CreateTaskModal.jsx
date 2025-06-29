@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import TextArea from "../../../common/components/TextArea";
+import TextArea from "../../../shared/components/TextArea";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import { useParams } from "react-router-dom";
 import { useProjectContext } from "../../contexts/ProjectContext";
 import {useForm} from "react-hook-form";
-import ValidatedFormInput from "../../../common/components/ValidatedFormInput";
+import ValidatedFormInput from "../../../shared/components/ValidatedFormInput";
 
 export default function CreateTaskModal({ onClose, onSubmit }) {
     const { project } = useProjectContext();

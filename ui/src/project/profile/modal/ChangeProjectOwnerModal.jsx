@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useProjectContext } from "../../contexts/ProjectContext";
 import { ProjectClient } from "../../api/ProjectClient.ts";
-import LabeledSelector from "../../../common/components/selectors/LabeledSelector";
+import LabeledSelector from "../../../shared/components/selectors/LabeledSelector";
 
 export default function ChangeProductOwnerModal({ onClose }) {
     const { project } = useProjectContext();

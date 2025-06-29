@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {useForm} from "react-hook-form";
-import ValidatedFormInput from "../../common/components/ValidatedFormInput";
+import ValidatedFormInput from "../../shared/components/ValidatedFormInput";
 
 export default function ChangePasswordModal({ show, onClose, onChangePassword, errorMessage }) {
     const [isLoading, setIsLoading] = useState(false);
