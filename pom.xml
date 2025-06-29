@@ -23,6 +23,7 @@
         <module>config/spring-config</module>
         <module>application</module>
         <module>launcher/spring-launcher</module>
+        <module>adapter/kafka</module>
     </modules>
 
     <properties>
