@@ -83,7 +83,7 @@ export default function Task() {
         await projectClient.updateTask(task.id, {
             title: task.title,
             description: task.description,
-            assigneeId: task.assignee.id,
+            assigneeId: task.assignee?.id,
             dueDate: task.dueDate,
             priority: value,
             status: task.status
