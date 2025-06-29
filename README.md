@@ -42,7 +42,8 @@ All use cases are protected by access control and validation, ensuring that only
 .
 ├── adapter/
 │   ├── in/                  # Inbound adapters (e.g., web API)
-│   └── out/                 # Outbound adapters (e.g., persistence, encryption)
+│   ├── out/                 # Outbound adapters (e.g., persistence, encryption)
+│   └── kafka/               # Kafka adapter that implements both in/out ports (event publishing/consuming)
 ├── application/             # Application layer (use cases, services)
 ├── config/                  # Spring configuration module
 ├── deploy/                  # Docker and deployment files
@@ -54,9 +55,6 @@ All use cases are protected by access control and validation, ensuring that only
 
 The project is organized according to the hexagonal architecture (ports & adapters), with clear separation between core business logic, application services, and infrastructure concerns. The frontend is located in the `ui/` directory and communicates with the backend via REST APIs. 
 
-## Hexagonal Architecture Diagram
-
-The backend is structured according to the hexagonal architecture (also known as ports and adapters), which separates the core domain logic from external concerns such as databases, web APIs, and encryption. This makes the system highly maintainable and adaptable to change.
 
 ## Modules & Technologies
 
@@ -65,6 +63,7 @@ The backend is structured according to the hexagonal architecture (also known as
 - **application**: Use cases, application services (Java 21, Jakarta Validation)
 - **adapter/in/web**: REST API (Spring Boot, Spring Security, Spring Validation)
 - **adapter/out/persistence-jpa**: JPA persistence (Spring Data JPA, PostgreSQL)
+- **adapter/kafka**: Kafka adapter for publishing and consuming events (Kafka, Testcontainers)
 - **adapter/out/password-encryption**: Password hashing (Spring Security Crypto)
 - **config/spring-config**: Centralized Spring configuration (Spring Boot, Testcontainers)
 - **launcher/spring-launcher**: Application entrypoint (Spring Boot)
