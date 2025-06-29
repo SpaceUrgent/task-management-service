@@ -12,18 +12,44 @@ spring:
     jdbc:
       initialize-schema: always
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: task-service-consumer-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        acks: all
+        retries: 3
+    listener:
+      concurrency: 3
+      ack-mode: record
+    properties:
+      security.protocol: PLAINTEXT
+      client.id: task-service-client
+
+kafka:
+  topics:
+    domain-event: domain-event
+
 web:
   allowed-origins: ${ALLOWED_ORIGINS}
 
 server:
   servlet:
     session:
-      timeout: {SESSION_TIMEOUT}
+      timeout: ${SESSION_TIMEOUT}
       tracking-modes: cookie
-      http-only: {SESSION_HTTP_ONLY:false}
+      http-only: ${SESSION_HTTP_ONLY:false}
       secure: false
       name: JSESSIONID
-      domain: {SESSION_COOKIE_DOMAIN}
+      domain: ${SESSION_COOKIE_DOMAIN}
       path: /
       max-age: 600
       same-site: strict
