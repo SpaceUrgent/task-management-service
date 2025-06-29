@@ -36,7 +36,7 @@ public class TaskController extends BaseController {
         final var command = UpdateTaskCommand.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .assigneeId(new UserId(request.getAssigneeId()))
+                .assigneeId(Optional.ofNullable(request.getAssigneeId()).map(UserId::new).orElse(null))
                 .taskStatus(request.getStatus())
                 .priority(TaskPriority.withPriorityName(request.getPriority()))
                 .dueDate(request.getDueDate())

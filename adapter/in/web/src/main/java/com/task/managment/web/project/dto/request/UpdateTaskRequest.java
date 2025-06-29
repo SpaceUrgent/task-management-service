@@ -12,7 +12,6 @@ public class UpdateTaskRequest {
     @NotBlank(message = "Title is required")
     private String title;
     private String description;
-    @NotNull(message = "Assignee id is required")
     private Long assigneeId;
     @NotNull(message = "Status is required")
     private String status;
