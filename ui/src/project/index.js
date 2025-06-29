@@ -13,7 +13,9 @@ export { default as CreateProjectModal } from './overview/modal/CreateProjectMod
 // Members
 export { default as ProjectMembers } from './members/ProjectMembers';
 export { default as AddMemberModal } from './members/modal/AddMemberModal';
-export { default as PromoteMemberModal } from './members/PromoteMemberModal';
+export { default as PromoteMemberModal } from './members/modal/PromoteMemberModal';
+export { default as LeaveProjectModal } from './members/modal/LeaveProjectModal';
+export { default as ExcludeMemberModal } from './members/modal/ExcludeMemberModal';
 
 // Tasks
 export { default as ProjectTasks } from './tasks/ProjectTasks';

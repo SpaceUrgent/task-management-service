@@ -96,6 +96,10 @@ export class ProjectClient {
         this.validateApiResponse(response);
     }
 
+    async leaveProject(projectId: number): Promise<void> {
+        await this.axiosInstance.post(`/projects/${projectId}/leave`);
+    }
+
     async createTask(projectId: number, newTask: CreateTaskRequest): Promise<void> {
         const response = await this.axiosInstance.post(`/projects/${projectId}/tasks`, newTask);
         if (response.status === 201) return;
@@ -153,6 +157,10 @@ export class ProjectClient {
             role: role,
         };
         await this.axiosInstance.put(`/projects/${projectId}/members`, request);
+    }
+
+    async excludeMember(projectId: number, memberId: number): Promise<void> {
+        await this.axiosInstance.delete(`/projects/${projectId}/members/${memberId}`);
     }
 
     private buildQueryParams(options: GetTaskPreviewsOptions): string {
