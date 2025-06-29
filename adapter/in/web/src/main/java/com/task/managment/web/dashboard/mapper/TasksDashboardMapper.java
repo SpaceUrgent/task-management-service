@@ -2,6 +2,7 @@ package com.task.managment.web.dashboard.mapper;
 
 import com.task.management.application.dashboard.projection.DashboardTaskPreview;
 import com.task.management.application.dashboard.projection.TasksSummary;
+import com.task.managment.web.shared.dto.UserInfoDto;
 import com.task.managment.web.shared.mapper.UserInfoMapper;
 import com.task.managment.web.dashboard.dto.DashboardTaskPreviewDto;
 import com.task.managment.web.dashboard.dto.TasksSummaryDto;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.task.management.domain.shared.validation.Validation.parameterRequired;
 
@@ -46,7 +48,13 @@ public class TasksDashboardMapper {
                 .isOverdue(model.isOverdue())
                 .priority(model.priority().priorityName())
                 .status(model.status())
-                .assignee(userInfoMapper.toDto(model.assignee()))
+                .assignee(mapAssignee(model))
                 .build();
+    }
+
+    private UserInfoDto mapAssignee(DashboardTaskPreview model) {
+        return Optional.ofNullable(model.assignee())
+                .map(userInfoMapper::toDto)
+                .orElse(null);
     }
 }

@@ -45,6 +45,6 @@ public class DashboardTaskPreviewDto {
         this.isOverdue = parameterRequired(isOverdue, "Is overdue");
         this.priority = parameterRequired(priority, "Priority");
         this.status = parameterRequired(status, "Status");
-        this.assignee = parameterRequired(assignee, "Assignee");
+        this.assignee = assignee;
     }
 }

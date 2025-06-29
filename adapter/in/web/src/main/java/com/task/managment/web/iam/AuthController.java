@@ -43,7 +43,7 @@ public class AuthController {
                                                              HttpServletRequest request) {
         return ErrorResponse.builder()
                 .reason(ErrorResponse.REASON_BAD_REQUEST)
-                .message(exception.getMessage())
+                .message("Incorrect email or password")
                 .request(request)
                 .build();
     }
