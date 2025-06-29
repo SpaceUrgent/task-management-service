@@ -22,8 +22,8 @@ public class UserInfoService {
         parameterRequired(email, "Email");
         return userInfoRepositoryPort.find(email)
                 .orElseThrow(() -> {
-                    log.debug("User with email {} not found", email);
-                    return new UseCaseException.EntityNotFoundException("User with email '%s' not found".formatted(email));
+                    log.debug("User with email {} not found", email.value());
+                    return new UseCaseException.EntityNotFoundException("User with email '%s' not found".formatted(email.value()));
                 });
     }
 }
