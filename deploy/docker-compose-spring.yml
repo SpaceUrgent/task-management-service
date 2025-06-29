@@ -1,0 +1,90 @@
+version: "3.8"
+
+services:
+  task-manager-application:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile-spring
+    container_name: task-manager-application
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      ALLOWED_ORIGINS: http://localhost:3000
+      DB_URL: jdbc:postgresql://postgres:5432/task_management
+      DB_USERNAME: admin
+      DB_PASSWORD: dummy-password
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SESSION_TIMEOUT: 180m
+      SESSION_HTTP_ONLY: false
+      SESSION_COOKIE_DOMAIN: localhost
+    networks:
+      - app-network
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: task_management
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: dummy-password
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - app-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    hostname: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    networks:
+      - app-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8081:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    depends_on:
+      - kafka
+      - zookeeper
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

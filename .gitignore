@@ -33,3 +33,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# configs
+**/application.yml
+**/docker-compose-local.yml
+
+# other
+Plan.txt
