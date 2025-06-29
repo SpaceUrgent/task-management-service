@@ -95,7 +95,7 @@ export default function ProjectTasks() {
     }
 
     return(
-        <div>
+        <div className="d-flex flex-column h-100">
             {showCreateTaskModal &&
                 <CreateTaskModal
                     projectId={project.id}
@@ -104,6 +104,8 @@ export default function ProjectTasks() {
                     onSubmit={handleSubmitCreateTask}
                 />
             }
+            
+            {/* Filters and controls section */}
             <div className="row g-2 align-items-center mb-3">
                 <div className="col-auto">
                     <button className="btn btn-sm btn-primary" onClick={() => setShowCreateTaskModal(true)}>
@@ -154,14 +156,22 @@ export default function ProjectTasks() {
                     />
                 </div>
             </div>
-            <TaskPreviewTable taskPreviews={tasksPage?.data} />
+
+            {/* Content area that takes up remaining space */}
+            <div className="flex-grow-1 d-flex flex-column">
+                <TaskPreviewTable taskPreviews={tasksPage?.data} />
+            </div>
+
+            {/* Pagination panel at bottom */}
             {tasksPage?.data?.length > 0 &&
-                <PaginationPanel
-                    currentPage={currentPage}
-                    totalPages={tasksPage?.totalPages}
-                    onNext={() => setCurrentPage(currentPage + 1)}
-                    onPrevious={() => setCurrentPage(currentPage - 1)}
-                />
+                <div className="mt-3">
+                    <PaginationPanel
+                        currentPage={currentPage}
+                        totalPages={tasksPage?.totalPages}
+                        onNext={() => setCurrentPage(currentPage + 1)}
+                        onPrevious={() => setCurrentPage(currentPage - 1)}
+                    />
+                </div>
             }
         </div>
     )

@@ -34,7 +34,7 @@ export default function ProjectLayout({}) {
                 editable={currentUserRole === "Owner"}
             />
 
-            <div className="card mb-4 border-0">
+            <div className="card mb-4 border-0 flex-grow-1 d-flex flex-column">
                 <div className="card-header bg-white">
                     <ul className="nav nav-tabs card-header-tabs">
                         <li className="nav-item">
@@ -63,7 +63,7 @@ export default function ProjectLayout({}) {
                         </li>
                     </ul>
                 </div>
-                <div className="card-body">
+                <div className="card-body flex-grow-1 d-flex flex-column p-3">
                     <Outlet/>
                 </div>
             </div>
