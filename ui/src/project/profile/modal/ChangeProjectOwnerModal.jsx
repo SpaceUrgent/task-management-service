@@ -2,38 +2,25 @@ import React, { useState } from "react";
 import { useProjectContext } from "../../contexts/ProjectContext";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import LabeledSelector from "../../../common/components/selectors/LabeledSelector";
-import {useFormValidation} from "../../../common/hooks/useFormValidation";
 
 export default function ChangeProductOwnerModal({ onClose }) {
     const { project } = useProjectContext();
     const projectClient = ProjectClient.getInstance();
+    const [selectedOwner, setSelectedOwner] = useState(null);
     const [isConfirmed, setIsConfirmed] = useState(false);
     const [submitError, setSubmitError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Use form validation for owner selection
-    const validationRules = {
-        selectedOwnerId: (value) => !!value && value !== project.owner.id,
-    };
-    const {
-        formData,
-        validation,
-        showErrors,
-        updateField,
-        showFieldError,
-        isFormValid
-    } = useFormValidation(validationRules);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!isFormValid() || !isConfirmed) {
-            showFieldError('selectedOwnerId');
+        if (!selectedOwner || selectedOwner === project.owner.id) {
+            onClose();
             return;
         }
         setIsLoading(true);
         setSubmitError(null);
         try {
-            await projectClient.updateMemberRole(project.id, formData.selectedOwnerId, 'Owner');
+            await projectClient.updateMemberRole(project.id, selectedOwner, 'Owner');
             onClose();
         } catch (error) {
             setSubmitError('Failed to update owner');
@@ -55,16 +42,13 @@ export default function ChangeProductOwnerModal({ onClose }) {
                             <div className="mb-3">
                                 <LabeledSelector
                                     label="Owner"
-                                    value={formData.selectedOwnerId || project.owner.id}
-                                    onChange={value => updateField('selectedOwnerId', value)}
+                                    value={project.owner.id}
+                                    onChange={setSelectedOwner}
                                     options={project?.members.map((member) => ({
                                         value: member.id,
                                         label: member.fullName,
                                     }))}
                                 />
-                                {showErrors.selectedOwnerId && !validation.selectedOwnerId && (
-                                    <span className="text-danger span-warning small">Please select a different owner</span>
-                                )}
                             </div>
                             <div className="form-check mb-3">
                                 <input
@@ -88,7 +72,7 @@ export default function ChangeProductOwnerModal({ onClose }) {
                                 <button
                                     type="submit"
                                     className="btn btn-primary"
-                                    disabled={!isConfirmed || !isFormValid() || isLoading}
+                                    disabled={!isConfirmed || isLoading}
                                 >
                                     {isLoading ? 'Changing...' : 'Change Owner'}
                                 </button>

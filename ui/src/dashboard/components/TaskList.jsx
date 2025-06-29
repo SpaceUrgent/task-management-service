@@ -96,7 +96,7 @@ export default function TaskList({
                                 </div>
                                 <div className="col-2">
                                     <small className="text-muted">
-                                        Assignee: {task.assignee.fullName}
+                                        Assignee: {task.assignee?.fullName || "Unassigned"}
                                     </small>
                                 </div>
                             </div>

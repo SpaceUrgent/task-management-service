@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import { useProjectContext } from "../../contexts/ProjectContext";
-import {useFormValidation} from "../../../common/hooks/useFormValidation";
-import FormInput from "../../../common/components/FormInput";
+import ValidatedFormInput from "../../../common/components/ValidatedFormInput";
+import {useForm} from "react-hook-form";
 
 export default function AddTaskStatusModal({ statusPosition, onClose }) {
     const { project, refreshData } = useProjectContext();
@@ -10,30 +10,23 @@ export default function AddTaskStatusModal({ statusPosition, onClose }) {
     const [submitError, setSubmitError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    const validationRules = {
-        status: (value) => !!value && value.length >= 4,
-    };
-
     const {
-        formData,
-        validation,
-        showErrors,
-        updateField,
-        showFieldError,
-        isFormValid
-    } = useFormValidation(validationRules);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!isFormValid()) {
-            Object.keys(validation).forEach(field => showFieldError(field));
-            return;
+        register,
+        handleSubmit,
+        formState: { errors, isValid, touchedFields }
+    } = useForm({
+        mode: "all",
+        defaultValues: {
+            statusName: ""
         }
+    });
+
+    const handleAddTaskStatus = async (data) => {
         setIsLoading(true);
         setSubmitError("");
         try {
             await projectClient.addTaskStatus(project.id, {
-                name: formData.status,
+                name: data.statusName,
                 position: statusPosition
             });
             refreshData();
@@ -49,22 +42,20 @@ export default function AddTaskStatusModal({ statusPosition, onClose }) {
         <div className="modal d-block" tabIndex={-1} role="dialog">
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit(handleAddTaskStatus)}>
                         <div className="modal-header">
                             <h5 className="modal-title">Add task status</h5>
                         </div>
                         <div className="modal-body">
-                            <FormInput
-                                id="status"
-                                type="text"
-                                name="Status name"
-                                value={formData.status}
-                                onChange={value => updateField('status', value)}
-                                onBlur={() => showFieldError('status')}
-                                isValid={validation.status}
-                                showError={showErrors.status}
-                                errorMessage="Status must be at least 4 characters"
-                                required={true}
+                            <ValidatedFormInput
+                                name="statusName"
+                                label="Status name"
+                                registration={register("statusName", {
+                                    required: "Status name is required",
+                                    validate: value => value?.length >= 3 || "Status name must contain at least 3 characters"
+                                })}
+                                errors={errors}
+                                touchedFields={touchedFields}
                             />
                             {submitError && (
                                 <div className="text-center">
@@ -76,7 +67,7 @@ export default function AddTaskStatusModal({ statusPosition, onClose }) {
                         </div>
                         <div className="modal-footer">
                             <button className="btn btn-secondary" type="button" onClick={onClose} disabled={isLoading}>Close</button>
-                            <button className="btn btn-primary" type="submit" disabled={!isFormValid() || isLoading}>
+                            <button className="btn btn-primary" type="submit" disabled={!isValid || isLoading}>
                                 {isLoading ? 'Submitting...' : 'Submit'}
                             </button>
                         </div>

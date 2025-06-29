@@ -3,8 +3,8 @@ import TextArea from "../../../common/components/TextArea";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import { useParams } from "react-router-dom";
 import { useProjectContext } from "../../contexts/ProjectContext";
-import {useFormValidation} from "../../../common/hooks/useFormValidation";
-import FormInput from "../../../common/components/FormInput";
+import {useForm} from "react-hook-form";
+import ValidatedFormInput from "../../../common/components/ValidatedFormInput";
 
 export default function CreateTaskModal({ onClose, onSubmit }) {
     const { project } = useProjectContext();
@@ -14,44 +14,39 @@ export default function CreateTaskModal({ onClose, onSubmit }) {
     const [submitError, setSubmitError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    const validationRules = {
-        title: (value) => value && value.length > 5,
-        assigneeId: (value) => !!value,
-        priority: (value) => !!value,
-        dueDate: (value) => {
-            if (!value) return true;
-            let selectedDate = new Date(value);
-            const today = new Date();
-            selectedDate.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
-            return selectedDate >= today;
-        },
-    };
-
     const {
-        formData,
-        validation,
-        showErrors,
-        updateField,
-        showFieldError,
-        isFormValid
-    } = useFormValidation(validationRules);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!isFormValid()) {
-            Object.keys(validation).forEach(field => showFieldError(field));
-            return;
+        register,
+        handleSubmit,
+        formState: { errors, isValid, touchedFields }
+    } = useForm({
+        mode: "all",
+        defaultValues: {
+            title: "",
+            assignee: "",
+            priority: null,
+            dueDate: null,
         }
+    });
+
+    const isValidDueDate = (value) => {
+        if (!value) return true;
+        let selectedDate = new Date(value);
+        const today = new Date();
+        selectedDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+        return selectedDate >= today;
+    }
+
+    const handleCreateTask = async (data) => {
         setIsLoading(true);
         setSubmitError("");
         try {
             const request = {
-                title: formData.title,
+                title: data.title,
                 description: description,
-                assigneeId: formData.assigneeId,
-                priority: formData.priority,
-                dueDate: formData.dueDate
+                assigneeId: data.assignee,
+                priority: data.priority,
+                dueDate: data.dueDate
             };
             await projectClient.createTask(projectId, request);
             onSubmit();
@@ -66,40 +61,38 @@ export default function CreateTaskModal({ onClose, onSubmit }) {
         <div className="modal d-block" tabIndex={-1} role="dialog">
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit(handleCreateTask)}>
                         <div className="modal-header">
                             <h5 className="modal-title">Create Task</h5>
                         </div>
                         <div className="modal-body">
-                            <FormInput
-                                id="title"
-                                type="text"
-                                name="Title"
-                                placeholder="Feed cat"
-                                value={formData.title}
-                                onChange={value => updateField('title', value)}
-                                onBlur={() => showFieldError('title')}
-                                isValid={validation.title}
-                                showError={showErrors.title}
-                                errorMessage="Please enter a title (min 6 chars)"
-                                required={true}
+                            <ValidatedFormInput
+                                name="title"
+                                label="Title"
+                                placeholder="Enter title"
+                                registration={register("title", {
+                                    required: "Title is required",
+                                    validate: value => value?.length >= 6 || "Title must be at least 6 characters",
+                                })}
+                                errors={errors}
+                                touchedFields={touchedFields}
                             />
                             <div className="mb-1 text-start">
                                 <label className="label form-label ms-2 fw-bold small" htmlFor="assignee">Assignee</label>
                                 <select
                                     className="form-select"
                                     id="assignee"
-                                    value={formData.assigneeId || ''}
-                                    onBlur={() => showFieldError('assigneeId')}
-                                    onChange={e => updateField('assigneeId', e.target.value)}
+                                    {...register("assignee", {
+                                        required: "Please select an assignee",
+                                    })}
                                 >
                                     <option value="">Select Assignee</option>
                                     {project?.members.map((member) => (
                                         <option key={member.id} value={member.id}>{member.fullName}</option>
                                     ))}
                                 </select>
-                                {showErrors.assigneeId && !validation.assigneeId && (
-                                    <span className="text-danger span-warning small">Please select assignee</span>
+                                {errors.assignee && touchedFields.assignee && (
+                                    <span className="text-danger span-warning small">{errors.assignee.message}</span>
                                 )}
                             </div>
                             <div className="mb-1 text-start">
@@ -107,17 +100,17 @@ export default function CreateTaskModal({ onClose, onSubmit }) {
                                 <select
                                     className="form-select"
                                     id="priority"
-                                    value={formData.priority || ''}
-                                    onBlur={() => showFieldError('priority')}
-                                    onChange={e => updateField('priority', e.target.value)}
+                                    {...register("priority", {
+                                        required: "Please select priority",
+                                    })}
                                 >
                                     <option value="">Select Priority</option>
                                     {project?.taskPriorities.map((priority) => (
                                         <option key={priority.name} value={priority.name}>{priority.name}</option>
                                     ))}
                                 </select>
-                                {showErrors.priority && !validation.priority && (
-                                    <span className="text-danger span-warning small">Please select priority</span>
+                                {errors.priority && touchedFields.priority && (
+                                    <span className="text-danger span-warning small">{errors.priority.message}</span>
                                 )}
                             </div>
                             <div className="mb-1 text-start">
@@ -126,12 +119,13 @@ export default function CreateTaskModal({ onClose, onSubmit }) {
                                     id="dueDate"
                                     type="date"
                                     className="form-select"
-                                    value={formData.dueDate || ''}
-                                    onBlur={() => showFieldError('dueDate')}
-                                    onChange={e => updateField('dueDate', e.target.value)}
+                                    {...register("dueDate", {
+                                        required: false,
+                                        validate: value =>  isValidDueDate(value) || "Due date must be future"
+                                    })}
                                 />
-                                {showErrors.dueDate && !validation.dueDate && (
-                                    <span className="text-danger span-warning small">Due date must be future</span>
+                                {errors.dueDate && touchedFields.dueDate && (
+                                    <span className="text-danger span-warning small">{errors.dueDate.message}</span>
                                 )}
                             </div>
                             <TextArea
@@ -152,7 +146,7 @@ export default function CreateTaskModal({ onClose, onSubmit }) {
                         )}
                         <div className="modal-footer">
                             <button className="btn btn-secondary" type="button" onClick={onClose} disabled={isLoading}>Close</button>
-                            <button className="btn btn-primary" type="submit" disabled={!isFormValid() || isLoading}>
+                            <button className="btn btn-primary" type="submit" disabled={!isValid || isLoading}>
                                 {isLoading ? 'Submitting...' : 'Submit'}
                             </button>
                         </div>

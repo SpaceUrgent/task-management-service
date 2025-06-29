@@ -4,8 +4,8 @@ import { useAuth } from "../../common/contexts/AuthContext";
 import AuthLayout from "../components/AuthLayout";
 import AuthForm from "../components/AuthForm";
 import { handleLogin, createAuthLink } from "../utils/authFormUtils";
-import FormInput from "../../common/components/FormInput";
-import { useFormValidation } from "../../common/hooks/useFormValidation";
+import {useForm} from "react-hook-form";
+import ValidatedFormInput from "../../common/components/ValidatedFormInput";
 import AppConstants from "../../AppConstants.ts";
 
 const Login = () => {
@@ -14,35 +14,24 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState("");
 
-    const validationRules = {
-        email: (value) => value && AppConstants.VALID_EMAIL_REGEX.test(value),
-        password: (value) => !!value,
-    };
-
     const {
-        formData,
-        validation,
-        showErrors,
-        updateField,
-        showFieldError,
-        isFormValid
-    } = useFormValidation(validationRules);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!isFormValid()) {
-            Object.keys(validation).forEach(field => {
-                showFieldError(field);
-            });
-            return;
+        register,
+        handleSubmit,
+        formState: { errors, isValid, touchedFields }
+    } = useForm({
+        mode: "all",
+        defaultValues: {
+            email: "",
+            password: ""
         }
+    });
 
+    const onSubmit = async (data) => {
         setIsLoading(true);
         setSubmitError("");
 
         await handleLogin(
-            { email: formData.email, password: formData.password },
+            { email: data.email, password: data.password },
             () => {
                 login();
                 navigate("/projects", { replace: true });
@@ -63,39 +52,38 @@ const Login = () => {
     return (
         <AuthLayout>
             <AuthForm
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmit(onSubmit)}
                 title="Sign In"
                 submitError={submitError}
                 submitButtonText="Sign In"
                 footerContent={footerContent}
                 showSubmitButton={true}
-                submitDisabled={!isFormValid() || isLoading}
+                submitDisabled={!isValid || isLoading}
             >
-                <FormInput
-                    id="email"
-                    name="Email"
+                <ValidatedFormInput
+                    label="Email"
+                    name="email"
                     type="email"
                     placeholder="username@domain.com"
-                    value={formData.email}
-                    onChange={(value) => updateField('email', value)}
-                    onBlur={() => showFieldError('email')}
-                    isValid={validation.email}
-                    showError={showErrors.email}
-                    errorMessage="Please enter valid email address"
-                    required={true}
+                    registration={register("email", {
+                        required: "Please enter valid email address",
+                        pattern: {
+                            value: AppConstants.VALID_EMAIL_REGEX,
+                            message: "Please enter valid email address"
+                        }
+                    })}
+                    errors={errors}
+                    touchedFields={touchedFields}
                 />
-                
-                <FormInput
-                    id="password"
-                    name="Password"
+                <ValidatedFormInput
+                    name="password"
+                    label="Password"
                     type="password"
-                    value={formData.password}
-                    onChange={(value) => updateField('password', value)}
-                    onBlur={() => showFieldError('password')}
-                    isValid={validation.password}
-                    showError={showErrors.password}
-                    errorMessage="Please enter password"
-                    required={true}
+                    registration={register("password", {
+                        required: "Please enter password"
+                    })}
+                    errors={errors}
+                    touchedFields={touchedFields}
                 />
             </AuthForm>
         </AuthLayout>

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import AppConstants from "../../../AppConstants.ts";
 import { ProjectClient } from "../../api/ProjectClient.ts";
 import { useProjectContext } from "../../contexts/ProjectContext";
-import {useFormValidation} from "../../../common/hooks/useFormValidation";
-import FormInput from "../../../common/components/FormInput";
+import {useForm} from "react-hook-form";
+import ValidatedFormInput from "../../../common/components/ValidatedFormInput";
 
 export default function AddMemberModal({ onClose, onSubmit }) {
     const { project } = useProjectContext();
@@ -11,29 +11,22 @@ export default function AddMemberModal({ onClose, onSubmit }) {
     const [submitError, setSubmitError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    const validationRules = {
-        email: (value) => value && value.match(AppConstants.VALID_EMAIL_REGEX),
-    };
-
     const {
-        formData,
-        validation,
-        showErrors,
-        updateField,
-        showFieldError,
-        isFormValid
-    } = useFormValidation(validationRules);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!isFormValid()) {
-            Object.keys(validation).forEach(field => showFieldError(field));
-            return;
+        register,
+        handleSubmit,
+        formState: { errors, isValid, touchedFields }
+    } = useForm({
+        mode: "all",
+        defaultValues: {
+            email: ""
         }
+    });
+
+    const handleAddMember = async (data) => {
         setIsLoading(true);
         setSubmitError("");
         try {
-            await projectClient.addProjectMember(project.id, formData.email);
+            await projectClient.addProjectMember(project.id, data.email);
             onSubmit();
         } catch (error) {
             setSubmitError(error.message ? error.message : "Failed to add project member");
@@ -46,35 +39,33 @@ export default function AddMemberModal({ onClose, onSubmit }) {
         <div className="modal d-block" tabIndex={-1} role="dialog">
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit(handleAddMember)}>
                         <div className="modal-header">
                             <h5 className="modal-title">Add Member</h5>
                         </div>
                         <div className="modal-body">
-                            <FormInput
-                                id="email"
+                            <ValidatedFormInput
                                 type="email"
-                                name="Email"
-                                value={formData.email}
-                                onChange={value => updateField('email', value)}
-                                onBlur={() => showFieldError('email')}
-                                placeholder="username@domain.com"
-                                errorMessage="Please enter a valid email"
-                                showError={showErrors.email}
-                                isValid={validation.email}
-                                required={true}
+                                name="email"
+                                label="Member email"
+                                placeholder="member@domain.com"
+                                registration={register("email", {
+                                    required: "Please enter valid email address",
+                                    pattern: {
+                                        value: AppConstants.VALID_EMAIL_REGEX,
+                                        message: "Please enter valid email address"
+                                    }
+                                })}
+                                errors={errors}
+                                touchedFields={touchedFields}
                             />
                         </div>
                         {submitError && (
-                            <div className="text-center">
-                                <span className="text-danger span-warning">
-                                    <strong>{submitError}</strong>
-                                </span>
-                            </div>
+                            <span className="text-danger span-warning m-3">{submitError}</span>
                         )}
                         <div className="modal-footer">
                             <button className="btn btn-secondary" type="button" onClick={onClose} disabled={isLoading}>Close</button>
-                            <button className="btn btn-primary" type="submit" disabled={!isFormValid() || isLoading}>
+                            <button className="btn btn-primary" type="submit" disabled={!isValid || isLoading}>
                                 {isLoading ? 'Submitting...' : 'Submit'}
                             </button>
                         </div>

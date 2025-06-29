@@ -3,51 +3,40 @@ import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import AuthForm from "../components/AuthForm";
 import { handleRegister, createAuthLink } from "../utils/authFormUtils";
-import { useFormValidation } from "../../common/hooks/useFormValidation";
-import FormInput from "../../common/components/FormInput";
+import { useForm } from "react-hook-form";
 import AppConstants from "../../AppConstants.ts";
+import ValidatedFormInput from "../../common/components/ValidatedFormInput";
 
 const Register = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState("");
 
-    const validationRules = {
-        email: (value) => value && AppConstants.VALID_EMAIL_REGEX.test(value),
-        firstName: (value) => value && AppConstants.VALID_NAME_REGEX.test(value),
-        lastName: (value) => value && AppConstants.VALID_NAME_REGEX.test(value),
-        password: (value) => value && value.length >= 8,
-        confirmPassword: (value, formData) => value && value === formData.password,
-    };
-
     const {
-        formData,
-        validation,
-        showErrors,
-        updateField,
-        showFieldError,
-        isFormValid
-    } = useFormValidation(validationRules);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!isFormValid()) {
-            Object.keys(validation).forEach(field => {
-                showFieldError(field);
-            });
-            return;
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors, isValid, touchedFields }
+    } = useForm({
+        mode: "all",
+        defaultValues: {
+            email: "",
+            firstName: "",
+            lastName: "",
+            password: "",
+            confirmPassword: ""
         }
+    });
 
+    const onSubmit = async (data) => {
         setIsLoading(true);
         setSubmitError("");
-
         await handleRegister(
             {
-                email: formData.email,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                password: formData.password,
+                email: data.email,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                password: data.password,
             },
             () => {
                 navigate("/login", { replace: true });
@@ -69,85 +58,91 @@ const Register = () => {
         <AuthLayout>
             <AuthForm
                 title="Create an account"
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmit(onSubmit)}
                 submitError={submitError}
                 submitButtonText="Sign Up"
                 footerContent={footerContent}
                 showSubmitButton={true}
-                submitDisabled={!isFormValid() || isLoading}
+                submitDisabled={!isValid || isLoading}
             >
-                <FormInput
-                    id="email"
+                <ValidatedFormInput
+                    label="Email"
+                    name="email"
                     type="email"
-                    name="Email"
                     placeholder="username@domain.com"
-                    value={formData.email}
-                    onChange={(value) => updateField('email', value)}
-                    onBlur={() => showFieldError('email')}
-                    isValid={validation.email}
-                    errorMessage="Please enter valid email address"
-                    showError={showErrors.email}
-                    required={true}
+                    registration={register("email", {
+                            required: "Please enter valid email address",
+                            pattern: {
+                                value: AppConstants.VALID_EMAIL_REGEX,
+                                message: "Please enter valid email address"
+                            }
+                    })}
+                    errors={errors}
+                    touchedFields={touchedFields}
                 />
-                
+
                 <div className="row">
                     <div className="col">
-                        <FormInput
-                            id="firstName"
+                        <ValidatedFormInput
+                            label="First Name"
+                            name="firstName"
                             type="text"
-                            name="First Name"
-                            value={formData.firstName}
-                            onChange={(value) => updateField('firstName', value)}
-                            onBlur={() => showFieldError('firstName')}
-                            errorMessage="Please enter valid first name"
-                            isValid={validation.firstName}
-                            showError={showErrors.firstName}
-                            required={true}
+                            registration={register("firstName", {
+                                required: "Please enter valid first name",
+                                pattern: {
+                                    value: AppConstants.VALID_NAME_REGEX,
+                                    message: "Please enter valid first name"
+                                }
+                            })}
+                            errors={errors}
+                            touchedFields={touchedFields}
                         />
                     </div>
                     <div className="col">
-                        <FormInput
-                            id="lastName"
+                        <ValidatedFormInput
+                            label="Last Name"
+                            name="lastName"
                             type="text"
-                            name="Last Name"
-                            value={formData.lastName}
-                            onChange={(value) => updateField('lastName', value)}
-                            onBlur={() => showFieldError('lastName')}
-                            errorMessage="Please enter valid last name"
-                            isValid={validation.lastName}
-                            showError={showErrors.lastName}
-                            required={true}
+                            registration={register("lastName", {
+                                required: "Please enter valid last name",
+                                pattern: {
+                                    value: AppConstants.VALID_NAME_REGEX,
+                                    message: "Please enter valid last name"
+                                }
+                            })}
+                            errors={errors}
+                            touchedFields={touchedFields}
                         />
                     </div>
                 </div>
-                
                 <div className="row">
                     <div className="col">
-                        <FormInput
-                            id="password"
+                        <ValidatedFormInput
+                            label="Password"
+                            name="password"
                             type="password"
-                            name="Password"
-                            value={formData.password}
-                            onChange={(value) => updateField('password', value)}
-                            onBlur={() => showFieldError('password')}
-                            errorMessage="Password must contain at least 8 characters"
-                            isValid={validation.password}
-                            showError={showErrors.password}
-                            required={true}
+                            registration={register("password", {
+                                required: "Password must contain at least 8 characters",
+                                minLength: {
+                                    value: 8,
+                                    message: "Password must contain at least 8 characters"
+                                }
+                            })}
+                            errors={errors}
+                            touchedFields={touchedFields}
                         />
                     </div>
                     <div className="col">
-                        <FormInput
-                            id="confirmPassword"
+                        <ValidatedFormInput
+                            label="Confirm Password"
+                            name="confirmPassword"
                             type="password"
-                            name="Confirm Password"
-                            value={formData.confirmPassword}
-                            onChange={(value) => updateField('confirmPassword', value)}
-                            onBlur={() => showFieldError('confirmPassword')}
-                            errorMessage="Passwords don't match"
-                            isValid={validation.confirmPassword}
-                            showError={showErrors.confirmPassword}
-                            required={true}
+                            registration={register("confirmPassword", {
+                                required: "Passwords don't match",
+                                validate: value => value === watch("password") || "Passwords don't match"
+                            })}
+                            errors={errors}
+                            touchedFields={touchedFields}
                         />
                     </div>
                 </div>
